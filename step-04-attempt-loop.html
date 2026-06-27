@@ -64,7 +64,7 @@
     <p>되돌이는 강력하지만 위험하다 — 잘못하면 영영 돌며 유료 호출을 끝없이 태운다. 그래서 두 개의 차단기를 둔다.</p>
     <ul>
       <li><b>재시도 한도</b> — 한 턴이 쓸 수 있는 시도 수에 상한을 둔다. 계정 후보가 많을수록 회복할 여지가 크니 상한도 함께 늘어난다(대략 <b>32~160회</b> 사이로 자동 조정). 넘으면 강제 종료하고, 결과를 "<b>막힘(blocked)</b>"으로 표시한다.</li>
-      <li><b>무응답 비용폭주 차단기</b> — 모델이 <b>아무 진척 없이 멈추기만</b> 다섯 번 연속이면 즉시 정지한다.</li>
+      <li><b>무응답 비용폭주 차단기</b> — 모델이 <b>진척(보이는 답·도구 호출) 없이 멈추기만</b> 다섯 번 <b>연속</b>이면 즉시 정지한다. (토큰이 일부 과금돼도 '진척'으로 치지 않는다 — 그게 바로 막으려는 사고다.)</li>
     </ul>
     <p>핵심은 이 카운터가 "시도 하나"가 아니라 "<b>실행 전체</b>"를 가로질러 센다는 것이다. 시도마다 리셋하면 막힌 모델이 매 재시도마다 카운터를 새로 장전해 <b>영영 안 걸린다</b>. 실제로 하트비트 하나가 60초 만에 유료 호출 수백~천여 회를, 사고 한 건에 <b>$20~30</b>을 태운 적이 있었다. 그래서 차단기는 실행 전체를 가로질러 세고, 멈출 땐 망설임 없이 멈춘다.</p>
     <p><b>얻는 것</b> — 회복은 끈질기되, 결코 무한·무한 비용이 아니다. 안전과 비용 한계가 <b>모델의 사고와 무관하게</b> 보장된다. (이 차단기는 <a href="step-03-resolution.html">STEP C</a>에서 장전됐고, 실제로 발동하는 자리가 바로 여기다.)</p>
@@ -77,11 +77,11 @@
       <li><code>run.ts:1885</code> <code>while (true)</code> 어템프트 루프</li>
       <li>한 바퀴: <code>run.ts:1886</code> 한도 가드 · <code>1930</code> 프롬프트(+'이어서' 지시) 조립 · <code>1953</code> <code>buildAgentRuntimePlan</code> · <code>2044</code> 안쪽 시도 디스패치 · <code>2235</code> <code>normalizeEmbeddedRunAttemptResult</code>(분류 입력)</li>
       <li>안쪽 시도 경로: <code>backend.ts:10</code> → <code>harness/selection.ts:300</code> <code>runAgentHarnessAttempt</code> → <code>:325</code> → <code>harness/lifecycle.ts:202</code> → <code>builtin-openclaw.ts</code> → <code>attempt.ts:837</code> <code>runEmbeddedAttempt</code></li>
-      <li>제자리 회복(continue): <code>run.ts:2555</code> 타임아웃 압축(≤2) · <code>2817</code> 넘침 압축(≤3) · <code>2860</code> 도구출력 절단 · <code>3178</code>·<code>3466</code> 계정 회전 · <code>3028</code>·<code>3358</code> 인증 갱신 · <code>3757</code> 추론만→이어서(≤2) · <code>3792</code> 빈 응답→이어서(≤1) · <code>4025</code> 마무리 1회 더(≤3)</li>
-      <li>처방 결정: <code>run.ts:3379</code> <code>resolveRunFailoverDecision</code> (<code>failover-policy.ts:160</code> — 5액션 사다리) · <code>3394</code> <code>handleAssistantFailover</code></li>
-      <li>모델 교체(바깥 겹): <code>FailoverError</code> → <code>model-fallback.ts:724</code> 다음 모델 후보로</li>
+      <li>제자리 회복(continue): <code>run.ts:2555</code> 타임아웃 압축(≤2) · <code>2817</code> 넘침 압축(≤3) · <code>2860</code> 도구출력 절단 · <code>3178</code> 프로필 회전(prompt 단계) · <code>3466</code> 같은 모델 재시도/프로필 회전(<code>handleAssistantFailover</code> 'retry') · <code>3358</code> 인증 갱신 · <code>3757</code> 추론만→이어서(≤2) · <code>3792</code> 빈 응답→이어서(≤1) · <code>4025</code> 마무리 1회 더(≤3)</li>
+      <li>처방 결정: <code>run.ts:3379</code> <code>resolveRunFailoverDecision</code> (<code>failover-policy.ts:7–21</code> 5액션 union — <code>continue_normal·rotate_profile·surface_error·fallback_model·return_error_payload</code>, 단계별 부분집합) · <code>3394</code> <code>handleAssistantFailover</code>(실행) · 던짐 <code>run.ts:3498</code></li>
+      <li>모델 교체(바깥 겹): <code>FailoverError</code> → <code>model-fallback.ts:1333</code> <code>runWithModelFallback</code> · <code>:1406</code> 다음 모델 후보로 (각 후보가 <a href="step-03-resolution.html">해석(STEP C)</a>부터 다시 돈다)</li>
       <li>종료: <code>run.ts:1900</code> 재시도 한도 · <code>2307</code> 비용폭주 차단기(blocked) · <code>4067</code> 정상 종료 → 이후 처리는 <a href="step-17-exit.html">출구(STEP G)</a></li>
-      <li>한도 정의: <code>helpers.ts:106–127</code> (24 + 8×프로필, 32~160) · <code>idle-timeout-breaker.ts:16</code> (연속 5, <code>#76293</code>) · <code>run.ts:1560–1561</code> (압축 2/3) · <code>incomplete-turn.ts:133–134</code> (추론 2·빈 1)</li>
+      <li>한도 정의: <code>helpers.ts:106–127</code> (24 + 8×프로필 후보, 32~160 — <code>runRetries</code> 설정으로 조정 가능) · <code>idle-timeout-breaker.ts:16</code> (연속 5, <code>#76293</code>) · <code>run.ts:1560–1561</code> (압축 2/3) · same-model 재시도 <code>run.ts:250</code> idle 1 · <code>helpers.ts:43</code> rate-limit 3 · <code>incomplete-turn.ts:133–134</code> (추론 2·빈 1)</li>
     </ul>
   </section>
 
