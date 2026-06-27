@@ -14,50 +14,69 @@
     <div class="snum">↯</div>
     <div>
       <div class="sphase">Phase · 디스패치</div>
-      <h1>디스패치 — 모델 호출 + 도구 루프</h1>
+      <h1>디스패치 — 모델을 부르고, 도구 루프를 돈다</h1>
     </div>
   </header>
-  <p class="slead">조립이 끝난 뒤 실제로 <b>모델을 부르는</b> 곳. 모델 호출을 날것으로 던지지 않고 <b>여러 겹 방어막</b>으로 감싼 뒤, 예산을 점검하고 모델 왕복과 내부 도구 루프를 돌린다.</p>
+  <p class="slead">열 단계의 조립이 끝났다. 이제 디스패치 — 준비된 한 턴이 <b>실제로 모델에게 떠나는</b> 곳이다. 그런데 OpenClaw는 모델 호출을 <b>날것으로 던지지 않는다</b>. 호출을 여러 겹 방어막으로 감싸고, 보내기 직전 맥락과 예산을 점검한 뒤, 모델과 도구가 주고받는 <b>되돌이 루프</b>를 돌린다. 그리고 모델이 멈춘 이유를 읽어 다음을 가른다.</p>
 
   <section class="card phase-disp">
-    <h2>무엇을 하나 (순서대로)</h2>
-    <ul>
-      <li><b>① LLM 스트림 다겹 래핑</b> — base streamFn 위에 캐시·thinking 정리·Anthropic 복구·tool-call 정규화/복구·idle-timeout·diagnostic 등을 겹겹이 씌운다.</li>
-      <li><b>② 컨텍스트 조립</b> — 최종 메시지 윈도를 조립(<code>assembleAttemptContextEngine</code>).</li>
-      <li><b>③ pre-prompt 예산 검사</b> — 보내기 직전 컴팩션 결정(<code>shouldPreemptivelyCompactBeforePrompt</code>). 자세히는 <a href="step-16-recovery.html">복구</a>.</li>
-      <li><b>④ 런타임컨텍스트 주입 + 디스패치</b> — 프롬프트/런타임컨텍스트 변환을 설치하고 <code>activeSession.prompt()</code>로 모델 왕복 + <b>내부 도구 호출 루프</b>를 돈다.</li>
-      <li><b>⑤ stop-reason 처리</b> — <code>lastAssistant.stopReason</code>을 읽어 결과를 만들거나 페일오버 결정을 끌어낸다.</li>
-    </ul>
+    <h2>이 단계가 하는 일</h2>
+    <p><b>조립된 한 턴을 실제 모델 호출로 보내고, 모델과 도구가 주고받는 되돌이 루프를 돌려 답을 끌어낸다.</b> 단, 그 모든 호출을 날것이 아니라 여러 겹 방어막으로 감싸, 프로바이더의 결함을 사용자가 모르게 흡수한다.</p>
+    <p>여태의 열 단계는 '<b>무엇을 보낼지</b>'를 차렸다 — 모델, 도구, 프롬프트, 맥락, 열어 둔 세션. 디스패치는 그 준비물을 들고 <b>실제로 모델을 부른다</b>. 여기서 비로소 준비가 행동이 된다 — 모델이 생각하고, 도구를 부리고, 답을 빚는다.</p>
+    <p>그런데 모델을 부르는 일은 단순한 한 번의 왕복이 아니고, 결코 매끄럽지도 않다. 그래서 디스패치는 네 가지를 챙긴다 — <b>① 한 번이 아니라 루프다, ② 어떤 호출도 날것으로 안 간다, ③ 보내기 직전의 마지막 정돈, ④ 멈춤의 이유를 읽는다</b>.</p>
+  </section>
+
+  <section class="card phase-disp">
+    <h2>① 여기서부터 '실행'이다 — 한 번의 호출이 아니라 모델↔도구 루프</h2>
+    <p><b>디스패치는 모델을 한 번 부르고 끝나지 않는다. 모델과 도구가 주고받는 되돌이 — 에이전트의 심장 박동 — 를 한 턴 안에서 돌린다.</b></p>
+    <p>보통 'AI를 부른다'면 질문을 보내고 답을 받는 한 번의 왕복을 떠올린다. 하지만 에이전트는 다르다. 모델은 답하다가 "이 파일을 읽어야겠다", "이 명령을 돌려 봐야겠다"며 <b>도구를 호출</b>한다. 그러면 런타임이 그 도구를 실제로 돌리고(앞서 갖춰 둔 도구들), <b>결과를 모델에게 도로 먹인다</b>. 모델은 그 결과를 보고 다음을 잇는다 — 또 도구를 부르거나, 비로소 답을 맺거나.</p>
+    <p>이 '모델 → 도구 → 결과 → 모델 → …'의 되돌이가 <b>한 턴 안에서</b> 여러 바퀴 돈다. 모델이 더 부를 도구가 없어 최종 답을 내놓을 때까지. 이것이 챗봇과 에이전트를 가르는 지점이다 — 에이전트는 답하기 전에 <b>여러 번 행동하고 관찰</b>할 수 있다.</p>
+    <p>한 가지 구분 — 이건 <b>안쪽</b> 루프다(한 번의 시도 안에서 모델↔도구가 도는). 호출이 통째로 미끄러져 재시도하거나 모델을 갈아끼우는 <b>바깥</b> 루프와는 다르다. 안쪽은 "한 번의 시도를 완수"하고, 바깥은 "시도가 안 되면 갈아탄다". 디스패치가 돌리는 건 안쪽 루프다.</p>
+  </section>
+
+  <section class="card verdict v-nuance">
+    <h2>② 어떤 호출도 날것으로 가지 않는다 — 방어막 겹겹</h2>
+    <p><span class="vtag">경계 엔지니어링</span> <b>루프가 도는 모든 모델 호출은, 그대로 나가지 않고 여러 겹의 방어막을 통과한다.</b> 세션의 호출 함수(streamFn) 위에 약 <b>17겹</b>이 조건부로 쌓이고, 그중 <b>6겹은 어떤 실행에서도 무조건</b> 둘린다.</p>
+    <p>왜 감싸나. 프로바이더의 모델 호출은 온갖 방식으로 미끄러진다 — Claude가 재생된 thinking 블록을 거부하고, 어떤 모델은 도구 이름에 공백을 묻혀 보내고(<code>" read "</code>), 어떤 건 도구 호출 ID 형식이 까다롭고, 거부(refusal)를 낯선 멈춤 이유로 돌려보낸다. 이걸 날것으로 두면 <b>결함 하나에 턴이 깨진다</b>.</p>
+    <p>그래서 호출 함수를 겹겹이 감싼다. 대표적인 겹 — <b>캐시 관측</b>(프롬프트 캐시 적중·무효 기록), <b>메시지 정규화</b>(과거 thinking/reasoning 블록 제거로 히스토리 오염 방지), <b>도구호출 정돈</b>(망가진 이름·ID·인자를 파서 수준에서 흡수), <b>민감 멈춤 복구</b>(모델 거부가 처리 안 된 오류로 새지 않게), <b>유휴 타임아웃</b>(응답이 끊기면 감지), <b>진단</b>(매 호출을 추적). 마지막 여섯 결은 무조건 둘린다.</p>
+    <p>가장 또렷한 예가 Claude의 thinking 거부다. 정책이 허락하면 보내는 메시지에서 thinking을 <b>미리 정리</b>하고, 아니면 thinking 없이 <b>한 번 자동 재시도</b>한 뒤 성공하면 트랜스크립트까지 조용히 수리한다. 실제 코드 주석이 그 사례를 말한다:</p>
+    <p class="quote">"Anthropic Claude endpoints can reject replayed <code>thinking</code> blocks on any follow-up provider call… Sanitize outbound messages where policy allows rewriting; otherwise preserve latest thinking and let the recovery wrapper retry once without it."</p>
+    <p><b>얻는 것</b> — 사용자는 이 결함들을 전혀 모른다. 비법은 프롬프트 마법이 아니라 <b>프로바이더 결함을 흡수하는 경계 엔지니어링</b>이다. (망가진 도구 호출을 살리는 더 깊은 사다리는 <a href="step-16-recovery.html">복구</a>에서 본다.)</p>
+  </section>
+
+  <section class="card phase-disp">
+    <h2>③ 보내기 직전의 마지막 정돈 — 컨텍스트 조립과 예산 점검</h2>
+    <p><b>모델로 떠나기 직전, 보낼 맥락을 최종 조립하고 그 분량이 예산을 넘지 않는지 점검한다.</b></p>
+    <p>먼저 <b>컨텍스트 조립</b> — 기억 엔진(컨텍스트 엔진)이 이번에 실제로 보낼 메시지 묶음을 확정한다. 무엇을 맥락 창 안에 담고 무엇을 접을지 고르고, 필요하면 시스템 프롬프트에 한 조각을 덧댄다. 디스크에 쌓인 긴 기록이 여기서 '이번 호출에 들어갈 분량'으로 추려진다.</p>
+    <p>그다음 <b>예산 점검</b> — 보내기 바로 전, 이 프롬프트가 모델의 맥락 창을 넘칠지 미리 가늠한다. 넘칠 것 같으면 <b>보내기 전에(선제적으로) 압축</b>한다. 실패한 뒤 수습하는 게 아니라, 터지기 전에 미리 줄이는 것이다. <b>얻는 것</b> — 루프가 한 바퀴 돌 때마다 기록은 길어지지만, 매 호출은 늘 '창에 들어맞는' 정돈된 맥락만 받는다. 넘침으로 호출이 깨지는 일이 선제적으로 막힌다. (선제 압축의 자세한 사다리는 <a href="step-16-recovery.html">복구</a>에서 본다.)</p>
+  </section>
+
+  <section class="card phase-disp">
+    <h2>④ 멈춤의 이유를 읽는다 — stop-reason이 다음을 가른다</h2>
+    <p><b>모델↔도구 루프가 멎으면, 모델이 '왜 멈췄는지'(stop-reason)를 읽는다. 그 이유가 이 턴을 끝낼지, 갈아탈 신호를 띄울지 가른다.</b></p>
+    <p>모델은 여러 이유로 멈춘다 — 답을 다 해서, 도구를 부르려고, 거부(민감)해서, 길이 한계에 닿아서, 오류로. 루프가 끝났을 때 마지막 응답에 붙은 이 <b>멈춤의 이유</b>가 결과의 성격을 정한다.</p>
+    <p>깨끗이 맺었으면 그 답을 <b>종결할 결과</b>로 빚고, 무언가 어긋난 멈춤이면 "이걸론 안 된다"는 <b>신호를 바깥으로</b> 띄운다 — 그러면 더 바깥의 드라이버가 재시도·교체로 받는다. 디스패치는 멈춤을 '판정'까지 하고, 그 판정에 따른 회복은 다음 단계의 몫이다. <b>얻는 것</b> — 모델이 어떻게 멈췄든, 그 끝은 늘 <b>다음 행동으로 번역</b>된다. 침묵도, 거부도, 완성도 — 저마다 알맞은 다음으로 이어진다.</p>
   </section>
 
   <section class="card phase-disp ev">
     <h2>코드 위치</h2>
     <ul>
-      <li><code>attempt.ts:2952–3160</code> 스트림 래핑 스택 (base <code>resolveEmbeddedAgentStreamFn</code> :2856 위에)</li>
-      <li><code>attempt.ts:3299–3352</code> 컨텍스트 조립</li>
-      <li><code>attempt.ts:4599–4601</code> <code>shouldPreemptivelyCompactBeforePrompt</code> (pre-prompt 예산)</li>
-      <li><code>attempt.ts:4764–4804</code> 런타임컨텍스트 주입 + <code>activeSession.prompt()</code></li>
-      <li><code>attempt.ts:5532 · 5556</code> stop-reason 처리</li>
+      <li><code>attempt.ts:2952–3173</code> 스트림 다겹 래핑(base <code>streamFn</code> 위에 · 6겹 무조건)</li>
+      <li>대표 겹: <code>:2958</code> 캐시 관측 · <code>:2966</code> thinking/reasoning 제거 · <code>:2983</code> <code>wrapAnthropicStreamWithRecovery</code>(거부된 thinking 복구+수리)</li>
+      <li>무조건 6겹: <code>:3054</code> yield-abort · <code>:3067</code> malformed 정리 · <code>:3073</code> text 승격 · <code>:3077</code> 이름 trim · <code>:3110</code> 민감 stop-reason · <code>:3142</code> diagnostic</li>
+      <li><code>attempt.ts:3306</code> <code>assembleAttemptContextEngine</code> — ③ 컨텍스트 조립(보낼 메시지 창 확정)</li>
+      <li><code>attempt.ts:4594</code> <code>estimateLlmBoundaryTokenPressure</code> · <code>:4601</code> <code>shouldPreemptivelyCompactBeforePrompt</code> — ③ pre-prompt 예산(→ <a href="step-16-recovery.html">복구</a>)</li>
+      <li><code>attempt.ts:3421</code> <code>promptActiveSession</code>(<code>.prompt()</code> 래퍼 — ① 모델↔도구 루프) · <code>:4764</code> <code>installModelPromptTransform</code> · <code>:4784</code> 런타임컨텍스트 주입 · <code>:4780/4792/4797</code> 디스패치 호출</li>
+      <li><code>attempt.ts:5530</code> <code>resolveTerminalAssistantTexts</code> · <code>:5532·5556</code> <code>lastAssistant.stopReason</code> 판정 → 종료/페일오버</li>
     </ul>
   </section>
 
   <section class="card verdict phase-disp">
-    <h2>LLM 경계 — 모델 호출을 감싸는 방어막</h2>
-    <p>이 단계의 하이라이트. 세션의 <code>streamFn</code>(실제 모델 호출 함수)을 <b>조건부로 겹겹이 래핑</b>한다 — base 위에 약 <b>17겹</b>이 쌓이고, 그중 <b>6겹은 무조건</b> 적용된다(yield-abort·malformed 정리·text 승격·이름 trim·민감 stop-reason·diagnostic). 날것의 호출이 아니라 프로바이더 결함을 흡수하는 막을 두른 뒤 모델로 간다.</p>
-    <p>대표적인 겹:</p>
-    <ul>
-      <li><b>캐시 관측</b> — 프롬프트 캐시 적중/무효를 단계별 기록(<code>cacheTrace.wrapStreamFn</code>, attempt.ts:2958).</li>
-      <li><b>메시지 정규화</b> — 과거 메시지에서 <code>thinking</code>/<code>reasoning</code> 블록 제거, 히스토리 오염 방지(attempt.ts:2966).</li>
-      <li><b>Anthropic 복구</b> — Claude 엔드포인트가 재생된 <code>thinking</code> 블록을 거부하면, thinking 없이 <b>1회 재시도</b>하고 성공 시 트랜스크립트를 자동 수리(attempt.ts:2983).</li>
-      <li><b>도구호출 정규화/복구</b> — 망가진 tool-call을 파서 수준에서 흡수 → <a href="step-16-recovery.html">복구</a>.</li>
-    </ul>
-  </section>
-
-  <section class="card verdict phase-disp">
-    <h2>왜 이게 품질을 지키나</h2>
-    <p>날것 래퍼라면 프로바이더 결함 하나에 턴이 깨진다. 실제 <code>attempt.ts</code> 주석이 그 사례를 말한다:</p>
-    <p style="font-style:italic; color:var(--tx-dim); border-left:2px solid var(--coral); padding-left:12px">"Anthropic Claude endpoints can reject replayed <code>thinking</code> blocks on any follow-up provider call… Sanitize outbound messages where policy allows rewriting; otherwise preserve latest thinking and let the recovery wrapper retry once without it."</p>
-    <p>OpenClaw는 정책 기반 정규화 + 자동 재시도 + 트랜스크립트 수리로 <b>사용자가 모르게</b> 넘어간다. 비법은 프롬프트 마법이 아니라, <b>프로바이더 결함을 흡수하는 경계 엔지니어링</b>이다.</p>
+    <h2>큰 그림 — '경계'를 메워 모델을 지킨다</h2>
+    <p>디스패치는 사다리에서 준비가 <b>행동</b>으로 바뀌는 자리다. 앞의 모든 조립은 이 한 번의 루프를 위한 것이었고, 여기서 모델이 실제로 생각하고 도구를 부리며 답을 빚는다. 그리고 그 답은 한 번의 왕복이 아니라, 모델과 도구가 여러 바퀴 주고받아 빚어진다.</p>
+    <p>이 단계가 "감쌌는데 품질이 안 깨진다"에 보태는 몫은 <b>경계 엔지니어링</b>이다 — 모델로 가는 모든 호출을 방어막으로 감싸, 프로바이더의 변덕과 결함을 사용자가 모르게 흡수한다. 모델의 사고는 그대로 두고, 그 사고가 오가는 <b>경계만</b> 빈틈없이 메운다. 더 똑똑한 프롬프트가 아니라, 좋은 모델이 어디서나 끝까지 제 일을 하도록 받치는 막이다.</p>
+    <p>결정적으로, 이 모든 방어를 <b>모델은 모른다</b>. thinking이 정리됐는지, 도구 이름이 trim됐는지, 호출이 한 번 재시도됐는지 — 모델은 그저 깨끗한 한 번의 왕복을 받아 자기 일을 할 뿐이다. 지저분한 흡수는 전부 껍데기의 몫이다.</p>
+    <p><b>이 단계의 끝</b> — 모델↔도구 루프가 멎었고, 멈춤의 이유가 읽혔다. 그 판정을 들고, 살릴 수 있으면 가장 싸게 살리는 <a href="step-16-recovery.html">복구</a>로 넘어간다.</p>
   </section>
 
   <nav class="stepnav">

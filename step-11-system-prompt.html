@@ -8,47 +8,76 @@
 </head>
 <body>
 <div class="wrap">
-  <nav class="crumb"><a href="index.html">← 런타임 사다리</a><span class="pos">조립 7/10 · 어템프트 루프</span></nav>
+  <nav class="crumb"><a href="index.html">← 런타임 사다리</a><span class="pos">조립 7/10 · system-prompt</span></nav>
 
   <header class="shead phase-asm">
     <div class="snum">7</div>
     <div>
       <div class="sphase">조립 10단계 · prepStages</div>
-      <h1>system-prompt</h1>
+      <h1>system-prompt — 모든 조각이 한 글로 모이는 합류점</h1>
     </div>
   </header>
-  <p class="slead">시스템 프롬프트를 만든다. 핵심은 <b>덮어쓰지 않고 변환</b>한다는 것 — base + provider 변환의 <b>2단 구조</b>.</p>
+  <p class="slead">이 단계는 모델이 대화를 읽기 전에 가장 먼저 받는 글 — <b>시스템 프롬프트</b>를 짓는다. 핵심이 둘이다. 하나, 이 글은 앞선 모든 조립 단계가 빚어 둔 조각들이 <b>한데 모이는 합류점</b>이다. 둘, OpenClaw는 이 글을 모든 모델에 똑같이 들이밀지 않는다 — 한 벌의 base를 짓되, <b>프로바이더가 자기 모델에 맞게 변환</b>하도록 내준다. 덮어쓰지 않고, 변환한다.</p>
 
   <section class="card phase-asm">
-    <h2>무엇을 하나</h2>
-    <ul>
-      <li>런타임 파라미터를 빌드(<code>buildSystemPromptParams</code>).</li>
-      <li>시스템 프롬프트 <b>pair</b>를 빌드(<code>buildAttemptSystemPrompt</code>) + 리포트 생성.</li>
-      <li>결과: <code>{ baseSystemPrompt, systemPrompt }</code> — base는 보존, provider용은 변환본.</li>
-    </ul>
+    <h2>이 단계가 하는 일</h2>
+    <p><b>앞 단계가 만든 조각들을 한 편의 시스템 프롬프트로 엮고, 그 base를 프로바이더가 자기 모델에 맞게 변환하게 한다.</b> 모델이 대화를 읽기 전에 자기 처지와 수칙을 먼저 알도록, 하나의 '브리핑'을 차린다.</p>
+    <p>지금까지의 조립은 제각기 다른 조각을 따로 빚어 왔다 — 이번 턴의 도구, 붙은 스킬, 정체성·규칙을 담은 맥락 파일, 작업 공간 경계. 이 조각들은 아직 흩어져 있다. 모델은 이것들을 <b>한 편의 글</b>로 받아야 비로소 "나는 이런 에이전트이고, 이런 환경에서, 이런 손을 들고, 이런 규칙 아래 일한다"를 안다. 이 단계가 그 글을 짓는다.</p>
+    <p>그런데 글을 짓는 방식에 OpenClaw의 성격이 박혀 있다. 어설픈 래퍼라면 모델이 무엇이든 <b>자기 프롬프트로 통째로 덮어써</b> 모델 고유의 결을 뭉갠다. OpenClaw는 그러지 않는다 — base를 짓되 <b>프로바이더가 변환</b>하게 두고, 원본 base는 따로 간직한다. 아래 네 가지로 본다 — <b>① 시스템 프롬프트란, ② 여기가 합류점이다, ③ 덮어쓰지 않고 변환한다, ④ base를 따로 간직하는 이유</b>.</p>
   </section>
 
   <section class="card phase-asm">
-    <h2>2단 변환 구조</h2>
+    <h2>① 시스템 프롬프트 — 대화 이전에 건네는 '상시 수칙 + 상황 브리핑'</h2>
+    <p><b>시스템 프롬프트는 사용자의 첫 메시지보다 앞서 모델이 읽는, 이 턴의 근무 수칙이자 상황 브리핑이다.</b></p>
+    <p>사용자의 말이 '<b>무엇을 해달라</b>'라면, 시스템 프롬프트는 그 말을 어떻게 처리할지의 바탕이다. 거기엔 네 결의 정보가 담긴다 — <b>너는 누구인가</b>(정체성·지켜야 할 규칙), <b>지금 어디서 도는가</b>(어떤 기계·OS·모델·현재 시각·채널), <b>무슨 손을 쥐고 있나</b>(쓸 수 있는 도구와 스킬), <b>무엇에 갇혀 있나</b>(작업 공간·샌드박스의 한계).</p>
+    <p>이게 없으면 모델은 매 턴 백지에서 자기 처지를 추측해야 한다 — 어떤 도구가 있는지, 지금이 몇 시인지, 무엇을 건드리면 안 되는지. 잘 차린 시스템 프롬프트는 그 추측을 없앤다. 모델은 헤매지 않고 곧장 제 일을 시작한다.</p>
+  </section>
+
+  <section class="card phase-asm">
+    <h2>② 여기가 합류점이다 — 앞 단계의 조각이 한 글로</h2>
+    <p><b>이 단계는 새 정보를 거의 만들지 않는다. 대신 앞선 조립 단계들이 따로 빚어 둔 조각을 모아 하나의 글로 엮는다.</b> 사다리의 여러 갈래가 비로소 한 줄기로 합치는 자리다.</p>
+    <p>여기로 모이는 것들 — 이번 턴의 <b>도구 목록</b>(안에서 만든 것과 바깥에서 끌어온 것), 붙은 <b>스킬 카탈로그</b>, <b>맥락 파일</b>(정체성·규칙·사용자·기억), <b>런타임 환경</b>(기계·OS·모델·셸·채널·현재 시각), <b>샌드박스 한계</b>, <b>작업 공간 알림</b>, 그리고 프로바이더가 따로 보탠 <b>프롬프트 조각</b>까지. 흩어져 있던 모든 게 여기서 '모델이 읽을 한 편의 글'로 합쳐진다.</p>
+    <p>그래서 이 단계는 조립의 <b>결산</b>에 가깝다 — 앞에서 무엇을 갖췄든, 그게 실제로 모델에게 닿으려면 이 글에 엮여 들어와야 한다. <b>한 가지 적응</b> — 도구를 좁게 제한한 실행은 더 가벼운(minimal) 프롬프트를 받고 스킬 카탈로그도 뺀다. 좁은 일에는 짧은 브리핑으로 족하다.</p>
+  </section>
+
+  <section class="card verdict v-nuance">
+    <h2>③ 덮어쓰지 않고 변환한다 — base + provider 2단</h2>
+    <p><span class="vtag">2단 변환</span> <b>한 벌의 base 프롬프트를 짓되, 그걸 모든 모델에 똑같이 들이밀지 않는다 — 프로바이더가 자기 모델에 맞게 변환한 뒤 내보낸다.</b></p>
+    <p><b>1단 (base).</b> 먼저 ②의 조각들을 엮어 OpenClaw 소유의 <b>base 프롬프트</b> 한 벌을 짓는다. 이건 어느 모델로 가든 공통인 '운영 맥락'이다.</p>
+    <p><b>2단 (provider 변환).</b> 그다음, 그 base를 <b>통째로 프로바이더 훅에 입력으로</b> 넘긴다. 훅은 자기 모델의 결에 맞게 base를 다듬어 돌려준다. 결정적인 점 — <b>훅이 없으면 base가 그대로 통과한다.</b> 기본값이 '손대지 않음'이라는 뜻이다. 프로바이더는 꼭 필요할 때만 변환에 끼어들 뿐, 결코 처음부터 다시 쓰지 않는다. 언제나 <b>base 위에 얹을</b> 뿐이다.</p>
+    <p><b>raw 실행 존중.</b> 모델을 '맨몸'으로 부르는 실행(수칙 없이 모델 자체를 시험하는 경우)이면, 변환본을 아예 <b>빈 글</b>로 낸다. OpenClaw의 어떤 운영 수칙도 모델의 기본 동작을 가리지 못하게.</p>
+    <p><b>얻는 것</b> — 어설픈 래퍼의 전형적 실패, 즉 모델·프로바이더를 가리지 않고 프롬프트를 <b>강제로 덮어쓰는</b> 일을 피한다. base는 공통의 운영 맥락을 주고, 변환은 각 모델을 존중한다. 운영 맥락을 얹되 모델의 사고는 가리지 않는 — "감쌌는데도 품질이 안 깨지는" 가장 구체적인 장치다.</p>
+  </section>
+
+  <section class="card phase-asm">
+    <h2>④ base를 따로 간직하는 이유 — 한 쌍으로 들고 다닌다</h2>
+    <p><b>이 단계가 내놓는 건 글 하나가 아니라 한 쌍이다 — 변환 전 <code>base</code>와 변환 후 <code>systemPrompt</code>.</b> 모델에 실제로 가는 건 변환본이지만, 원본 base도 버리지 않는다.</p>
+    <p>왜 둘 다 들고 다니나, 두 가지 쓸모 때문이다:</p>
     <ul>
-      <li><b>1단(base):</b> <code>buildEmbeddedSystemPrompt(...)</code> — OpenClaw 소유 베이스 프롬프트.</li>
-      <li><b>2단(provider 변환):</b> <code>transformProviderSystemPrompt({ context: { systemPrompt: baseSystemPrompt } })</code> — 프로바이더 훅이 <b>base를 입력으로 받아</b> 모델 특성에 맞게 변환본을 반환.</li>
-      <li><b>raw 실행 존중:</b> <code>isRawModelRun</code>이면 provider 프롬프트를 <b>빈 문자열</b>로 보내 모델 기본 동작을 가리지 않는다. base는 진단·프롬프트 캐시 경계용으로 보존.</li>
+      <li><b>진단</b> — "이번 턴에 무엇을 보냈나"를 들여다보려면, 프로바이더가 손대기 전의 '날것'이 필요하다. 이 단계는 그 base로 <b>진단 리포트</b>도 함께 만든다 — 어떤 도구·맥락 파일·스킬이 들어갔는지를 그대로 기록해, 나중에 들춰 볼 수 있게.</li>
+      <li><b>캐시 경계</b> — 프롬프트 캐시는 글의 <b>앞부분이 그대로일 때만</b> 재사용된다. 변환본은 모델마다 흔들릴 수 있으니, 안정된 base가 "여기까지는 똑같다"를 가르는 <b>기준점</b>이 된다.</li>
     </ul>
+    <p>그래서 raw 실행처럼 변환본이 비어 있어도 base는 남긴다 — 진단과 캐시 경계는 변환과 무관하게 늘 필요하니까. <b>얻는 것</b> — 모델에는 군더더기 없는 변환본만 가면서도, 운영자는 무엇이 조립됐는지 또렷이 보고, 캐시는 안정된 기준 위에서 재사용된다.</p>
   </section>
 
   <section class="card phase-asm ev">
     <h2>코드 위치</h2>
     <ul>
-      <li><code>attempt.ts:2089</code> <code>prepStages.mark</code> (시스템 프롬프트 완료 지점)</li>
-      <li><code>attempt.ts:1919</code> <code>buildSystemPromptParams</code> · <code>attempt.ts:1994</code> <code>buildAttemptSystemPrompt</code></li>
-      <li><code>attempt-system-prompt.ts:39–59</code> 2단 변환 본체 (<code>{ baseSystemPrompt, systemPrompt }</code> pair 반환)</li>
+      <li><code>attempt.ts:1919</code> <code>buildSystemPromptParams</code> — 런타임 환경 정보(기계·OS·모델·시각·채널) · <code>:1948</code> 좁은 실행 → <code>minimal</code> 프롬프트·스킬 제외</li>
+      <li><code>attempt.ts:1981</code> <code>promptContribution</code> — 프로바이더·런플랜이 보탠 프롬프트 조각</li>
+      <li><code>attempt.ts:1994</code> <code>buildAttemptSystemPrompt</code> — 2단 변환 실행 · <code>:2001–2041</code> base 재료(도구·스킬·맥락·환경) · <code>:2042–2057</code> 변환 입력</li>
+      <li><code>attempt.ts:2060</code> <code>buildSystemPromptReport</code> — base로 진단 리포트 · <code>:2088</code> 변환본을 실제 프롬프트로 · <code>:2089</code> <code>prepStages.mark("system-prompt")</code></li>
+      <li>2단 본체: <code>attempt-system-prompt.ts:39</code> <code>buildAttemptSystemPrompt</code> · <code>:42</code> <code>buildEmbeddedSystemPrompt</code>(1단 base) · <code>:43–53</code> raw→빈 글 / 아니면 base를 입력으로 변환 · <code>:55–58</code> <code>{ baseSystemPrompt, systemPrompt }</code> 쌍 반환</li>
+      <li>base 엮기: <code>system-prompt.ts:22</code> <code>buildEmbeddedSystemPrompt</code> → <code>buildConfiguredAgentSystemPrompt</code>(도구명·스킬·맥락·환경·시각·메모리 섹션)</li>
+      <li>변환 훅: <code>provider-runtime.ts:270</code> <code>transformProviderSystemPrompt</code> · <code>:284</code> <code>plugin.transformSystemPrompt ?? base</code>(훅 없으면 그대로 통과)</li>
     </ul>
   </section>
 
   <section class="card verdict phase-asm">
-    <h2>왜 이게 품질을 지키나</h2>
-    <p>어설픈 래퍼의 전형적 실패는 <b>모델/프로바이더 무관하게 프롬프트를 강제 덮어쓰는</b> 것이다. OpenClaw는 베이스를 만들되 프로바이더 변환 훅을 거치고, raw 실행은 아예 비워 모델을 존중한다. 모델의 사고를 가리지 않으면서 자기 운영 맥락만 얹는 첫 번째 구체적 장치다.</p>
+    <h2>큰 그림 — 합류점이자, 품질을 지키는 첫 구체적 장치</h2>
+    <p>한 걸음 물러나 보면, 이 단계는 두 얼굴을 가진다. 하나는 <b>합류점</b> — 도구·스킬·맥락·환경, 앞에서 따로 빚은 모든 조각이 여기서 '모델이 읽을 한 편의 글'로 합쳐진다. 사다리의 흩어진 갈래가 한 줄기로 모이는 자리다.</p>
+    <p>다른 하나는 <b>존중의 장치</b> — 그 글을 모든 모델에 똑같이 강요하지 않는다. base로 공통의 운영 맥락을 주되, 프로바이더 변환으로 각 모델의 결을 존중하고(훅이 없으면 손대지 않고), raw 실행은 아예 비운다. 운영 맥락은 얹되 모델의 사고는 가리지 않는다 — "좋은 하네스를 한 겹 더 감쌌는데 품질이 안 깨지는" 이유가, 프롬프트라는 가장 민감한 자리에서 이렇게 드러난다.</p>
+    <p><b>이 단계의 끝</b> — 모델이 읽을 시스템 프롬프트(변환본)가 정해졌고, 진단과 캐시 경계를 위한 base도 손에 들렸다. 이 한 쌍을 들고 다음 조립 단계로 넘어간다.</p>
   </section>
 
   <nav class="stepnav">

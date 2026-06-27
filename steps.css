@@ -48,6 +48,9 @@ code{font-family:var(--mono); font-size:12.5px; color:var(--roe); background:#ff
 /* evidence list (file:line) */
 .ev li code{color:var(--brine); background:#58a6ff12; border-color:#58a6ff2e; margin-right:4px}
 
+/* source quote (verbatim code comment) */
+.card p.quote{font-style:italic; color:var(--tx-dim); border-left:2px solid var(--coral); padding-left:13px; margin-left:2px}
+
 /* verdict box */
 .verdict{border-left:3px solid var(--tone,var(--shell))}
 .v-ok{--tone:var(--kelp)} .v-nuance{--tone:var(--roe)} .v-fix{--tone:var(--pink)}

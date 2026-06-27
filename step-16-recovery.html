@@ -14,132 +14,84 @@
     <div class="snum">⟳</div>
     <div>
       <div class="sphase">Phase · 복구 (지속 가능성 껍데기)</div>
-      <h1>복구 — 페일오버 · 컴팩션 · 재생안전</h1>
+      <h1>복구 — 실패를 흡수하고, 긴 대화를 지탱한다</h1>
     </div>
   </header>
-  <p class="slead">모델은 수십 가지로 실패하고, 긴 세션은 컨텍스트가 넘친다. OpenClaw는 <b>실패 종류마다 다른 복구</b>를 두고, <b>요약은 최후에·요약마저 감사</b>하며, <b>부수효과가 있으면 재생을 막는다</b>. 모델의 사고를 건드리지 않고 신뢰성·지속성을 더하는 운영 계층이다.</p>
+  <p class="slead">모델은 수십 가지로 실패하고, 긴 세션은 맥락이 넘친다. 복구는 그 모두를 흡수하는 층이다 — <b>실패 모양마다 가장 싼 처방</b>을 두고, <b>요약은 최후에·요약마저 감사</b>하며, <b>부수효과가 있으면 재생을 막는다</b>. 끈질기되, 비싸지도 망가뜨리지도 않게. 모델의 사고를 건드리지 않고 신뢰성·지속성을 더하는 운영 계층이다.</p>
 
   <section class="card phase-rec">
-    <h2>위치 — 안쪽 복구 vs 바깥쪽 복구</h2>
-    <ul>
-      <li><b>안쪽(스트림 후처리):</b> 도구호출/stop-reason 복구는 모델 출력 스트림을 감싸 한 호출의 출력을 고친다 (<a href="step-15-dispatch.html">디스패치</a>의 래핑 스택).</li>
-      <li><b>바깥쪽(루프):</b> 페일오버 사다리·컴팩션·재생안전은 어템프트가 끝난 뒤 <code>run.ts</code>에서 "다시 돌릴지/어떻게"를 결정한다.</li>
-    </ul>
+    <h2>이 단계가 하는 일</h2>
+    <p><b>한 번의 모델 호출이 미끄러지거나 대화가 너무 길어졌을 때, 그 턴을 가장 싸게 살려 내고 — 살릴 수 없으면 깔끔한 신호만 남긴다.</b> 그러면서 복구가 또 다른 문제(중복 전송·맥락 오염)를 만들지 않게 단속한다.</p>
+    <p>복구는 두 높이에서 일어난다. <b>안쪽</b>은 한 번의 모델 호출이 토해 낸 출력을 그 자리에서 고치는 일이다 — 망가진 도구 호출이나 낯선 멈춤 이유를 스트림을 감싸 흡수한다(<a href="step-15-dispatch.html">디스패치</a>의 래핑이 그 자리다). <b>바깥</b>은 한 번의 시도가 끝난 뒤 "다시 돌릴지, 돌린다면 어떻게"를 정하는 일이다. 이 페이지는 주로 바깥쪽 — 시도와 시도 사이의 판단 — 을 본다.</p>
+    <p>그 판단을 관통하는 세 가지 규율을 차례로 본다 — <b>① 실패엔 모양이 있다(가장 싼 처방부터), ② 터지기 전에 줄인다(가장 적게 잃도록), ③ 요약마저 믿지 않는다, ④ 복구가 새 문제를 만들지 않게</b>.</p>
   </section>
 
   <section class="card phase-rec">
-    <h2>실패 → 복구 지도</h2>
-    <p>각 실패 모드에 <b>대응 복구</b>가 따로 있다:</p>
+    <h2>① 실패엔 모양이 있고, 모양마다 가장 싼 처방이 있다</h2>
+    <p><b>복구는 실패를 모양별로 분류해, 살릴 가장 싼 처방부터 시도한다. 안 되면 한 단계씩 비싼 처방으로 올라가고, 한 단계가 풀면 거기서 멈춘다(단조 증가).</b></p>
+    <p>왜 모양별인가. 잠깐의 속도 제한과 만료된 인증과 죽은 모델은 전혀 다른 문제다. 같은 처방으로 뭉뚱그리면, 잠깐 기다리면 될 일에 모델을 통째로 갈아끼우는 낭비가 나거나, 갈아끼워야 할 일을 제자리에서 헛되이 두드린다. 그래서 실패의 모양을 먼저 읽는다.</p>
+    <p>처방의 사다리, 싼 것에서 비싼 것 순으로:</p>
     <ul>
-      <li><b>⏳ 단기 레이트리밋</b> → 같은 모델 재시도(<code>maybeRetrySameModelRateLimit</code>), 길면 프로필/모델로 에스컬레이션.</li>
-      <li><b>🔥 과부하(overload)</b> → 백오프 후 프로필 회전(<code>overloadProfileRotationLimit</code>까지), 넘으면 모델 폴백.</li>
-      <li><b>🔑 인증/결제 실패</b> → 프로필 표시 후 다음 프로필로(<code>advanceAuthProfile</code>); 결제는 자격 모드별 안내 분기.</li>
-      <li><b>💤 무응답 행(idle hang)</b> → idle 워치독이 끊고 같은 모델 1회 재시도(<code>same_model_idle_timeout</code>).</li>
-      <li><b>❓ Unhandled stop reason</b> → 안정적 오류 메시지로 재작성(동기/비동기/iterator/result 4경로).</li>
-      <li><b>🫥 추론만/빈 응답</b> → "이어서" 재시도(추론 ≤2회, 빈 응답 ≤1회).</li>
-      <li><b>🧩 망가진 도구 호출</b> → 인자 파싱 복구(여러 방언).</li>
-      <li><b>🛑 복구 불가(한도 소진)</b> → 재생 안전하면 <code>FailoverError</code>로 모델 전환, 아니면 오류 페이로드.</li>
+      <li><b>그대로 진행</b> — 무시 가능한 일시적 결함이면, 아무것도 안 바꾸고 다음으로.</li>
+      <li><b>같은 모델로 한 번 더</b> — 단기 속도 제한이나 잠깐의 응답 끊김(유휴)이면, 모델도 계정도 안 바꾸고 제자리 재시도.</li>
+      <li><b>계정을 바꿔</b> — 인증이 막혔거나 과부하면, 다른 인증 프로필로 회전(과부하는 백오프 뒤, 회전 한도까지).</li>
+      <li><b>모델을 갈아끼움</b> — 그 모델론 도저히 안 되면, "안 된다"는 신호를 바깥으로 던져 다음 모델로.</li>
+      <li><b>포기·표시</b> — 복구가 소진되면, 안정적인 오류로 종결.</li>
     </ul>
+    <p>한 가지 정확히 — 공식 '결정'은 <b>다섯 액션</b> 중 하나를 고른다: <code>continue_normal</code> · <code>rotate_profile</code> · <code>surface_error</code> · <code>fallback_model</code> · <code>return_error_payload</code>. 위의 '<b>같은 모델로 한 번 더</b>'는 별개의 결정 액션이 아니라, <b>'계정 회전'을 실행하는 길목에서 먼저 시도되는 더 싼 수</b>다. 그리고 '모델 교체'만은 이 안쪽 루프가 직접 하지 않고 <b>신호를 바깥 드라이버에 넘긴다</b> — 가벼운 회복은 안에서, 무거운 회복은 밖에서.</p>
+    <p>특별한 모양 하나 — "<b>끝났는데 답이 없는</b>" 턴이다. 모델이 추론만 적고 보이는 답을 안 냈거나(최대 <b>2회</b>), 아예 빈 응답이면(최대 <b>1회</b>), 가장 싼 처방은 "<b>그 부분 턴에서 이어서 답을 내라 — 반복·재시작 금지</b>" 지시를 덧대 다시 부르는 것이다. 처음부터 다시 시키지 않으니 부분 진행이 살고, '재시작 금지'가 같은 작업을 무한 반복하는 걸 막는다. (또 흔한 모양 — 망가진 도구 호출 — 은 더 안쪽, 스트림 경계에서 파서가 흡수한다.)</p>
+  </section>
+
+  <section class="card verdict v-nuance">
+    <h2>② 터지기 전에 줄인다 — 가장 적게 잃도록</h2>
+    <p><span class="vtag">선제 컴팩션</span> <b>긴 대화는 언젠가 맥락 창을 넘친다. 복구는 넘치고 나서 수습하지 않고, 넘치기 전에 미리 재서 줄인다 — 그것도 가장 적게 잃는 방식으로.</b></p>
+    <p>먼저 <b>정직하게 잰다</b>. 어림짐작이 아니라 프로바이더 경계에서 실제로 렌더된 토큰 수를 쓰고, 윈도잉으로 추린 것과 안 추린 전체를 모두 가늠해 <b>더 큰 값</b>을 택한다 — 과소평가로 결국 터지는 걸 막으려고. 예약 토큰이 아무리 커도 사용자 프롬프트 몫의 최소 예산은 사수한다.</p>
+    <p>그리고 <b>곧장 요약하지 않는다</b>. 요약은 대화의 추론을 손상시키니, 가능하면 피한다. 압력에 따라 네 갈래로 갈린다:</p>
+    <ul>
+      <li><b>fits</b> — 안 넘침, 그대로 (손실 0).</li>
+      <li><b>truncate_tool_results_only</b> — 줄일 도구 출력이 넘침을 넉넉히 웃돌면(임계 = <code>max(넘침+512토큰, 넘침×1.5)</code>), <b>요약 없이 도구 출력만 절단</b> (대화 무손실).</li>
+      <li><b>compact_then_truncate</b> — 절단만으론 부족하면, 요약 + 절단 (부분 요약).</li>
+      <li><b>compact_only</b> — 줄일 도구 출력이 없으면, 요약이 유일한 길 (요약 필수).</li>
+    </ul>
+    <p>절단·요약과 별개로, 토큰 압력 아래 오래된 무거운 내용(이미지 등)은 가지치되 흔적은 남긴다(<code>[image removed during context pruning]</code>). 그리고 <b>첫 사용자 메시지 이전 — 초기 시스템·부트스트랩 맥락 — 은 절대 가지치지 않는다</b>. <b>얻는 것</b> — 대화는 수백 턴을 가도 창을 안 터뜨리고, 줄여야 할 때도 대화의 사고가 아니라 부피 큰 도구 출력부터 깎는다. 손실은 늘 최소다.</p>
   </section>
 
   <section class="card phase-rec">
-    <h2>① 페일오버 5액션 사다리 — 가벼운 것부터</h2>
-    <p>실패는 5개 액션 중 하나로 매핑된다. 운영 흐름은 싼 복구 → 비싼 종결로 <b>단조 증가</b>한다 — 한 단계가 풀면 거기서 멈춘다.</p>
-    <ul>
-      <li><b>1 · continue_normal</b> — 일시적·무시 가능, 그대로 진행 (최저 비용)</li>
-      <li><b>2 · retry (same model)</b> — idle/단기 레이트리밋, 모델·프로필 안 바꾸고 1회 (제자리 복구)</li>
-      <li><b>3 · rotate_profile</b> — 인증 프로필 회전, 다른 자격증명으로 (계정 전환)</li>
-      <li><b>4 · fallback_model</b> — <code>FailoverError</code> 던져 외부 루프가 폴백 모델로 (모델 전환)</li>
-      <li><b>5 · surface_error / return_error_payload</b> — 복구 소진, 안정적 오류 표시 (종결)</li>
-    </ul>
-    <ul class="ev">
-      <li><code>failover-policy.ts:7–21</code> 5-액션 union · <code>:160–239</code> <code>resolveRunFailoverDecision</code> (단계별 허용 액션을 <code>Extract&lt;&gt;</code>로 좁힘)</li>
-      <li><code>assistant-failover.ts:122</code> <code>handleAssistantFailover</code> — 프로필 회전·과부하 백오프·same-model 재시도·폴백 신호·결제 분기를 한 함수가 소유</li>
-      <li><code>run.ts:3379</code> 결정 · <code>run.ts:3394</code> 호출</li>
-    </ul>
+    <h2>③ 요약마저 믿지 않는다 — 생성 · 감사 · 폴백</h2>
+    <p><b>요약이 불가피할 때조차, 모델이 만든 요약을 그대로 싣지 않는다 — 생성한 뒤 품질을 감사하고, 미달이면 안전한 대체본으로 떨어진다.</b></p>
+    <p>왜. 요약은 긴 과거를 압축하는데, 그 요약이 핵심을 빠뜨리거나 식별자를 변형하면 <b>이후 모든 턴이 잘못된 과거 위에서</b> 돈다. 압축의 마지막 보루를 모델의 변덕에 통째로 맡길 수는 없다.</p>
+    <p>그래서 세 겹으로 감사한다 — <b>①</b> 필수 다섯 섹션(<code>결정</code> · <code>미해결 할 일</code> · <code>제약/규칙</code> · <code>대기 중인 사용자 요청</code> · <code>정확한 식별자</code>)이 다 있나? <b>②</b> ID·URL·경로·포트·해시·날짜 같은 정확한 식별자가 그대로 보존됐나? <b>③</b> 최신 사용자 요청이 반영됐나? (운영자가 커스텀 지시문을 넣으면 인젝션 방어막으로 감싼다.)</p>
+    <p>감사에 미달이면, <b>깨진 요약은 절대 싣지 않는다</b> — 유효했던 이전 요약을 재사용하거나, 다섯 섹션 골격으로 떨어진다. 길이도 ~800자(~200토큰)로 묶는다. <b>얻는 것</b> — 긴 대화의 '기억'이 조용히 오염되는 일을 막는다. 요약을 쓰되, 요약을 맹신하지 않는다.</p>
   </section>
 
-  <section class="card phase-rec">
-    <h2>② 불완전 턴 복구 — "이어서, 재시작 금지"</h2>
-    <p>"끝났지만 답이 없는" 턴을 종류별로 다르게 재시도한다:</p>
-    <ul>
-      <li><b>추론만 한 턴:</b> 최대 <b>2회</b> — <i>"추론은 기록했지만 보이는 답이 없다. 그 부분 턴에서 <b>이어서</b> 답을 내라. 반복·재시작 금지."</i></li>
-      <li><b>빈 응답:</b> 최대 <b>1회</b> — 마찬가지로 "현재 상태에서 이어서, 처음부터 재시작 금지".</li>
-      <li>"이어서/재시작 금지" 명시가 모델이 같은 작업을 반복하거나 루프에 빠지는 걸 막고 부분 진행을 살린다.</li>
-    </ul>
-    <ul class="ev"><li><code>incomplete-turn.ts:133</code> 분류·재시도 지시 (종료 판정은 <a href="step-17-exit.html">출구</a>에서)</li></ul>
+  <section class="card verdict v-nuance">
+    <h2>④ 복구가 새 문제를 만들지 않게 — 재생 안전성</h2>
+    <p><span class="vtag">재생 안전</span> <b>재시도는 강력하지만 위험하다. 이미 메시지를 보냈거나 세션을 띄웠거나 예약을 기록한 턴을 그대로 다시 돌리면 중복이 난다. 그래서 재시도 전에 "재생해도 안전한가"를 부수효과 증거로 판정한다.</b></p>
+    <p>이 한 줄이 핵심이다 — <b>재생 안전 = 재생이 무효가 아니고 그리고 부수효과 흔적도 없을 때</b>. 재생 금지 증거란 이런 것들이다: 읽기 전용이 아닌(부수효과 가능) 도구를 썼거나, 비동기 작업을 시작했거나, 메시지를 전송했거나, 세션 spawn이 수락됐거나, cron 기록이 성공했거나. <b>하나라도</b> 있으면 재생을 막는다.</p>
+    <p>그리고 <b>보수적으로 닫는다(fail-closed)</b> — 안전을 증명할 메타데이터가 없는 옛 시도는 기본적으로 '재생 위험'으로 본다. 모르면, 재생하지 않는다.</p>
+    <p>왜 이게 비법인가. 대부분의 재시도 구현은 <b>멱등성을 무시하고 그냥 다시 돌린다</b> — 그러면 같은 메시지가 두 번 가고, 같은 작업이 두 번 실행된다. OpenClaw는 안전할 때만 재생하고, 안전할 때만 모델을 바꿔 다시 시도한다. <b>얻는 것</b> — 끈질긴 복구와 '부작용 없음'이 양립한다. 사용자는 복구의 흔적도, 복구가 부를 뻔한 중복도 보지 못한다.</p>
   </section>
 
-  <section class="card phase-rec">
-    <h2>③ 선제적 컴팩션 — 보내기 전에 압력을 잰다 + 4-루트</h2>
-    <p>넘치기 <b>전에</b> 실측 기반으로 압력을 재고, 곧장 요약하지 않고 <b>손실 최소 루트</b>를 고른다.</p>
+  <section class="card phase-rec ev">
+    <h2>코드 위치</h2>
     <ul>
-      <li><b>실측 우선:</b> 추정이 아닌 렌더된 프로바이더 경계의 실제 토큰 수를 쓴다.</li>
-      <li><b>과소평가 방지:</b> 윈도잉된 것과 안 된(unwindowed) 전체를 모두 추정해 <b>더 큰 값</b> 채택.</li>
-      <li><b>프롬프트 몫 사수:</b> 예약(<code>reserveTokens</code>)이 커도 사용자 프롬프트 최소 예산(<code>minPromptBudget</code>)은 남긴다.</li>
+      <li>페일오버 결정: <code>failover-policy.ts:7–21</code> 5액션 union(<code>continue_normal·rotate_profile·surface_error·fallback_model·return_error_payload</code>) · <code>:160</code> <code>resolveRunFailoverDecision</code>(단계별 허용 액션을 좁힘)</li>
+      <li>실행: <code>assistant-failover.ts:122</code> <code>handleAssistantFailover</code> — 회전·과부하 백오프·<b>same-model 재시도</b>·폴백 신호·결제 분기를 한 함수가 소유(<code>:168</code> <code>maybeRetrySameModelRateLimit</code> · <code>:170</code> <code>advanceAuthProfile</code> · <code>:151</code> <code>overloadProfileRotationLimit</code>) · <code>run.ts:3379</code> 결정 · <code>:3394</code> 호출</li>
+      <li>불완전 턴: <code>incomplete-turn.ts:133</code> 추론만 한도(2) · <code>:134</code> 빈 응답 한도(1) · <code>:135/:137</code> "이어서·재시작 금지" 지시문</li>
+      <li>선제 컴팩션: <code>preemptive-compaction.ts:248</code> <code>shouldPreemptivelyCompactBeforePrompt</code> · <code>preemptive-compaction.types.ts:4–8</code> 4-루트 union · <code>preemptive-compaction.ts:25</code> 512토큰 버퍼 · <code>:303</code> 임계 <code>max(넘침+512t, ×1.5)</code> · <code>compactContextEngineWithSafetyTimeout</code>(실제 압축 실행)</li>
+      <li>요약 감사: <code>compaction-safeguard-quality.ts:234</code> <code>auditSummaryQuality</code> · <code>:105</code> <code>buildStructuredFallbackSummary</code> · <code>:14</code> <code>REQUIRED_SUMMARY_SECTIONS</code>(5섹션)</li>
+      <li>가지치기: <code>context-pruning/pruner.ts:290</code> <code>pruneContextMessages</code> · <code>:11</code> 이미지 제거 마커 · <code>:319</code> 부트스트랩 보호</li>
+      <li>재생 안전: <code>replay-state.ts:63</code> <code>replaySafe = !replayInvalid &amp;&amp; !hadPotentialSideEffects</code> · <code>tool-replay-safety.ts</code>(읽기전용 도구만 재생) · <code>delivery-evidence.ts</code>(전송·spawn·cron 증거)</li>
+      <li>도구 호출 복구(안쪽): <code>attempt.tool-call-argument-repair.ts</code>(곡선 따옴표·잘린 JSON·방언) · <code>packages/tool-call-repair/</code> → 자세히는 <a href="step-15-dispatch.html">디스패치</a></li>
     </ul>
-    <p style="margin-top:10px"><b>4-루트 결정</b> — 원칙: 대화 추론을 손상시키는 요약보다, 부피 큰 도구 출력의 절단을 우선:</p>
-    <ul>
-      <li><b>fits</b> — 넘침 없음, 그대로 (손실 0)</li>
-      <li><b>truncate_tool_results_only</b> — 줄일 도구 결과가 넘침을 넉넉히 초과(임계 = max(overflow+512t, overflow×1.5)), <b>요약 없이</b> 도구 출력만 절단 (대화 무손실)</li>
-      <li><b>compact_then_truncate</b> — 절단만으론 부족, 요약 + 절단 (부분 요약)</li>
-      <li><b>compact_only</b> — 줄일 도구 결과 없음(<code>toolResultReducibleChars ≤ 0</code>), 요약이 유일 (요약 필수)</li>
-    </ul>
-    <ul class="ev">
-      <li><code>preemptive-compaction.ts:248</code> <code>shouldPreemptivelyCompactBeforePrompt</code> (프롬프트 前) · <code>preemptive-compaction.types.ts:4–8</code> 4-루트 union</li>
-      <li><code>run.ts:2707</code> <code>compactContextEngineWithSafetyTimeout</code> (실제 압축 실행)</li>
-    </ul>
-  </section>
-
-  <section class="card phase-rec">
-    <h2>④ 요약 품질 감사 — 모델 요약을 믿지 않는다</h2>
-    <p>요약이 불가피할 때도 모델 출력을 그대로 쓰지 않는다 — <b>생성 → 감사 → 폴백</b> 루프.</p>
-    <ul>
-      <li><b>구조 강제:</b> 요약은 5개 섹션을 정확한 제목으로 가져야 한다 — <code>## Decisions</code> / <code>## Open TODOs</code> / <code>## Constraints/Rules</code> / <code>## Pending user asks</code> / <code>## Exact identifiers</code>. 기본 지시문은 대화 언어 유지 + 코드·경로·식별자·오류 변형 금지. 운영자 커스텀 지시문은 <code>wrapUntrustedInstructionBlock</code>으로 인젝션 방어.</li>
-      <li><b>3중 감사:</b> ① 필수 5섹션 존재? ② 정확한 식별자(ID·URL·경로·포트·해시·날짜) 모두 보존? ③ 최신 사용자 요청 반영? → <code>{ ok, reasons[] }</code>.</li>
-      <li><b>실패 → 폴백:</b> 깨진 요약은 절대 안 싣는다. 유효했던 이전 요약 재사용 또는 5섹션 스켈레톤. 길이도 ~800자(~200토큰)로 제한.</li>
-    </ul>
-    <ul class="ev">
-      <li><code>compaction-safeguard-quality.ts:234</code> <code>auditSummaryQuality</code> (재요약 루프, 기본 ON) · <code>:105</code> <code>buildStructuredFallbackSummary</code></li>
-      <li><code>compaction-instructions.ts:23</code> 길이 제한 · <code>REQUIRED_SUMMARY_SECTIONS</code> 섹션 계약</li>
-    </ul>
-  </section>
-
-  <section class="card phase-rec">
-    <h2>컨텍스트 가지치기 &amp; 엔진</h2>
-    <p>요약/절단과 별개로 토큰 압력 하에 오래된 내용을 다듬는다:</p>
-    <ul>
-      <li><b>이미지 제거 마커:</b> 무거운 이미지 블록을 <code>[image removed during context pruning]</code>로 치환 — 흔적은 남기고 토큰만 회수.</li>
-      <li><b>부트스트랩 안전장치:</b> <b>첫 사용자 메시지 이전은 절대 가지치지 않는다</b> — 초기 시스템/부트스트랩 컨텍스트 보호.</li>
-      <li><b>가지치기 가능한 도구만:</b> <code>makeToolPrunablePredicate</code>로 안전한 도구 결과만 대상.</li>
-      <li><b>엔진 격리-헬스:</b> 상위 <code>context-engine/</code>는 작동 모드(<code>normal·fallback·degraded</code>)를 갖춰, 엔진이 문제를 일으켜도 런타임이 <b>degraded로 살아남는다</b>.</li>
-    </ul>
-    <ul class="ev"><li><code>context-pruning/pruner.ts:290</code> <code>pruneContextMessages</code> · <code>:319</code> 부트스트랩 보호</li></ul>
   </section>
 
   <section class="card verdict phase-rec">
-    <h2>⑤ 재생 안전성 (replay safety)</h2>
-    <p>이미 <b>메시지를 보냈거나·세션을 spawn했거나·cron을 기록</b>한 턴을 그대로 재생하면 중복이 난다. OpenClaw는 재시도 전에 <b>부수효과 증거</b>로 "재생해도 안전한가"를 판정한다.</p>
-    <ul>
-      <li><b>재생 금지 증거:</b> unsafe 도구(<code>replaySafe≠true</code>) · async 시작된 도구 · 메시지 전송 증거 · 세션 spawn 수락 · cron 기록 성공 &gt; 0 — 하나라도 있으면 <b>재생 금지</b>.</li>
-      <li><b>fail-closed:</b> 메타데이터가 없는 옛 attempt는 보수적으로 <b>replay-UNSAFE</b> 기본값.</li>
-      <li><b>왜 비법인가:</b> 대부분의 재시도 구현은 멱등성을 무시하고 그냥 다시 돌린다 → 중복 전송·중복 실행. OpenClaw는 안전할 때만 재생하고, 안전할 때만 모델을 바꿔 다시 시도한다 — <b>복구가 새 문제를 만들지 않게 하는 규율</b>.</li>
-    </ul>
-    <ul class="ev">
-      <li><code>tool-replay-safety.ts:6–39</code> 읽기전용 도구만 재생 허용 · <code>replay-state.ts:60–65</code> <code>replaySafe = !replayInvalid &amp;&amp; !hadPotentialSideEffects</code></li>
-      <li><code>delivery-evidence.ts:217–232</code> 전송/스폰/cron 증거 · <code>run.ts:2383–2388 · 3810 · 3826</code> 재시도 게이트</li>
-    </ul>
-  </section>
-
-  <section class="card phase-rec">
-    <h2>⑥ 도구 호출 복구 — 모든 방언을 받아준다</h2>
-    <p>모델은 도구 호출을 자주 망가뜨린다 — 곡선 따옴표, 잘린 JSON, 앞에 붙은 잡소리, 모델별 직렬화 방언. 스트림을 감싸 파서 수준에서 흡수해, 모델이 문법을 더듬어도 도구가 정상 실행된다.</p>
-    <ul>
-      <li>스마트쿼트 · 잘린 JSON(<code>extractBalancedJsonPrefix</code>) · 선행 junk → <code>attempt.tool-call-argument-repair.ts</code> (<code>tryExtractUsableToolCallArguments:542</code>)</li>
-      <li>Harmony(<code>&lt;|channel|&gt;…&lt;|call|&gt;</code>) · XML-ish(<code>findXmlishToolCallEnd</code>) · <code>[END_TOOL_REQUEST]</code> → <code>packages/tool-call-repair/</code></li>
-      <li>xAI HTML-entity → <code>attempt.tool-call-argument-repair.ts:793</code> <code>wrapStreamFnDecodeXaiToolCallArguments</code></li>
-    </ul>
-    <p><a href="step-15-dispatch.html">디스패치</a>의 "프로바이더 결함 흡수"가 <b>도구 경계에서</b> 한 번 더 반복되는 것 — 같은 철학.</p>
+    <h2>큰 그림 — 왜 '지속 가능성 껍데기'인가</h2>
+    <p>한 걸음 물러나 보면, 복구는 OpenClaw가 "<b>오래·끈질기게 써도 안 망가지는</b>" 도구일 수 있는 이유다. 모델은 수십 가지로 미끄러지고 긴 세션은 넘치지만, 이 층이 그 모두를 흡수해 작업이 끝내 도달하게 한다.</p>
+    <p>그리고 그 흡수를 <b>세 가지 규율</b>로 해낸다 — <b>가장 싼 처방부터</b>(낭비 없이), <b>요약은 최후에·요약마저 감사</b>(손실 없이), <b>부수효과 있으면 재생 금지</b>(중복 없이). 회복은 끈질기되, 비용이 폭주하지도 새 문제를 낳지도 않는다. '되는 데까지 버티기'와 '깨끗함'이 한자리에서 양립한다.</p>
+    <p>결정적으로, 이 모든 조율을 <b>모델은 모른다</b> — 맥락이 압축됐는지, 계정이 회전했는지, 같은 턴을 세 번째 시도하는 중인지. 모델은 매번 깨끗하게 정돈된 한 턴을 받아 자기 일을 할 뿐이다. 신뢰성·지속성을 더하되 모델의 사고에는 <b>단 한 줌도 닿지 않는다</b> — 이것이 껍데기가 품질을 떨어뜨리지 않는 이유다.</p>
+    <p><b>이 단계의 끝</b> — 살릴 수 있으면 가장 싸게 살렸고, 못 살리면 깔끔한 신호를 남겼다. 이제 그 결과를 들고 <a href="step-17-exit.html">출구</a>로 가, 종료의 종류를 판정하고 결과를 반환한다.</p>
   </section>
 
   <nav class="stepnav">

@@ -8,33 +8,78 @@
 </head>
 <body>
 <div class="wrap">
-  <nav class="crumb"><a href="index.html">← 런타임 사다리</a><span class="pos">조립 6/10 · 어템프트 루프</span></nav>
+  <nav class="crumb"><a href="index.html">← 런타임 사다리</a><span class="pos">조립 6/10 · bundle-tools</span></nav>
 
   <header class="shead phase-asm">
     <div class="snum">6</div>
     <div>
       <div class="sphase">조립 10단계 · prepStages</div>
-      <h1>bundle-tools</h1>
+      <h1>bundle-tools — 바깥 도구 서버를 끌어와 손에 붙인다</h1>
     </div>
   </header>
-  <p class="slead">외부 <b>MCP/LSP 런타임 도구</b>를 이번 실행에 맞게 번들링하고, tool-search 실행 계획을 만든다.</p>
+  <p class="slead">OpenClaw가 직접 들고 있는 도구는 이미 갖춰졌다고 하자. 이 단계는 그 너머 — <b>OpenClaw 바깥에 따로 떠 있는 도구 서버</b>에 손을 뻗는다. 두 종류다 — 임의의 외부 프로그램이 도구를 노출하는 <b>MCP 서버</b>, 그리고 코드를 이해해 정의·참조·진단을 돌려주는 <b>언어 서버(LSP)</b>. 이 단계는 그 바깥 서버들에 연결해 거기 있는 도구를 가져와, 이번 실행의 도구 목록에 <b>안전하게 합친다</b>.</p>
 
   <section class="card phase-asm">
-    <h2>무엇을 하나</h2>
+    <h2>이 단계가 하는 일</h2>
+    <p><b>OpenClaw 바깥의 도구 서버에 연결해, 거기서 노출되는 도구를 이번 실행용으로 가져와 합친다.</b> 안에서 만든 도구만으로는 닿을 수 없는 능력을, 외부 서버를 통해 모델 손에 붙인다.</p>
+    <p>앞선 조립이 OpenClaw가 <b>스스로 들고 있는</b> 도구를 모델에게 쥐여 줬다면, 정작 쓸모 있는 능력의 상당수는 OpenClaw <b>바깥</b>에 있다 — 깃허브를 다루는 외부 프로그램, 회사 내부 시스템을 여는 도구, 코드를 깊이 읽는 언어 서버. 이들은 OpenClaw 코드 안에 없고, <b>별도 프로세스로 따로 떠 있다</b>. 이 단계가 그 사이를 잇는 다리다.</p>
+    <p>다만 바깥에서 온 손을 받아들이는 데는 두 가지 어려움이 있다. 하나 — 바깥 서버에 연결하는 일은 <b>비싸다</b>(프로세스를 띄우고 손잡고 목록을 받아온다). 둘 — 바깥 도구는 OpenClaw가 만든 게 아니라 <b>믿고 그냥 섞으면 위험하다</b>. 아래 네 가지로 본다 — <b>① 바깥에 떠 있는 두 종류의 서버, ② 비싼 연결은 세션 내내 재사용, ③ 함부로 섞지 않는다, ④ 안과 밖이 하나의 목록으로</b>.</p>
+  </section>
+
+  <section class="card phase-asm">
+    <h2>① 바깥에 떠 있는 두 종류의 도구 서버 — MCP와 LSP</h2>
+    <p><b>외부 능력은 두 갈래로 들어온다 — 임의의 도구를 노출하는 MCP 서버, 그리고 코드를 이해하는 언어 서버(LSP).</b> 둘 다 OpenClaw 밖의 별도 프로그램이다.</p>
+    <p><b>MCP(Model Context Protocol)</b>는 하나의 <b>표준 약속</b>이다. 누구든 외부 프로그램을 만들어 "내가 이런 도구들을 제공한다"고 내놓으면, 그 약속을 아는 어떤 에이전트든 그 도구를 쓸 수 있다. 깃허브를 다루는 서버, 데이터베이스를 여는 서버, 회사 내부 도구를 감싼 서버 — 전부 OpenClaw 바깥의 독립된 프로그램이고, 이 단계가 거기 연결해 그 도구들을 모델 손에 닿게 한다. 덕분에 OpenClaw를 새로 빌드하지 않고도, <b>나중에 누가 만든 도구</b>까지 모델이 쓸 수 있다.</p>
+    <p><b>LSP(Language Server Protocol)</b>는 코드를 '<b>이해하는</b>' 별도 프로그램이다. 편집기가 "이 심볼의 정의로 가라", "이걸 참조하는 곳을 모두 찾아라", "여기 타입 오류가 있나"를 알 수 있는 건 뒤에서 이 언어 서버가 돌기 때문이다. 이 단계는 (설정돼 있을 때) 그 언어 서버를 띄워, 같은 <b>코드 지능</b>을 모델의 도구로 노출한다 — 모델이 파일을 글자로만 읽는 게 아니라 <b>구조로</b> 읽게 된다.</p>
+  </section>
+
+  <section class="card verdict v-nuance">
+    <h2>② 비싼 연결은 한 번 맺어, 세션 내내 재사용한다</h2>
+    <p><span class="vtag">세션 런타임</span> <b>바깥 서버에 연결하는 건 안의 도구를 만드는 것보다 훨씬 비싸다 — 그래서 매 턴 다시 맺지 않고, 세션 동안 한 번 맺어 재사용한다.</b></p>
+    <p>안의 도구는 그냥 코드를 부르면 생긴다. 하지만 바깥 서버는 다르다 — 별도 프로세스를 띄우거나 네트워크로 연결하고, 손잡기(handshake)를 하고, "네가 가진 도구 목록을 다오"를 주고받아야 비로소 쓸 수 있다. 이걸 <b>턴마다 새로 하면</b> 메시지 하나하나에 몇 초씩 지연이 들러붙는다.</p>
+    <p>그래서 MCP 연결은 <b>세션 단위의 런타임</b>으로 둔다 — 그 세션이 처음 필요로 할 때 한 번 맺어 두고, 이후 <b>같은 세션의 모든 턴이 그대로 재사용</b>한다. 한동안 안 쓰이면 알아서 닫아 자원을 돌려주고(유휴 만료), 연결이 자꾸 실패하는 서버는 잠시 쉬게 했다가 다시 시도한다(백오프). <b>얻는 것</b> — 외부 능력을 붙이되, 그 연결 비용을 <b>매 턴 다시 치르지 않는다</b>. (언어 서버처럼 설정됐을 때만 켜지는 무거운 갈래는, 필요 없으면 아예 띄우지도 않는다.)</p>
+  </section>
+
+  <section class="card verdict v-nuance">
+    <h2>③ 함부로 섞지 않는다 — 네 관문으로 안전하게 접붙인다</h2>
+    <p><span class="vtag">경계 검문</span> <b>바깥에서 온 도구는 OpenClaw가 만든 게 아니다 — 믿고 그냥 섞으면 위험하다.</b> 그래서 네 관문을 통과한 것만 안의 목록에 합친다.</p>
     <ul>
-      <li>MCP 도구를 실행용으로 구체화(<code>materializeBundleMcpToolsForRun</code>).</li>
-      <li>LSP 도구 런타임을 생성(<code>createBundleLspToolRuntime</code>).</li>
-      <li>tool-search 런플랜을 구성.</li>
+      <li><b>이름 충돌 막기</b> — 외부 도구가 <code>read</code> 같은 <b>이미 있는 이름</b>을 들고 와도, 안의 진짜 도구를 가리지 못한다. 이미 쓰인 이름은 미리 예약돼 있고, 겹치면 바깥 도구를 <b>들이지 않는다</b>.</li>
+      <li><b>허용목록</b> — 안의 도구를 거르던 <b>그 허용목록</b>으로 바깥 도구도 똑같이 거른다. 이 실행이 쓸 수 있다고 못 박힌 것만 통과한다.</li>
+      <li><b>정책</b> — 최종 도구 정책(거부 목록 등)을 한 번 더 적용해, 환경·세션이 금한 도구를 떨어낸다.</li>
+      <li><b>스키마 정규화·격리</b> — 외부 도구는 입력 형식을 <b>제멋대로</b> 적어 온다. 이 모델의 제공사가 읽을 수 있는 형태로 맞추고, 도저히 못 읽을 형식이면 그 <b>도구 하나만</b> 빼낸다(격리). 한 도구의 어긋난 형식이 <b>턴 전체를 깨뜨리지 못하게</b>.</li>
     </ul>
+    <p>받는 쪽도 마찬가지다 — 외부 서버가 돌려준 결과 한 조각이 형식을 어기면(예: 빈 이미지 블록), 그게 대화 기록에 박혀 <b>이후 모든 턴을 오염시킨</b> 적이 있었다. 그래서 결과도 안전한 형태로 강제해 받는다. <b>얻는 것</b> — 누구나 만든 외부 도구를 받아들이면서도, 그 어느 하나가 이름을 가로채거나 형식을 어겨 턴을 무너뜨리지 못한다.</p>
+  </section>
+
+  <section class="card phase-asm">
+    <h2>④ 안과 밖이 하나의 목록으로</h2>
+    <p><b>네 관문을 통과한 바깥 도구들이, 앞서 만든 안의 도구와 한 줄로 합쳐진다.</b> 이 합친 목록이 이번 실행이 모델에게 보일 <b>능력의 총합</b>이다.</p>
+    <p>코어 도구, 플러그인 도구, 그리고 방금 끌어온 MCP·LSP 도구 — 출처가 셋이지만 모델 앞에서는 <b>구분 없는 한 벌</b>이다. 모델은 어떤 도구가 OpenClaw 안에서 왔는지, 지구 반대편 서버에서 왔는지, 띄운 언어 서버에서 왔는지 <b>전혀 모른 채</b> 그냥 '도구 하나'로 쓴다.</p>
+    <p>이 목록이 곧 이 턴의 도구 지형이다. (목록이 너무 길면 이웃한 조립 단계가 이를 더 <b>간추려</b> 모델에게 내보일 수도 있지만, <b>무엇이 담겼는지</b>는 바로 여기서 정해진다.)</p>
   </section>
 
   <section class="card phase-asm ev">
-    <h2>코드 위치 (검증됨)</h2>
+    <h2>코드 위치</h2>
     <ul>
-      <li><code>attempt.ts:1775</code> <code>prepStages.mark</code> (번들 도구 완료 지점)</li>
-      <li><code>attempt.ts:1548</code> <code>materializeBundleMcpToolsForRun</code></li>
-      <li><code>attempt.ts:1562</code> <code>createBundleLspToolRuntime</code></li>
+      <li><code>attempt.ts:1534</code> <code>shouldCreateBundleMcpRuntimeForAttempt</code> · <code>:1539</code> <code>getOrCreateSessionMcpRuntime</code>(세션 재사용) · <code>:1548</code> <code>materializeBundleMcpToolsForRun</code></li>
+      <li><code>attempt.ts:1556</code> <code>shouldCreateBundleLspRuntimeForAttempt</code> · <code>:1562</code> <code>createBundleLspToolRuntime</code>(설정 시 언어 서버 spawn)</li>
+      <li><code>attempt.ts:1550·1565</code> <code>reservedToolNames</code> — ③ 이름 충돌 예약</li>
+      <li><code>attempt.ts:1572·1579</code> <code>applyEmbeddedAttemptToolsAllow</code>(③ 허용목록) · <code>:1587</code> <code>applyFinalEffectiveToolPolicy</code>(③ 정책)</li>
+      <li><code>attempt.ts:1609</code> <code>normalizeAgentRuntimeTools</code>(③ 스키마 정규화) · <code>:1645</code> <code>filterRuntimeCompatibleTools</code>(③ 격리) · <code>:1655</code> <code>uncompactedEffectiveTools</code>(④ 합친 목록)</li>
+      <li><code>attempt.ts:1775</code> <code>prepStages.mark("bundle-tools")</code> — 이 단계 완료 지점</li>
+      <li>MCP 런타임: <code>agent-bundle-mcp-runtime.ts:1191</code> <code>getOrCreateSessionMcpRuntime</code>(<code>:985</code> 세션별 캐시·유휴 TTL·백오프) · <code>agent-bundle-mcp-materialize.ts:386</code> <code>materializeBundleMcpToolsForRun</code>(<code>:31</code> 결과 블록 안전 변환 <code>#90710</code>)</li>
+      <li>LSP 런타임: <code>agent-bundle-lsp-runtime.ts:401</code> <code>createBundleLspToolRuntime</code>(<code>:414</code> 미설정 시 skip · <code>:437</code> 프로세스 spawn · <code>:451</code> 이름 예약)</li>
+      <li>번들 게이트(어느 도구 이름이 번들을 부르나): <code>attempt-tool-construction-plan.ts:260</code> MCP(<code>bundle-mcp</code>·<code>group:plugins</code>) · <code>:275</code> LSP(<code>lsp_</code> 접두)</li>
     </ul>
+  </section>
+
+  <section class="card verdict phase-asm">
+    <h2>큰 그림 — 이 단계가 모델에 더하는 것</h2>
+    <p>한 걸음 물러나 보면, 이 단계가 더하는 것은 <b>확장성의 천장을 없애는 일</b>이다. 코어와 플러그인이 'OpenClaw가 아는 능력'이라면, MCP는 '<b>누구든 나중에 만들</b> 능력', LSP는 '<b>코드를 깊이 읽는</b> 능력'이다 — 둘 다 OpenClaw를 새로 빌드하지 않고도 모델의 손에 붙는다. 능력의 한계가 OpenClaw가 미리 적어 둔 목록에 갇히지 않는다.</p>
+    <p>그리고 그 붙임을 <b>싸게(세션 재사용)·안전하게(네 관문)</b> 해낸다. 바깥의 신뢰할 수 없는 도구를 받아들이면서도, 연결 비용이 매 턴 새지 않고, 한 도구의 결함이 턴을 무너뜨리지 못한다. 무한히 늘어나는 능력과 깨지지 않는 안정성이 <b>서로 부딪치지 않게</b> 다리를 놓는 것 — 그게 이 단계의 솜씨다.</p>
+    <p>다른 껍데기 단계처럼, 이건 모델이 <b>무엇에 닿을 수 있나</b>를 넓힐 뿐 <b>어떻게 생각하나</b>엔 손대지 않는다. 외부에서 온 손이든 안에서 만든 손이든, 모델에겐 똑같이 한 벌의 도구일 뿐이다.</p>
+    <p><b>이 단계의 끝</b> — 안과 밖의 도구가 하나의 목록으로 합쳐졌다. 이번 실행이 모델에게 건넬 도구 지형이 정해졌고, 이 목록을 들고 다음 조립 단계로 넘어간다.</p>
   </section>
 
   <nav class="stepnav">

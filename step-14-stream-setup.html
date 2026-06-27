@@ -8,38 +8,70 @@
 </head>
 <body>
 <div class="wrap">
-  <nav class="crumb"><a href="index.html">← 런타임 사다리</a><span class="pos">조립 10/10 · 어템프트 루프</span></nav>
+  <nav class="crumb"><a href="index.html">← 런타임 사다리</a><span class="pos">조립 10/10 · stream-setup</span></nav>
 
   <header class="shead phase-asm">
     <div class="snum">10</div>
     <div>
       <div class="sphase">조립 10단계 · prepStages · 마지막</div>
-      <h1>stream-setup</h1>
+      <h1>stream-setup — 모델로 이어지는 선을 잇고, 조립을 닫는다</h1>
     </div>
   </header>
-  <p class="slead">조립의 마지막. 실제 <b>모델 스트림 함수(streamFn)</b>를 해석하고 전송 파라미터를 적용한다 — 이후 곧바로 디스패치.</p>
+  <p class="slead">조립의 마지막 단계. 앞서 빚은 세션은 대화를 굴릴 줄은 알지만, 정작 모델에게 말을 건넬 <b>실제 선</b>이 아직 없다. 이 단계가 그 선 — 모델 제공사로 이어지는 <b>스트림 함수(streamFn)</b> — 를 이번 턴에 맞게 잇고, 통화 설정을 맞춘 뒤, 열 번째 표식을 찍어 <b>조립 단계를 닫는다</b>. 이다음은 더 이상 준비가 아니라, 실제 호출이다.</p>
 
   <section class="card phase-asm">
-    <h2>무엇을 하나</h2>
-    <ul>
-      <li>실제 <code>streamFn</code>(프로바이더 모델 호출)을 해석(<code>resolveEmbeddedAgentStreamFn</code>).</li>
-      <li>추가 파라미터/transport를 에이전트에 적용(<code>applyExtraParamsToAgent</code>).</li>
-      <li>10번째 마크 직후 <code>emitPrepStageSummary("stream-ready")</code> — 여기서 <b>조립이 끝난다</b>.</li>
-    </ul>
+    <h2>이 단계가 하는 일</h2>
+    <p><b>세션을 실제 모델 호출 함수에 잇고, 이번 요청의 설정을 채운 뒤, 조립의 마지막 표식을 찍는다.</b> 추상적으로 준비된 세션을, 진짜 모델 제공사에 닿는 구체적 연결로 바꾼다.</p>
+    <p>앞 단계가 만든 세션은 "모델을 부르고, 도구를 돌리고, 답을 기록한다"는 절차는 안다. 그러나 '모델을 부른다'는 그 한 동작을 실제로 수행할 <b>선</b> — 제공사 서버로 요청을 보내고 응답을 받아 오는 통로 — 은 아직 이번 턴에 맞게 이어지지 않았다. 이 단계가 그 선을 잇는다.</p>
+    <p>선을 잇는 일에는 세 가지가 따른다 — <b>어느 제공사로 어떤 자격으로</b> 이을지 풀고, <b>요청의 설정값과 전송 방식</b>을 맞추고, 매번 <b>깨끗한 바탕에서 새로</b> 잇는 것. 그리고 그게 끝나면 조립 전체가 닫힌다. 아래 네 가지로 본다 — <b>① streamFn은 모델로 이어지는 선, ② 선을 잇고 자격을 채운다, ③ 매 턴 깨끗한 선에서 새로, ④ 'stream-ready' — 조립의 끝</b>.</p>
+  </section>
+
+  <section class="card phase-asm">
+    <h2>① streamFn — 모델로 이어지는 '전화선'</h2>
+    <p><b>세션은 대화를 굴리는 법을 안다. 하지만 그 대화를 실어 나를 '선'이 없으면 모델에게 한 마디도 건네지 못한다. streamFn이 바로 그 선이다.</b></p>
+    <p>'모델을 부른다'는 한 동작은, 실제로는 Anthropic·OpenAI·Google 같은 제공사의 서버로 요청을 보내고 응답을 받아 오는 일이다. 그 일을 해 주는 함수가 <code>streamFn</code>이다 — 부르면 모델로 요청이 떠나고, 답이 돌아오기 시작한다.</p>
+    <p>이름 그대로 '스트림' — 답은 통째로 한 번에 오지 않고, 모델이 생각하며 토해 내는 대로 한 조각씩(토큰·도구 호출) <b>흘러서</b> 온다. <code>streamFn</code>을 부르면 그 흐름이 열린다. 이 단계는 세션이 품은 그 '선'을, <b>이번 턴에 맞는 실제 연결로 풀어 꽂아</b>, 추상적인 세션을 진짜 모델에 닿는 통로로 바꾼다.</p>
+  </section>
+
+  <section class="card phase-asm">
+    <h2>② 선을 잇고, 자격을 채운다 — 추상 세션이 구체적 연결로</h2>
+    <p><b>어느 제공사의 어느 모델로, 어떤 계정 자격으로 이을지를 풀어, 세션의 streamFn에 묶는다.</b></p>
+    <p>선 하나를 잇는 데 여러 구체값이 함께 묶인다 — 이 모델에 맞는 <b>제공사 스트림 함수</b>, 인증할 <b>API 키와 인증 프로필</b>(어느 계정의 자격으로 부를지), 도중에 멈출 수 있게 하는 <b>취소 신호</b>, 그리고 캐시를 짚을 <b>프롬프트 캐시 키</b>까지.</p>
+    <p>이 묶음으로, 여태 '추상적'이던 세션이 비로소 <b>구체적이고 인증된 연결</b>이 된다 — 특정 계정의 자격으로 특정 모델에 닿고, 필요하면 끊을 수 있고, 캐시를 짚어 비용을 아끼는 선. 준비된 세션이 '실제로 부를 수 있는 무언가'로 내려서는 마디다.</p>
+  </section>
+
+  <section class="card verdict v-nuance">
+    <h2>③ 매 턴, 원래의 선에서 새로 잇는다 — 묵은 겹을 쌓지 않으려고</h2>
+    <p><span class="vtag">깨끗한 출발</span> <b>선을 이을 때 지난 턴이 둘러 둔 겹 위에 덧대지 않는다. 매번 세션의 '원래 선'에서 새로 시작해, 이번 턴의 설정만 깨끗이 얹는다.</b></p>
+    <p>이 선은 한 겹으로 끝나지 않는다 — 그 위에 여러 변환·방어 겹이 둘린다(프로바이더 텍스트 변환, 검색 래퍼 등, 그리고 다음 단계에서 더 많이). 만약 매 턴 '지난 턴의 이미 둘린 선' 위에 또 둘렀다면, 겹이 턴마다 쌓이고 묵은 전송 방식이 들러붙어 연결이 점점 어긋났을 것이다.</p>
+    <p>그래서 이 단계는 매 턴 세션의 <b>원래 스트림 바탕에서 새로</b> 시작한다. 그 깨끗한 선 위에 이번 턴의 <b>다이얼</b> — 전송 방식(어떤 API로 주고받을지), 그리고 온도·최대 길이·사고 예산 같은 <b>요청 설정값</b> — 을 맞추고, <b>첫 변환 겹</b>(프로바이더 텍스트 치환 등)을 두른다. <b>얻는 것</b> — 백 번째 턴의 연결도 첫 턴만큼 깨끗하다. 겹이 누적돼 느려지거나 어긋나는 일이 없다.</p>
+  </section>
+
+  <section class="card verdict phase-asm">
+    <h2>④ 'stream-ready' — 조립이 끝나는 자리</h2>
+    <p><b>선이 이어지고 설정이 채워지면, 열 번째 조립 표식을 찍고 'stream-ready'를 알린다. 여기서 '조립'은 끝난다.</b></p>
+    <p>작업 공간에서 시작한 열 개의 조립 단계 — 작업 공간·스킬·도구·맥락·프롬프트·세션, 그리고 이 선까지 — 가 저마다 표식을 남겼다. <code>stream-ready</code>는 그 열 개가 모두 끝났다는 신호다. 이제 모델에게 건넬 모든 것이 손에 들렸다.</p>
+    <p>여기가 또렷한 경계다 — 이다음은 더 이상 '준비'가 아니다. 실제로 모델을 부르고, 응답을 받고, 모델이 요청한 도구를 돌리고, 멈출 이유(stop-reason)를 판정하는 <b>실행</b>이 시작된다. 그 실행은 방금 이은 이 선을 <b>여러 겹으로 더 감싸</b> 제공사의 결함까지 흡수하는데, 그건 다음 단계(디스패치)의 몫이다. 이 단계는 그 실행이 딛고 설 <b>깨끗한 선</b>을 마지막으로 놓아둘 뿐이다.</p>
   </section>
 
   <section class="card phase-asm ev">
-    <h2>코드 위치 (검증됨)</h2>
+    <h2>코드 위치</h2>
     <ul>
-      <li><code>attempt.ts:2943</code> <code>prepStages.mark</code> (스트림 셋업 완료 — 10번째)</li>
-      <li><code>attempt.ts:2856</code> <code>resolveEmbeddedAgentStreamFn</code> (base/raw 스트림)</li>
-      <li><code>attempt.ts:2896</code> <code>applyExtraParamsToAgent</code></li>
+      <li><code>attempt.ts:2804</code> <code>resolveEmbeddedAgentBaseStreamFn</code> — ③ 매 턴 원래 바탕에서 새로(묵은 겹 방지)</li>
+      <li><code>attempt.ts:2807</code> <code>resolveExplicitSettingsTransport</code>(전송 방식) · <code>:2829</code> <code>effectiveExtraParams</code>(요청 설정값)</li>
+      <li><code>attempt.ts:2844</code> <code>registerProviderStreamForModel</code>(제공사 스트림) · <code>:2856</code> <code>resolveEmbeddedAgentStreamFn</code> — ② 선 잇기(키·인증 프로필·취소 신호·캐시 키 묶기)</li>
+      <li><code>attempt.ts:2874</code> <code>wrapStreamFnTextTransforms</code>(프로바이더 텍스트 변환 겹) · <code>:2896</code> <code>applyExtraParamsToAgent</code>(설정·전송 적용) · <code>:2913</code> <code>createCodexNativeWebSearchWrapper</code>(code-mode 검색 래퍼)</li>
+      <li><code>attempt.ts:2925</code> <code>resolveCacheRetention</code> · <code>:2931</code> <code>resolveAgentTransportOverride</code></li>
+      <li><code>attempt.ts:2943</code> <code>prepStages.mark("stream-setup")</code>(열 번째 표식) · <code>:2944</code> <code>emitPrepStageSummary("stream-ready")</code> — 조립 끝</li>
+      <li>다음: 실제 모델 호출·도구 루프는 디스패치 단계(<code>attempt.ts:2952~</code>)</li>
     </ul>
   </section>
 
   <section class="card verdict phase-asm">
-    <h2>여기서부터는 "조립"이 아니다</h2>
-    <p>10개의 <code>prepStages.mark</code>는 여기까지다. 실제 모델 호출·도구 루프·stop-reason은 <b>다음 단계(디스패치)</b>에서 일어난다.</p>
+    <h2>큰 그림 — 준비와 실행을 가르는 마지막 마디</h2>
+    <p>한 걸음 물러나 보면, 이 단계는 조립의 마지막 마디이자 <b>준비와 실행을 가르는 경계</b>다. 앞의 아홉 단계가 '<b>무엇을</b> 보낼지'(도구·프롬프트·맥락·세션)를 차렸다면, 이 단계는 '<b>어디로, 어떻게</b> 보낼지'(어느 모델·자격·전송)를 잇는다. 둘이 다 갖춰져야 비로소 한 턴을 실제로 부를 수 있다.</p>
+    <p>가장 배관(plumbing)에 가까운 단계지만, 여기에도 껍데기의 성격이 배어 있다 — 매 턴 깨끗한 바탕에서 새로 이어 묵은 겹을 막고, 자격·취소·캐시를 빈틈없이 묶는다. 모델로 가는 선조차 '오래 써도 안 어긋나게' 짓는 것. 그리고 이 선은 모델의 사고를 바꾸지 않는다 — 어디로 어떻게 연결할지는 껍데기의 일이고, 그 선을 타고 무엇을 생각해 답할지는 모델의 일이다.</p>
+    <p><b>이 단계의 끝</b> — <code>stream-ready</code>. 열 단계의 조립이 모두 닫혔고, 잘 차린 한 턴이 이제 실제 모델 호출 — <b>디스패치</b> — 로 떠난다.</p>
   </section>
 
   <nav class="stepnav">
