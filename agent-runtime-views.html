@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>에이전트 런타임 — 여러 각도 다이어그램</title>
+<style>
+  :root{
+    --bg:#0e1116; --abyss:#0a0d12; --panel:#161b22; --card:#1a2029; --line:#2a323d;
+    --shell:#ff7a45; --roe:#ffb347; --brine:#58a6ff; --kelp:#57c794; --coral:#bc8cff;
+    --tx:#e9eef4; --tx-dim:#9aa7b4; --tx-faint:#677482;
+    --mono:ui-monospace,"SF Mono","Cascadia Code","JetBrains Mono",Consolas,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI","Pretendard","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:var(--sans); background:var(--bg); color:var(--tx); line-height:1.65; -webkit-font-smoothing:antialiased;
+    background-image:radial-gradient(1100px 460px at 82% -8%, #ff7a4514, transparent), radial-gradient(900px 460px at 4% 2%, #58a6ff10, transparent), linear-gradient(var(--bg), var(--abyss)); background-attachment:fixed;}
+  .wrap{max-width:1180px; margin:0 auto; padding:0 24px}
+
+  header{padding:56px 0 30px}
+  .eyebrow{font-family:var(--mono); font-size:12px; letter-spacing:3px; text-transform:uppercase; color:var(--tx-faint); display:flex; align-items:center; gap:11px; margin-bottom:20px}
+  .eyebrow .claw{font-size:18px; filter:drop-shadow(0 3px 9px #ff7a4560); letter-spacing:0}
+  .eyebrow .rule{flex:1; height:1px; background:linear-gradient(90deg,var(--line),transparent)}
+  h1{font-size:clamp(28px,4.4vw,40px); font-weight:850; letter-spacing:-1.2px; line-height:1.08}
+  h1 .hl{color:var(--shell)}
+  .lead{margin-top:20px; max-width:760px; font-size:16px; color:var(--tx-dim)}
+  .lead b{color:var(--tx)}
+  .meta{margin-top:20px; display:flex; flex-wrap:wrap; gap:8px; font-family:var(--mono); font-size:12px; color:var(--tx-faint)}
+  .meta .chip{border:1px solid var(--line); border-radius:999px; padding:5px 11px; background:#161b2270}
+  .meta .chip b{color:var(--roe)}
+
+  .grid{display:grid; gap:22px; grid-template-columns:repeat(auto-fill, minmax(520px, 1fr)); padding:14px 0 40px}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:16px; overflow:hidden; transition:border-color .18s, transform .18s; position:relative}
+  .card::before{content:""; position:absolute; left:0; top:0; right:0; height:3px; background:var(--tone, var(--shell))}
+  .card:hover{border-color:var(--tone, var(--shell)); transform:translateY(-3px)}
+  .card.t-seq{--tone:var(--kelp)} .card.t-flow{--tone:var(--roe)} .card.t-onion{--tone:var(--coral)} .card.t-mod{--tone:var(--brine)} .card.t-full{--tone:var(--shell)}
+  .chead{padding:18px 20px 12px}
+  .ctop{display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin-bottom:6px}
+  .cnum{font-family:var(--mono); font-size:12px; font-weight:700; color:var(--tone, var(--shell)); border:1px solid var(--tone, var(--shell)); border-radius:6px; padding:2px 8px}
+  .cpat{font-family:var(--mono); font-size:11px; color:var(--tx-faint)}
+  .ctitle{font-size:19px; font-weight:780; letter-spacing:-.3px}
+  .cdesc{font-size:13.5px; color:var(--tx-dim); margin-top:7px; line-height:1.55}
+  .cimg{margin:6px 14px 14px; border-radius:10px; overflow:hidden; border:1px solid var(--line); background:#fff; cursor:zoom-in; position:relative}
+  .cimg img{display:block; width:100%; height:auto}
+  .cimg .zoom{position:absolute; right:10px; bottom:10px; font-family:var(--mono); font-size:11px; color:#1e293b; background:#ffffffd0; border:1px solid #cbd5e1; border-radius:6px; padding:3px 9px; pointer-events:none}
+  .cfoot{display:flex; gap:8px; flex-wrap:wrap; padding:0 20px 18px}
+  .cfoot a{font-family:var(--mono); font-size:12px; text-decoration:none; color:var(--tx-dim); border:1px solid var(--line); border-radius:8px; padding:6px 12px; transition:.15s}
+  .cfoot a:hover{color:var(--tx); border-color:var(--tone, var(--shell)); background:#ffffff08}
+
+  footer{border-top:1px solid var(--line); padding:24px 0 60px; color:var(--tx-faint); font-size:13px}
+  footer code{font-family:var(--mono); color:var(--tx-dim)}
+  footer .ex{color:var(--shell); font-family:var(--mono); letter-spacing:2px; font-size:11px}
+
+  /* lightbox */
+  .lb{position:fixed; inset:0; z-index:50; background:#06080bf2; display:none; align-items:center; justify-content:center; padding:24px; cursor:zoom-out; backdrop-filter:blur(4px)}
+  .lb.open{display:flex}
+  .lb img{max-width:96vw; max-height:92vh; border-radius:8px; box-shadow:0 20px 60px #000a; background:#fff}
+  .lb .hint{position:fixed; top:16px; left:50%; transform:translateX(-50%); font-family:var(--mono); font-size:12px; color:var(--tx-faint)}
+
+  @media (max-width:600px){ .grid{grid-template-columns:1fr} header{padding:40px 0 20px} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow"><span class="claw">🦞</span> OpenClaw · 에이전트 런타임 <span class="rule"></span> 다이어그램 갤러리</div>
+    <h1>같은 런타임, <span class="hl">다섯 가지 각도</span></h1>
+    <p class="lead">
+      에이전트 런타임 <b>내부</b>를 서로 다른 렌즈로 비춘 다이어그램 모음입니다. 들어오는 곳·나가는 곳은
+      각 그림 <b>가장자리에 작게</b>만 두고, 가운데는 런타임의 작동 방식에 집중합니다.
+      이미지를 클릭하면 크게 볼 수 있고, 각 카드에서 편집용 <code style="font-family:var(--mono);color:var(--roe)">.excalidraw</code> 원본도 열 수 있습니다.
+    </p>
+    <div class="meta">
+      <span class="chip">다이어그램 <b>5</b></span>
+      <span class="chip">도구 <b>Excalidraw</b></span>
+      <span class="chip">근거 <b>코드 트레이싱 (run.ts · attempt.ts · harness · agent-hooks)</b></span>
+    </div>
+  </header>
+
+  <section class="grid">
+
+    <article class="card t-seq">
+      <div class="chead">
+        <div class="ctop"><span class="cnum">각도 1</span><span class="cpat">패턴 · 타임라인</span></div>
+        <div class="ctitle">한 턴의 시간순 흐름</div>
+        <div class="cdesc">한 번의 모델 왕복(turn)이 흐르는 <b>순서</b>. 조립 10단계 → pre-prompt 예산 → 모델 스트림 → 도구 실행 루프 → 종료 판정. 위가 진입, 오른쪽·아래가 모델·응답.</div>
+      </div>
+      <div class="cimg" onclick="zoom('view-1-sequence.png')"><img src="view-1-sequence.png" alt="각도 1 — 시간순 흐름" loading="lazy"><span class="zoom">⤢ 크게</span></div>
+      <div class="cfoot"><a href="view-1-sequence.png" target="_blank">🖼 PNG 새 탭</a><a href="view-1-sequence.excalidraw">✎ .excalidraw 원본</a></div>
+    </article>
+
+    <article class="card t-flow">
+      <div class="chead">
+        <div class="ctop"><span class="cnum">각도 2</span><span class="cpat">패턴 · 플로우차트</span></div>
+        <div class="ctitle">제어 흐름 (분기점)</div>
+        <div class="cdesc">런타임의 <b>분기점(◇)</b>들 — 하네스 선택·컨텍스트 넘침·실패/불완전·도구 호출에서 갈라지고, 복구와 도구 결과는 모델로 <b>되돌아온다</b>. 곁가지는 오른쪽, 루프는 왼쪽.</div>
+      </div>
+      <div class="cimg" onclick="zoom('view-2-controlflow.png')"><img src="view-2-controlflow.png" alt="각도 2 — 제어 흐름" loading="lazy"><span class="zoom">⤢ 크게</span></div>
+      <div class="cfoot"><a href="view-2-controlflow.png" target="_blank">🖼 PNG 새 탭</a><a href="view-2-controlflow.excalidraw">✎ .excalidraw 원본</a></div>
+    </article>
+
+    <article class="card t-onion">
+      <div class="chead">
+        <div class="ctop"><span class="cnum">각도 3</span><span class="cpat">패턴 · 동심원</span></div>
+        <div class="ctitle">방어막 동심원</div>
+        <div class="cdesc">런타임 = <b>모델을 감싼 방어막</b>들의 합. 안쪽이 모델 호출, 바깥일수록 운영 보호막 — LLM 경계 여러 겹 → 선제 컴팩션 → 페일오버 → 재생 안전성 → 하네스.</div>
+      </div>
+      <div class="cimg" onclick="zoom('view-3-onion.png')"><img src="view-3-onion.png" alt="각도 3 — 방어막 동심원" loading="lazy"><span class="zoom">⤢ 크게</span></div>
+      <div class="cfoot"><a href="view-3-onion.png" target="_blank">🖼 PNG 새 탭</a><a href="view-3-onion.excalidraw">✎ .excalidraw 원본</a></div>
+    </article>
+
+    <article class="card t-mod">
+      <div class="chead">
+        <div class="ctop"><span class="cnum">각도 4</span><span class="cpat">패턴 · 모듈 지도</span></div>
+        <div class="ctitle">모듈 지도 (구성요소)</div>
+        <div class="cdesc">런타임 코어(<code style="font-family:var(--mono)">embedded-agent-runner/run</code>)를 둘러싼 <b>코드 모듈</b>들 — harness · agent-hooks · sandbox · sessions · tools · agent-core · src/llm · context-engine.</div>
+      </div>
+      <div class="cimg" onclick="zoom('view-4-modulemap.png')"><img src="view-4-modulemap.png" alt="각도 4 — 모듈 지도" loading="lazy"><span class="zoom">⤢ 크게</span></div>
+      <div class="cfoot"><a href="view-4-modulemap.png" target="_blank">🖼 PNG 새 탭</a><a href="view-4-modulemap.excalidraw">✎ .excalidraw 원본</a></div>
+    </article>
+
+    <article class="card t-full">
+      <div class="chead">
+        <div class="ctop"><span class="cnum">종합</span><span class="cpat">패턴 · 멀티줌 (증거 포함)</span></div>
+        <div class="ctitle">전체 종합 — 내부 상세</div>
+        <div class="cdesc">위 각도들을 한 장에 합친 <b>상세도</b>. 진입 → 하네스 선택 → 10단계 조립 → LLM 경계 여러 겹 → 선제 컴팩션 4-루트 → 복구(페일오버·재생안전) → 모델. 실제 함수명·<code style="font-family:var(--mono)">file:line</code> 증거 포함.</div>
+      </div>
+      <div class="cimg" onclick="zoom('agent-runtime-internals.png')"><img src="agent-runtime-internals.png" alt="전체 종합 — 내부 상세" loading="lazy"><span class="zoom">⤢ 크게</span></div>
+      <div class="cfoot"><a href="agent-runtime-internals.png" target="_blank">🖼 PNG 새 탭</a><a href="agent-runtime-internals.excalidraw">✎ .excalidraw 원본</a></div>
+    </article>
+
+  </section>
+
+  <footer>
+    🦞 <strong>OpenClaw 에이전트 런타임 · 다이어그램 갤러리</strong> · 2026-06-25 · Excalidraw로 작성·렌더<br>
+    원본 <code>.excalidraw</code> 파일은 <a href="https://excalidraw.com" style="color:var(--brine)">excalidraw.com</a> 또는 IDE 플러그인에서 열어 편집할 수 있습니다.<br>
+    <span class="ex">EXFOLIATE! EXFOLIATE!</span>
+  </footer>
+
+</div>
+
+<div class="lb" id="lb" onclick="this.classList.remove('open')">
+  <div class="hint">클릭하면 닫힘 · Esc</div>
+  <img id="lbimg" src="" alt="확대 보기">
+</div>
+<script>
+  function zoom(src){ var lb=document.getElementById('lb'); document.getElementById('lbimg').src=src; lb.classList.add('open'); }
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape') document.getElementById('lb').classList.remove('open'); });
+</script>
+</body>
+</html>

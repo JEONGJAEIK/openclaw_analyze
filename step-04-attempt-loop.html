@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>STEP E · 어템프트 루프 — OpenClaw 런타임 사다리</title>
+<link rel="stylesheet" href="steps.css">
+</head>
+<body>
+<div class="wrap">
+  <nav class="crumb"><a href="index.html">← 런타임 사다리</a><span class="pos">어템프트 루프 · E / 17</span></nav>
+
+  <header class="shead phase-loop">
+    <div class="snum">E</div>
+    <div>
+      <div class="sphase">Phase · 어템프트 루프 (개요)</div>
+      <h1>어템프트 루프 · while (true)</h1>
+    </div>
+  </header>
+  <p class="slead">한 턴이 실제로 조립·실행되는 <b>심장부</b>. 아웃터 재시도/페일오버 드라이버가 이너 어템프트를 반복 디스패치하고, 매 결과를 분류해 살아남는다.</p>
+
+  <section class="card phase-loop">
+    <h2>무엇을 하나 (반복 1회)</h2>
+    <ul>
+      <li><b>retry-limit 가드</b> — 한도 초과면 <code>handleRetryLimitExhaustion</code>으로 강제 종료(livenessState "blocked").</li>
+      <li><b>프롬프트 + 런타임 플랜 빌드</b> — 이번 반복의 입력을 구성.</li>
+      <li><b>이너 어템프트 1회 디스패치</b> — <code>runEmbeddedAttemptWithBackend</code> → <code>backend.ts</code> → <code>harness/selection</code> → <code>runEmbeddedAttempt</code>(<code>attempt.ts:837</code>). 여기 안에서 <b>조립 10단계 → 디스패치 → stop-reason</b>이 일어난다.</li>
+      <li><b>결과 normalize + 분류</b> — 결과를 정규화한 뒤 <code>continue</code>(재시도/프로필 회전/모델 폴백/컴팩션) 또는 <b>terminal 반환</b>.</li>
+    </ul>
+  </section>
+
+  <section class="card phase-loop ev">
+    <h2>코드 위치 (검증됨)</h2>
+    <ul>
+      <li><code>run.ts:1885</code> <code>while (true)</code> 어템프트 루프</li>
+      <li><code>run.ts:1886–1920</code> retry-limit 가드 + <code>handleRetryLimitExhaustion</code></li>
+      <li><code>run.ts:2044</code> 이너 어템프트 디스패치 <code>runEmbeddedAttemptWithBackend</code></li>
+      <li><code>backend.ts:10</code> → <code>harness/selection.ts:325</code> → <code>attempt.ts:837</code> <code>runEmbeddedAttempt</code></li>
+      <li><code>run.ts:2235</code> <code>normalizeEmbeddedRunAttemptResult</code> (분류 입력)</li>
+    </ul>
+  </section>
+
+  <section class="card verdict phase-loop">
+    <h2>"조립 10단계"란</h2>
+    <ul>
+      <li>이너 어템프트가 <code>prepStages.mark()</code>로 자기 단계를 계측한다 — 그 마커 순서가 곧 조립 파이프라인이다(<code>attempt.ts:955 → 2943</code>).</li>
+      <li><b>5번째(code-mode/tool-search)는 조건부</b>라, 일반 실행에선 보통 <b>9개</b>가 발화한다. 10은 최대치.</li>
+      <li>이 단계들은 <b>모델 호출 直前</b>까지의 조립만 덮는다. 실제 모델 호출·도구 루프·stop-reason은 그 <b>뒤</b>(<a href="step-15-dispatch.html">디스패치</a>)에서 일어난다.</li>
+    </ul>
+  </section>
+
+  <nav class="stepnav">
+    <a class="prev" href="step-03-resolution.html"><span class="nl">← 이전</span>C · 모델·하네스·인증 해석</a>
+    <a class="next" href="step-05-workspace-sandbox.html"><span class="nl">다음 → 조립 1</span>workspace-sandbox</a>
+  </nav>
+
+  <footer class="foot">🦞 OpenClaw 런타임 사다리 · STEP E · <a href="index.html">전체 보기</a></footer>
+</div>
+</body>
+</html>

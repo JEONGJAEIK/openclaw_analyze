@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>STEP A · 진입 & 설정 해석 — OpenClaw 런타임 사다리</title>
+<link rel="stylesheet" href="steps.css">
+</head>
+<body>
+<div class="wrap">
+  <nav class="crumb"><a href="index.html">← 런타임 사다리</a><span class="pos">진입 · A / 17</span></nav>
+
+  <header class="shead phase-enter">
+    <div class="snum">A</div>
+    <div>
+      <div class="sphase">Phase · 진입</div>
+      <h1>진입 &amp; 설정 해석</h1>
+    </div>
+  </header>
+  <p class="slead">런타임의 <b>단일 공개 진입점</b>. 요청 파라미터를 정규화하고, 설정을 해석하고, lifecycle 세대를 캡처한 뒤 내부 구현으로 위임한다.</p>
+
+  <section class="card phase-enter">
+    <h2>무엇을 하나</h2>
+    <ul>
+      <li><b>요청 정규화</b> — <code>provider</code>/<code>model</code>을 <code>normalizeOptionalString</code>으로 정규화. 둘 다 <b>선택적</b>이라 생략 가능.</li>
+      <li><b>config 폴백</b> — config·provider·model이 모두 없으면 <code>getRuntimeConfigSnapshot()</code>으로 런타임 기본 설정을 끌어온다.</li>
+      <li><b>lifecycle 세대 캡처</b> — 같은 runId의 후속 실행이 이 실행을 대체할 수 있도록 세대를 잡고, 나머지 전체를 <code>withAgentRunLifecycleGeneration()</code>로 감싼다.</li>
+      <li><b>위임</b> — 실제 단계는 모두 <code>runEmbeddedAgentInternal()</code> 안에 있다. 진입 함수는 얇은 래퍼.</li>
+    </ul>
+  </section>
+
+  <section class="card phase-enter ev">
+    <h2>코드 위치</h2>
+    <ul>
+      <li><code>run.ts:602</code> <code>runEmbeddedAgent()</code> 정의 — <code>Promise&lt;EmbeddedAgentRunResult&gt;</code> 반환</li>
+      <li><code>run.ts:605–606</code> provider/model 정규화</li>
+      <li><code>run.ts:607–610</code> <code>needsConfiguredDefault</code> + config 스냅샷 폴백</li>
+      <li><code>run.ts:611–619</code> lifecycle 세대 캡처 + <code>withAgentRunLifecycleGeneration</code></li>
+      <li><code>run.ts:622</code> <code>runEmbeddedAgentInternal()</code> 진입</li>
+    </ul>
+  </section>
+
+  <section class="card verdict phase-enter">
+    <h2>게이트웨이에서 여기까지 — 그 사이의 한 겹</h2>
+    <p>채널 메시지가 이 진입점에 닿기까지는 게이트웨이와 런타임 사이의 <b>auto-reply 계층</b>을 한 번 거친다. 이 계층은 어설픈 래퍼가 아니라 <b>큐잉·중복제거·라우팅</b>을 담당하는 의도된 분리다.</p>
+    <ul>
+      <li>게이트웨이 <code>chat.ts</code> → <code>dispatchInboundMessage</code> → auto-reply 디스패치(라우팅·큐잉) → 실행 계층 <code>agent-runner-execution.ts:2506</code> → <code>runEmbeddedAgent</code>.</li>
+      <li>provider/model은 이 실행 계층에서 해석돼 파라미터로 주입된다 (게이트웨이는 모델을 모른다).</li>
+      <li><code>runEmbeddedAgent</code>는 <b>공유 진입점</b>이다 — cron·talk·commitments·commands·auto-reply 등 ~30곳이 같은 함수로 런타임에 들어온다.</li>
+    </ul>
+  </section>
+
+  <nav class="stepnav">
+    <a class="prev" href="index.html"><span class="nl">← 목록</span>런타임 사다리</a>
+    <a class="next" href="step-02-session-queue.html"><span class="nl">다음 →</span>B · 세션 해석 + 2단 레인 큐</a>
+  </nav>
+
+  <footer class="foot">🦞 OpenClaw 런타임 사다리 · STEP A · <a href="index.html">전체 보기</a></footer>
+</div>
+</body>
+</html>

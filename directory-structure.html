@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OpenClaw · 디렉토리 구조 안내</title>
+<style>
+  :root {
+    --bg: #0e1116;
+    --bg-soft: #161b22;
+    --bg-card: #1a2029;
+    --bg-card-hover: #20283340;
+    --border: #2a323d;
+    --border-soft: #232b35;
+    --text: #e6edf3;
+    --text-dim: #9aa7b4;
+    --text-faint: #6b7785;
+    --accent: #ff7a45;
+    --accent-soft: #ff7a4520;
+    --accent-2: #ffb347;
+    --green: #57c794;
+    --blue: #58a6ff;
+    --purple: #bc8cff;
+    --pink: #f778ba;
+    --mono: ui-monospace, "SF Mono", "Cascadia Code", "JetBrains Mono", Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ---------- Header ---------- */
+  header.hero {
+    background:
+      radial-gradient(1200px 400px at 80% -10%, #ff7a4525, transparent),
+      radial-gradient(900px 350px at 10% 0%, #ffb34715, transparent),
+      var(--bg-soft);
+    border-bottom: 1px solid var(--border);
+    padding: 56px 24px 44px;
+  }
+  .hero-inner { max-width: 1180px; margin: 0 auto; }
+  .logo-row { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
+  .logo-emoji { font-size: 40px; line-height: 1; filter: drop-shadow(0 4px 12px #ff7a4560); }
+  .logo-text { font-size: 30px; font-weight: 800; letter-spacing: -0.5px; }
+  .logo-text span { color: var(--accent); }
+  .tagline { color: var(--accent-2); font-weight: 600; font-size: 13px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 22px; }
+  .hero h1 { font-size: 38px; line-height: 1.2; font-weight: 800; letter-spacing: -1px; margin-bottom: 14px; }
+  .hero h1 .hl { color: var(--accent); }
+  .hero p.lead { font-size: 17px; color: var(--text-dim); max-width: 720px; }
+
+  .meta-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 26px; }
+  .pill {
+    font-family: var(--mono); font-size: 12.5px;
+    background: var(--bg-card); border: 1px solid var(--border);
+    padding: 6px 12px; border-radius: 999px; color: var(--text-dim);
+  }
+  .pill b { color: var(--accent-2); font-weight: 700; }
+
+  /* ---------- Layout ---------- */
+  main { max-width: 1180px; margin: 0 auto; padding: 0 24px 80px; }
+
+  .section { margin-top: 52px; scroll-margin-top: 20px; }
+  .section-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 6px; border-bottom: 1px solid var(--border-soft); padding-bottom: 12px; }
+  .section-head h2 { font-size: 23px; font-weight: 750; letter-spacing: -0.4px; }
+  .section-head .count { font-family: var(--mono); font-size: 13px; color: var(--text-faint); }
+  .section-desc { color: var(--text-dim); font-size: 15px; margin: 10px 0 22px; max-width: 760px; }
+
+  /* ---------- Nav (sticky) ---------- */
+  nav.toc {
+    position: sticky; top: 0; z-index: 20;
+    background: #0e1116e8; backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 24px;
+  }
+  .toc-inner { max-width: 1180px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .toc a {
+    font-size: 13px; color: var(--text-dim); text-decoration: none;
+    padding: 5px 11px; border-radius: 7px; transition: .15s;
+    border: 1px solid transparent;
+  }
+  .toc a:hover { color: var(--text); background: var(--bg-card); border-color: var(--border); }
+
+  /* ---------- Cards ---------- */
+  .grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); }
+
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 18px 16px;
+    transition: border-color .18s, transform .18s, background .18s;
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+    background: var(--tone, var(--accent)); opacity: .8;
+  }
+  .card:hover { border-color: var(--tone, var(--accent)); transform: translateY(-2px); background: #1d242e; }
+
+  .card .path {
+    font-family: var(--mono); font-size: 15px; font-weight: 700;
+    color: var(--tone, var(--accent)); margin-bottom: 7px; display: flex; align-items: center; gap: 8px;
+  }
+  .card .path .ic { font-size: 15px; opacity: .85; }
+  .card .role { color: var(--text); font-size: 14px; margin-bottom: 9px; }
+  .card .detail { color: var(--text-dim); font-size: 13px; line-height: 1.55; }
+  .card .tag {
+    display: inline-block; font-family: var(--mono); font-size: 11px;
+    background: var(--accent-soft); color: var(--accent-2);
+    padding: 2px 8px; border-radius: 6px; margin-top: 11px; margin-right: 5px;
+    border: 1px solid #ff7a4530;
+  }
+
+  /* compact grid for src subdirs */
+  .grid-compact { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+  .mini {
+    background: var(--bg-card); border: 1px solid var(--border-soft);
+    border-radius: 9px; padding: 12px 14px; transition: .15s;
+  }
+  .mini:hover { border-color: var(--tone, var(--accent)); background: #1d242e; }
+  .mini .p { font-family: var(--mono); font-size: 13.5px; font-weight: 700; color: var(--tone, var(--accent)); margin-bottom: 3px; }
+  .mini .d { font-size: 12.5px; color: var(--text-dim); line-height: 1.45; }
+
+  /* group label */
+  .group-label {
+    font-size: 13px; font-weight: 700; color: var(--text-faint);
+    text-transform: uppercase; letter-spacing: 1px;
+    margin: 24px 0 12px; padding-left: 2px;
+  }
+  .group-label:first-of-type { margin-top: 4px; }
+
+  /* files table */
+  .files { display: grid; gap: 9px; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); }
+  .file-row { display: flex; gap: 11px; align-items: flex-start; padding: 10px 13px; background: var(--bg-card); border: 1px solid var(--border-soft); border-radius: 8px; }
+  .file-row code { font-family: var(--mono); font-size: 12.5px; color: var(--blue); white-space: nowrap; font-weight: 600; }
+  .file-row span { font-size: 12.5px; color: var(--text-dim); }
+
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 28px 24px; text-align: center;
+    color: var(--text-faint); font-size: 13px;
+  }
+  footer code { font-family: var(--mono); color: var(--text-dim); }
+
+  /* tone helpers */
+  .t-core { --tone: var(--accent); }
+  .t-pkg { --tone: var(--blue); }
+  .t-ext { --tone: var(--purple); }
+  .t-app { --tone: var(--green); }
+  .t-doc { --tone: var(--accent-2); }
+  .t-ops { --tone: var(--pink); }
+
+  @media (max-width: 640px) {
+    .hero h1 { font-size: 28px; }
+    header.hero { padding: 40px 18px 32px; }
+    main { padding: 0 16px 60px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="logo-row">
+      <span class="logo-emoji">🦞</span>
+      <span class="logo-text">Open<span>Claw</span></span>
+    </div>
+    <div class="tagline">EXFOLIATE! EXFOLIATE!</div>
+    <h1>프로젝트 <span class="hl">디렉토리별 역할</span> 안내서</h1>
+    <p class="lead">
+      OpenClaw는 자신의 기기에서 직접 실행하는 <strong>개인용 AI 어시스턴트</strong>입니다.
+      WhatsApp · Telegram · Slack · Discord · iMessage 등 이미 쓰는 채널에서 응답하고,
+      음성으로 말하고 들으며, 라이브 Canvas를 렌더링합니다. Gateway는 컨트롤 플레인일 뿐,
+      제품의 본질은 어시스턴트 그 자체입니다. 이 문서는 모노레포의 디렉토리 구조와 각 영역의 역할을 정리합니다.
+    </p>
+    <div class="meta-row">
+      <span class="pill">루트 디렉토리 <b>16+</b></span>
+      <span class="pill"><code>src/</code> 모듈 <b>68</b></span>
+      <span class="pill"><code>extensions/</code> 플러그인 <b>139</b></span>
+      <span class="pill"><code>packages/</code> 라이브러리 <b>21</b></span>
+      <span class="pill"><code>skills/</code> 스킬 <b>52</b></span>
+      <span class="pill">언어 <b>TypeScript · Swift · Kotlin</b></span>
+    </div>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="toc-inner">
+    <a href="#top">최상위 구조</a>
+    <a href="#src">src/ 코어 런타임</a>
+    <a href="#packages">packages/</a>
+    <a href="#extensions">extensions/</a>
+    <a href="#apps-ui">apps · ui</a>
+    <a href="#ops">문서 · 운영</a>
+    <a href="#files">루트 파일</a>
+  </div>
+</nav>
+
+<main>
+
+  <!-- ============ TOP LEVEL ============ -->
+  <section class="section" id="top">
+    <div class="section-head">
+      <h2>최상위 디렉토리</h2>
+      <span class="count">root/</span>
+    </div>
+    <p class="section-desc">
+      모노레포 루트의 주요 디렉토리입니다. 코어 런타임(<code>src</code>)을 중심으로,
+      재사용 라이브러리(<code>packages</code>)·플러그인(<code>extensions</code>)·네이티브 앱(<code>apps</code>)이
+      위성처럼 배치되어 있습니다.
+    </p>
+
+    <div class="grid">
+      <div class="card t-core">
+        <div class="path"><span class="ic">⚙️</span>src/</div>
+        <div class="role">코어 TypeScript 런타임 — 프로젝트의 심장</div>
+        <div class="detail">Gateway·에이전트·채널·CLL·플러그인 로더·세션·도구 등 OpenClaw의 핵심 로직 전부. 플러그인에 비의존적(plugin-agnostic)이며, 플러그인은 SDK 시암(seam)을 통해서만 코어로 진입합니다.</div>
+        <span class="tag">68개 모듈</span><span class="tag">핵심</span>
+      </div>
+
+      <div class="card t-pkg">
+        <div class="path"><span class="ic">📦</span>packages/</div>
+        <div class="role">재사용 가능한 내부 라이브러리 패키지</div>
+        <div class="detail">코어와 플러그인이 공유하는 독립 패키지. <code>gateway-protocol</code>(통신 규약), <code>llm-core</code>·<code>llm-runtime</code>(LLM), <code>agent-core</code>, <code>plugin-sdk</code> 등으로 구성됩니다.</div>
+        <span class="tag">21개 패키지</span>
+      </div>
+
+      <div class="card t-ext">
+        <div class="path"><span class="ic">🧩</span>extensions/</div>
+        <div class="role">플러그인 — 프로바이더 · 채널 · 도구</div>
+        <div class="detail">anthropic·openai·amazon-bedrock 등 모델 프로바이더, discord·brave 등 통합 기능. 코어 dist에 번들되는 내부 플러그인과 자체 패키지/의존성을 소유하는 외부 공식 플러그인으로 나뉩니다.</div>
+        <span class="tag">139개 플러그인</span>
+      </div>
+
+      <div class="card t-ext">
+        <div class="path"><span class="ic">🛠️</span>skills/</div>
+        <div class="role">외부 도구 · 서비스 연동 스킬</div>
+        <div class="detail">1password·notion·github·obsidian·peekaboo 등 외부 앱/서비스를 어시스턴트가 다루게 해주는 스킬 모음. 각 스킬은 독립 폴더로 캡슐화됩니다.</div>
+        <span class="tag">52개 스킬</span>
+      </div>
+
+      <div class="card t-app">
+        <div class="path"><span class="ic">📱</span>apps/</div>
+        <div class="role">네이티브 클라이언트 앱</div>
+        <div class="detail"><code>android</code>(Kotlin)·<code>ios</code>·<code>macos</code>(Swift)·<code>macos-mlx-tts</code>(로컬 TTS)·<code>swabble</code> 앱과, 이들이 공유하는 <code>shared/OpenClawKit</code>. 음성·트레이·노드 모드 등 기기별 경험을 담당합니다.</div>
+        <span class="tag">Swift · Kotlin</span>
+      </div>
+
+      <div class="card t-app">
+        <div class="path"><span class="ic">🖥️</span>ui/</div>
+        <div class="role">웹 기반 컨트롤 UI (Vite)</div>
+        <div class="detail">게이트웨이를 제어하는 웹 프론트엔드. 라이브 Canvas·설정·채팅 화면을 렌더링합니다. <code>src</code>·<code>public</code>·<code>vite.config.ts</code>로 구성된 독립 Vite 앱입니다.</div>
+        <span class="tag">Vite · TS</span>
+      </div>
+
+      <div class="card t-doc">
+        <div class="path"><span class="ic">📚</span>docs/</div>
+        <div class="role">문서 소스 → docs.openclaw.ai</div>
+        <div class="detail">설치·채널·플러그인·아키텍처·레퍼런스 문서의 원본. <code>docs-sync-publish.yml</code>을 통해 미러 빌드 후 R2 + Worker 라우터로 발행됩니다.</div>
+        <span class="tag">발행 소스</span>
+      </div>
+
+      <div class="card t-doc">
+        <div class="path"><span class="ic">✅</span>qa/</div>
+        <div class="role">QA 시나리오 · 성숙도 평가</div>
+        <div class="detail">테스트 시나리오(<code>scenarios</code>), 성숙도 점수(<code>maturity-scores.yaml</code>), 프런티어 하네스 계획, 자격증명 브로커 등 품질 검증 자산.</div>
+      </div>
+
+      <div class="card t-ops">
+        <div class="path"><span class="ic">🧪</span>test/</div>
+        <div class="role">통합 · E2E 테스트 하네스</div>
+        <div class="detail">패키지 경계·릴리스·런처·플러그인 import 경계 등을 검증하는 통합/E2E 테스트와 <code>fixtures</code>·<code>helpers</code>·<code>mocks</code>. 단위 테스트는 각 소스 옆 <code>*.test.ts</code>에 위치합니다.</div>
+      </div>
+
+      <div class="card t-ops">
+        <div class="path"><span class="ic">📜</span>scripts/</div>
+        <div class="role">빌드 · 릴리스 · 벤치 · 검사 스크립트</div>
+        <div class="detail">빌드(<code>build-all.mjs</code>)·안드로이드 릴리스·성능 벤치(<code>bench-*</code>)·아키텍처 스멜 검사·변경 레인 분석 등 개발/CI 자동화 스크립트.</div>
+      </div>
+
+      <div class="card t-ops">
+        <div class="path"><span class="ic">🔧</span>config/</div>
+        <div class="role">공유 빌드 · 린트 설정</div>
+        <div class="detail"><code>tsconfig</code> 베이스, <code>knip</code>(미사용 코드), markdownlint, shellcheck, swiftformat/swiftlint 등 도구 설정의 공통 보관소.</div>
+      </div>
+
+      <div class="card t-ops">
+        <div class="path"><span class="ic">🚀</span>deploy/</div>
+        <div class="role">배포 환경 설정</div>
+        <div class="detail">프라이빗 배포용 <code>fly.private.toml</code>. 루트의 <code>fly.toml</code>·<code>render.yaml</code>·<code>docker-compose.yml</code>과 함께 호스팅 구성을 이룹니다.</div>
+      </div>
+
+      <div class="card t-ops">
+        <div class="path"><span class="ic">🔐</span>security/</div>
+        <div class="role">보안 스캔 규칙</div>
+        <div class="detail"><code>opengrep</code> 정적 분석 규칙 등 보안 검사 자산. 루트 <code>SECURITY.md</code>·<code>.semgrepignore</code>와 연계됩니다.</div>
+      </div>
+
+      <div class="card t-ops">
+        <div class="path"><span class="ic">📝</span>.agents/</div>
+        <div class="role">메인테이너 노트 · 에이전트 스킬</div>
+        <div class="detail">유지보수자용 노트(<code>maintainer-notes</code>)와 내부 자동화 에이전트 스킬(autoreview·clawsweeper·crabbox 등) 정의.</div>
+      </div>
+
+      <div class="card t-ops">
+        <div class="path"><span class="ic">🤖</span>.github/</div>
+        <div class="role">CI · GitHub 워크플로우</div>
+        <div class="detail">CI 파이프라인, 이슈/PR 템플릿, 자동화 워크플로우 정의.</div>
+      </div>
+
+      <div class="card t-ops">
+        <div class="path"><span class="ic">🪝</span>git-hooks/ · patches/</div>
+        <div class="role">Git 훅 · 의존성 패치</div>
+        <div class="detail"><code>git-hooks/pre-commit</code> 커밋 전 검사 훅과, npm 의존성을 직접 수정하는 <code>patches/*.patch</code>(예: claude-agent-acp).</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SRC ============ -->
+  <section class="section" id="src">
+    <div class="section-head">
+      <h2>src/ — 코어 런타임 모듈</h2>
+      <span class="count">68 modules</span>
+    </div>
+    <p class="section-desc">
+      코어는 플러그인에 의존하지 않는 일반 런타임입니다. 기능별로 묶어 정리했습니다.
+      각 모듈은 같은 폴더의 <code>*.test.ts</code>로 단위 테스트를 동반합니다.
+    </p>
+
+    <div class="group-label">🚪 진입 · 부팅 · 프로세스</div>
+    <div class="grid-compact">
+      <div class="mini t-core"><div class="p">cli/</div><div class="d">CLI 명령어·인자 파싱·배너 등 터미널 진입점</div></div>
+      <div class="mini t-core"><div class="p">commands/</div><div class="d">명령어 정의와 실행 처리</div></div>
+      <div class="mini t-core"><div class="p">bootstrap/</div><div class="d">런타임 부팅·초기화 시퀀스</div></div>
+      <div class="mini t-core"><div class="p">daemon/</div><div class="d">백그라운드 데몬/게이트웨이 프로세스 수명주기</div></div>
+      <div class="mini t-core"><div class="p">process/</div><div class="d">하위 프로세스 spawn·관리</div></div>
+      <div class="mini t-core"><div class="p">wizard/</div><div class="d">onboard 온보딩 마법사 흐름</div></div>
+      <div class="mini t-core"><div class="p">interactive/</div><div class="d">대화형(REPL) 모드</div></div>
+      <div class="mini t-core"><div class="p">tui/</div><div class="d">터미널 UI 렌더링</div></div>
+    </div>
+
+    <div class="group-label">🧠 에이전트 · LLM · 컨텍스트</div>
+    <div class="grid-compact">
+      <div class="mini t-core"><div class="p">agents/</div><div class="d">에이전트 런타임·실행·종료 상태 정규화</div></div>
+      <div class="mini t-core"><div class="p">llm/</div><div class="d">LLM 호출·프롬프트 통합 계층</div></div>
+      <div class="mini t-core"><div class="p">context-engine/</div><div class="d">컨텍스트 조립·위임 엔진</div></div>
+      <div class="mini t-core"><div class="p">tools/</div><div class="d">에이전트가 호출하는 도구 정의</div></div>
+      <div class="mini t-core"><div class="p">trajectory/</div><div class="d">에이전트 실행 궤적 기록·내보내기</div></div>
+      <div class="mini t-core"><div class="p">transcripts/</div><div class="d">대화 전사 기록 저장</div></div>
+      <div class="mini t-core"><div class="p">memory/</div><div class="d">에이전트 장기 기억</div></div>
+      <div class="mini t-core"><div class="p">memory-host-sdk/</div><div class="d">메모리 호스트 SDK 바인딩</div></div>
+      <div class="mini t-core"><div class="p">crestodian/</div><div class="d">어시스턴트 백엔드·프롬프트·감사 로직</div></div>
+      <div class="mini t-core"><div class="p">commitments/</div><div class="d">약속/후속 작업 추출·하트비트 정책</div></div>
+      <div class="mini t-core"><div class="p">tasks/</div><div class="d">작업(task) 관리</div></div>
+      <div class="mini t-core"><div class="p">cron/</div><div class="d">예약·반복 작업 스케줄러</div></div>
+    </div>
+
+    <div class="group-label">💬 채널 · 채팅 · 라우팅</div>
+    <div class="grid-compact">
+      <div class="mini t-core"><div class="p">channels/</div><div class="d">WhatsApp·Telegram·Slack 등 전송 계층 구현</div></div>
+      <div class="mini t-core"><div class="p">chat/</div><div class="d">채팅 메시지 처리 로직</div></div>
+      <div class="mini t-core"><div class="p">routing/</div><div class="d">계정·메시지 라우팅과 조회</div></div>
+      <div class="mini t-core"><div class="p">auto-reply/</div><div class="d">자동 응답 처리</div></div>
+      <div class="mini t-core"><div class="p">polls/ · poll-params</div><div class="d">투표(poll) 기능</div></div>
+      <div class="mini t-core"><div class="p">flows/</div><div class="d">채널 설정·헬스체크 등 가이드 흐름</div></div>
+      <div class="mini t-core"><div class="p">talk/</div><div class="d">음성 대화·에이전트 호출 활성화</div></div>
+      <div class="mini t-core"><div class="p">status/</div><div class="d">상태 표시·보고</div></div>
+    </div>
+
+    <div class="group-label">🔌 게이트웨이 · 플러그인 · 프로토콜</div>
+    <div class="grid-compact">
+      <div class="mini t-core"><div class="p">gateway/</div><div class="d">컨트롤 플레인 게이트웨이</div></div>
+      <div class="mini t-core"><div class="p">plugins/</div><div class="d">플러그인 로더·활성화</div></div>
+      <div class="mini t-core"><div class="p">plugin-sdk/</div><div class="d">플러그인이 코어로 진입하는 공개 SDK 시암</div></div>
+      <div class="mini t-core"><div class="p">plugin-state/</div><div class="d">플러그인 상태 저장</div></div>
+      <div class="mini t-core"><div class="p">provider-runtime/</div><div class="d">프로바이더(모델) 런타임 훅</div></div>
+      <div class="mini t-core"><div class="p">model-catalog/</div><div class="d">사용 가능 모델 카탈로그</div></div>
+      <div class="mini t-core"><div class="p">acp/</div><div class="d">Agent Client Protocol 통합</div></div>
+      <div class="mini t-core"><div class="p">mcp/</div><div class="d">Model Context Protocol 지원</div></div>
+      <div class="mini t-core"><div class="p">node-host/</div><div class="d">노드 호스트 실행 정책·invoke</div></div>
+      <div class="mini t-core"><div class="p">pairing/</div><div class="d">디바이스 페어링</div></div>
+    </div>
+
+    <div class="group-label">🎙️ 미디어 · 음성 · 생성</div>
+    <div class="grid-compact">
+      <div class="mini t-core"><div class="p">media/</div><div class="d">미디어 처리 코어</div></div>
+      <div class="mini t-core"><div class="p">media-generation/</div><div class="d">미디어 생성</div></div>
+      <div class="mini t-core"><div class="p">media-understanding/</div><div class="d">미디어 이해·분석</div></div>
+      <div class="mini t-core"><div class="p">image-generation/</div><div class="d">이미지 생성</div></div>
+      <div class="mini t-core"><div class="p">video-generation/</div><div class="d">비디오 생성</div></div>
+      <div class="mini t-core"><div class="p">music-generation/</div><div class="d">음악 생성</div></div>
+      <div class="mini t-core"><div class="p">tts/</div><div class="d">텍스트→음성 변환</div></div>
+      <div class="mini t-core"><div class="p">talk/ · realtime-transcription</div><div class="d">실시간 음성 전사</div></div>
+    </div>
+
+    <div class="group-label">🌐 웹 · 링크 · 외부 연결</div>
+    <div class="grid-compact">
+      <div class="mini t-core"><div class="p">web-search/</div><div class="d">웹 검색</div></div>
+      <div class="mini t-core"><div class="p">web-fetch/</div><div class="d">웹 페이지 페치</div></div>
+      <div class="mini t-core"><div class="p">link-understanding/</div><div class="d">링크 콘텐츠 이해</div></div>
+      <div class="mini t-core"><div class="p">proxy-capture/</div><div class="d">프록시 트래픽 캡처</div></div>
+      <div class="mini t-core"><div class="p">skills/</div><div class="d">스킬 실행 런타임</div></div>
+    </div>
+
+    <div class="group-label">🗄️ 상태 · 설정 · 보안 · 기반</div>
+    <div class="grid-compact">
+      <div class="mini t-core"><div class="p">state/</div><div class="d">SQLite 기반 전역 런타임 상태 저장</div></div>
+      <div class="mini t-core"><div class="p">sessions/</div><div class="d">세션 수명주기 관리</div></div>
+      <div class="mini t-core"><div class="p">config/</div><div class="d">canonical 설정 시스템</div></div>
+      <div class="mini t-core"><div class="p">secrets/</div><div class="d">비밀·자격증명 관리</div></div>
+      <div class="mini t-core"><div class="p">security/</div><div class="d">보안 정책·검사</div></div>
+      <div class="mini t-core"><div class="p">hooks/</div><div class="d">런타임 훅 시스템</div></div>
+      <div class="mini t-core"><div class="p">logging/ · logger</div><div class="d">로깅 인프라</div></div>
+      <div class="mini t-core"><div class="p">i18n/</div><div class="d">국제화·다국어</div></div>
+      <div class="mini t-core"><div class="p">infra/</div><div class="d">공통 인프라 헬퍼</div></div>
+      <div class="mini t-core"><div class="p">bindings/</div><div class="d">네이티브/외부 바인딩</div></div>
+      <div class="mini t-core"><div class="p">compat/</div><div class="d">호환성·마이그레이션 보조</div></div>
+      <div class="mini t-core"><div class="p">shared/ · utils/ · types/</div><div class="d">공유 유틸리티·타입 정의</div></div>
+    </div>
+  </section>
+
+  <!-- ============ PACKAGES ============ -->
+  <section class="section" id="packages">
+    <div class="section-head">
+      <h2>packages/ — 내부 라이브러리</h2>
+      <span class="count">21 packages</span>
+    </div>
+    <p class="section-desc">코어와 플러그인이 공유하는 독립 패키지. 워크스페이스로 관리되며 각자 빌드 경계를 가집니다.</p>
+
+    <div class="grid-compact">
+      <div class="mini t-pkg"><div class="p">gateway-protocol/</div><div class="d">게이트웨이↔클라이언트 통신 규약(버전 관리 대상)</div></div>
+      <div class="mini t-pkg"><div class="p">gateway-client/</div><div class="d">게이트웨이 클라이언트 라이브러리</div></div>
+      <div class="mini t-pkg"><div class="p">agent-core/</div><div class="d">에이전트 코어 추상화</div></div>
+      <div class="mini t-pkg"><div class="p">llm-core/</div><div class="d">LLM 코어 타입·로직</div></div>
+      <div class="mini t-pkg"><div class="p">llm-runtime/</div><div class="d">LLM 실행 런타임</div></div>
+      <div class="mini t-pkg"><div class="p">model-catalog-core/</div><div class="d">모델 카탈로그 코어</div></div>
+      <div class="mini t-pkg"><div class="p">acp-core/</div><div class="d">Agent Client Protocol 코어</div></div>
+      <div class="mini t-pkg"><div class="p">plugin-sdk/</div><div class="d">플러그인 SDK 공개 표면</div></div>
+      <div class="mini t-pkg"><div class="p">plugin-package-contract/</div><div class="d">플러그인 패키지 계약 정의</div></div>
+      <div class="mini t-pkg"><div class="p">sdk/</div><div class="d">통합 SDK 패키지</div></div>
+      <div class="mini t-pkg"><div class="p">memory-host-sdk/</div><div class="d">메모리 호스트 SDK</div></div>
+      <div class="mini t-pkg"><div class="p">speech-core/</div><div class="d">음성 런타임(OpenClaw speech runtime)</div></div>
+      <div class="mini t-pkg"><div class="p">media-core/</div><div class="d">미디어 코어</div></div>
+      <div class="mini t-pkg"><div class="p">media-generation-core/</div><div class="d">미디어 생성 코어</div></div>
+      <div class="mini t-pkg"><div class="p">media-understanding-common/</div><div class="d">미디어 이해 공통 모듈</div></div>
+      <div class="mini t-pkg"><div class="p">markdown-core/</div><div class="d">마크다운 처리 코어</div></div>
+      <div class="mini t-pkg"><div class="p">web-content-core/</div><div class="d">웹 콘텐츠 추출 코어</div></div>
+      <div class="mini t-pkg"><div class="p">normalization-core/</div><div class="d">데이터 정규화 코어</div></div>
+      <div class="mini t-pkg"><div class="p">net-policy/</div><div class="d">네트워크 정책(허용/차단)</div></div>
+      <div class="mini t-pkg"><div class="p">terminal-core/</div><div class="d">터미널 처리 코어</div></div>
+      <div class="mini t-pkg"><div class="p">tool-call-repair/</div><div class="d">도구 호출 복구 로직</div></div>
+    </div>
+  </section>
+
+  <!-- ============ EXTENSIONS ============ -->
+  <section class="section" id="extensions">
+    <div class="section-head">
+      <h2>extensions/ — 플러그인</h2>
+      <span class="count">139 plugins</span>
+    </div>
+    <p class="section-desc">
+      코어의 일반 루프 위에 기능을 얹는 플러그인. 모델 프로바이더가 auth/카탈로그/런타임 훅을 소유하고,
+      메시지 채널은 전송 전용으로 유지됩니다. 코어 <code>src/**</code>에 직접 의존할 수 없고 공개 배럴만 사용합니다.
+    </p>
+
+    <div class="grid">
+      <div class="card t-ext">
+        <div class="path"><span class="ic">🤝</span>모델 프로바이더</div>
+        <div class="role">LLM/AI 백엔드 통합</div>
+        <div class="detail"><code>anthropic</code>·<code>anthropic-vertex</code>·<code>amazon-bedrock</code>·<code>azure-speech</code>·<code>cerebras</code>·<code>cohere</code>·<code>copilot</code>·<code>deepseek</code>·<code>codex</code> 등. 각자 인증·모델 카탈로그·런타임 훅을 소유합니다.</div>
+      </div>
+      <div class="card t-ext">
+        <div class="path"><span class="ic">💬</span>채널 어댑터</div>
+        <div class="role">메시징 플랫폼 전송 계층</div>
+        <div class="detail"><code>discord</code> 등 채널 플러그인은 전송 전용 — 이식 가능한 표현/액션을 렌더링하고 전송 한계를 강제하며 콜백 봉투를 매핑합니다. 제품 명령 트리나 정책은 소유하지 않습니다.</div>
+      </div>
+      <div class="card t-ext">
+        <div class="path"><span class="ic">🧰</span>도구 · 통합</div>
+        <div class="role">검색 · 미디어 · 디바이스 기능</div>
+        <div class="detail"><code>brave</code>·<code>duckduckgo</code>·<code>exa</code>(검색), <code>browser</code>·<code>canvas</code>·<code>comfy</code>·<code>elevenlabs</code>·<code>deepgram</code>(미디어), <code>bonjour</code>·<code>device-pair</code>·<code>diagnostics-otel</code> 등 기능 확장.</div>
+      </div>
+      <div class="card t-ext">
+        <div class="path"><span class="ic">📖</span>스코프 가이드</div>
+        <div class="role">AGENTS.md · CLAUDE.md</div>
+        <div class="detail"><code>extensions/</code> 루트에는 플러그인 작성 규칙을 담은 <code>AGENTS.md</code>·<code>CLAUDE.md</code> 가이드가 있어, 코어 경계와 SDK 시암 사용 규칙을 안내합니다.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ APPS / UI ============ -->
+  <section class="section" id="apps-ui">
+    <div class="section-head">
+      <h2>apps/ · ui/ — 클라이언트</h2>
+      <span class="count">native + web</span>
+    </div>
+    <p class="section-desc">사용자가 직접 마주하는 네이티브 앱과 웹 컨트롤 UI. 음성·트레이·Canvas 등 기기별 경험을 담당합니다.</p>
+
+    <div class="grid-compact">
+      <div class="mini t-app"><div class="p">apps/android/</div><div class="d">안드로이드 앱(Kotlin) — 노드 모드·로컬 MCP</div></div>
+      <div class="mini t-app"><div class="p">apps/ios/</div><div class="d">iOS 앱(Swift) — 음성·채팅</div></div>
+      <div class="mini t-app"><div class="p">apps/macos/</div><div class="d">macOS 앱(Swift) — 데스크톱 허브</div></div>
+      <div class="mini t-app"><div class="p">apps/macos-mlx-tts/</div><div class="d">macOS 로컬 MLX 기반 TTS 엔진</div></div>
+      <div class="mini t-app"><div class="p">apps/swabble/</div><div class="d">Swift 보조 앱(자체 패키지)</div></div>
+      <div class="mini t-app"><div class="p">apps/shared/OpenClawKit/</div><div class="d">앱들이 공유하는 Swift 공통 킷</div></div>
+      <div class="mini t-app"><div class="p">ui/src/</div><div class="d">웹 컨트롤 UI 소스(Vite·TS)</div></div>
+      <div class="mini t-app"><div class="p">ui/public/</div><div class="d">정적 에셋</div></div>
+    </div>
+  </section>
+
+  <!-- ============ OPS / DOCS ============ -->
+  <section class="section" id="ops">
+    <div class="section-head">
+      <h2>문서 · 품질 · 운영</h2>
+      <span class="count">docs · qa · test · ops</span>
+    </div>
+    <p class="section-desc">제품 코드를 둘러싼 문서·검증·자동화 디렉토리.</p>
+
+    <div class="grid-compact">
+      <div class="mini t-doc"><div class="p">docs/start · install</div><div class="d">시작·설치 가이드</div></div>
+      <div class="mini t-doc"><div class="p">docs/channels · plugins</div><div class="d">채널·플러그인 사용 문서</div></div>
+      <div class="mini t-doc"><div class="p">docs/concepts · reference</div><div class="d">개념·API 레퍼런스</div></div>
+      <div class="mini t-doc"><div class="p">docs/platforms</div><div class="d">플랫폼별(Windows 등) 안내</div></div>
+      <div class="mini t-doc"><div class="p">qa/scenarios</div><div class="d">QA 시나리오 정의</div></div>
+      <div class="mini t-doc"><div class="p">qa/maturity-scores.yaml</div><div class="d">기능 성숙도 점수</div></div>
+      <div class="mini t-ops"><div class="p">test/e2e</div><div class="d">엔드투엔드 테스트</div></div>
+      <div class="mini t-ops"><div class="p">test/fixtures · mocks</div><div class="d">테스트 픽스처·목</div></div>
+      <div class="mini t-ops"><div class="p">scripts/bench-*</div><div class="d">시작·게이트웨이 성능 벤치마크</div></div>
+      <div class="mini t-ops"><div class="p">scripts/check-*</div><div class="d">아키텍처 스멜·경계 검사</div></div>
+      <div class="mini t-ops"><div class="p">security/opengrep</div><div class="d">정적 보안 분석 규칙</div></div>
+      <div class="mini t-ops"><div class="p">.github/workflows</div><div class="d">CI/CD 파이프라인</div></div>
+    </div>
+  </section>
+
+  <!-- ============ ROOT FILES ============ -->
+  <section class="section" id="files">
+    <div class="section-head">
+      <h2>주요 루트 파일</h2>
+      <span class="count">root files</span>
+    </div>
+    <p class="section-desc">저장소 루트의 핵심 설정·문서 파일.</p>
+
+    <div class="files">
+      <div class="file-row"><code>openclaw.mjs</code><span>CLI 실행 엔트리포인트</span></div>
+      <div class="file-row"><code>package.json</code><span>워크스페이스 루트 매니페스트·스크립트</span></div>
+      <div class="file-row"><code>pnpm-workspace.yaml</code><span>pnpm 모노레포 워크스페이스 정의</span></div>
+      <div class="file-row"><code>tsdown.config.ts</code><span>번들 빌드 설정</span></div>
+      <div class="file-row"><code>tsconfig*.json</code><span>TypeScript 컴파일 구성(코어/확장 분리)</span></div>
+      <div class="file-row"><code>vitest.config.ts</code><span>테스트 러너 설정</span></div>
+      <div class="file-row"><code>Dockerfile · docker-compose.yml</code><span>컨테이너 빌드·실행</span></div>
+      <div class="file-row"><code>fly.toml · render.yaml</code><span>호스팅 배포 구성</span></div>
+      <div class="file-row"><code>AGENTS.md</code><span>에이전트·기여자용 아키텍처 규칙(핵심 가이드)</span></div>
+      <div class="file-row"><code>CLAUDE.md</code><span>AGENTS.md를 가리키는 프로젝트 지침</span></div>
+      <div class="file-row"><code>README.md · VISION.md</code><span>프로젝트 소개·비전</span></div>
+      <div class="file-row"><code>SECURITY.md</code><span>보안 정책</span></div>
+      <div class="file-row"><code>taxonomy.yaml · appcast.xml</code><span>분류 체계·앱 업데이트 캐스트</span></div>
+      <div class="file-row"><code>.oxlintrc.json · .oxfmtrc.jsonc</code><span>oxlint 린트·oxfmt 포맷 규칙</span></div>
+      <div class="file-row"><code>.env.example</code><span>환경 변수 템플릿</span></div>
+      <div class="file-row"><code>CHANGELOG.md</code><span>변경 이력</span></div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  🦞 <strong>OpenClaw</strong> 디렉토리 구조 안내 · 생성일 2026-06-24 ·
+  근거: <code>README.md</code>, <code>AGENTS.md</code>, 실제 디렉토리 트리<br>
+  핵심 원칙: <em>코어는 plugin-agnostic, 플러그인은 SDK 시암으로만 진입, 상태는 SQLite 우선</em>
+</footer>
+
+</body>
+</html>

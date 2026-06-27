@@ -1,0 +1,70 @@
+/* OpenClaw 런타임 사다리 — 단계별 전용 페이지 공용 스타일 */
+:root{
+  --ink:#0e1116; --abyss:#0a0d12; --panel:#161b22; --panel2:#1a2029; --code:#11151b;
+  --line:#2a323d; --line-soft:#222a34;
+  --shell:#ff7a45; --roe:#ffb347; --brine:#58a6ff; --kelp:#57c794; --coral:#bc8cff; --pink:#f778ba;
+  --tx:#e9eef4; --tx-dim:#9aa7b4; --tx-faint:#677482;
+  --mono:ui-monospace,"SF Mono","Cascadia Code","JetBrains Mono",Consolas,monospace;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI","Pretendard","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans); background:var(--ink); color:var(--tx); line-height:1.65; -webkit-font-smoothing:antialiased;
+  background-image:radial-gradient(1100px 460px at 82% -8%, #ff7a4514, transparent), radial-gradient(900px 460px at 4% 2%, #58a6ff10, transparent), linear-gradient(var(--ink), var(--abyss)); background-attachment:fixed;}
+a{color:inherit}
+.wrap{max-width:880px; margin:0 auto; padding:0 24px 80px}
+
+/* breadcrumb */
+.crumb{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:22px 0 8px; font-family:var(--mono); font-size:12px; color:var(--tx-faint)}
+.crumb a{color:var(--brine); text-decoration:none}
+.crumb a:hover{text-decoration:underline}
+.crumb .pos{color:var(--tx-faint)}
+
+/* step header */
+.shead{display:flex; align-items:center; gap:16px; margin-top:14px; padding-bottom:18px; border-bottom:1px solid var(--line)}
+.snum{flex:none; width:54px; height:54px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-family:var(--mono); font-size:19px; font-weight:800; color:#0e1116; background:var(--tone,var(--shell)); box-shadow:0 0 0 4px color-mix(in srgb, var(--tone,var(--shell)) 14%, transparent)}
+.sphase{font-family:var(--mono); font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--tone,var(--shell)); margin-bottom:3px}
+.shead h1{font-size:25px; font-weight:820; letter-spacing:-.6px; line-height:1.14}
+.slead{margin:20px 0 4px; font-size:16px; color:var(--tx-dim)}
+.slead b{color:var(--tx)}
+
+/* phase tones */
+.phase-enter{--tone:var(--kelp)} .phase-sess{--tone:var(--brine)} .phase-res{--tone:var(--coral)}
+.phase-loop{--tone:var(--shell)} .phase-asm{--tone:var(--shell)} .phase-disp{--tone:var(--coral)}
+.phase-rec{--tone:var(--brine)} .phase-exit{--tone:var(--roe)}
+
+/* content cards */
+.card{margin-top:18px; border:1px solid var(--line); border-radius:14px; background:linear-gradient(180deg,#1a2029,#161b22); padding:18px 20px}
+.card h2{font-size:13px; font-family:var(--mono); letter-spacing:1px; text-transform:uppercase; color:var(--tx-faint); margin-bottom:12px}
+.card p{font-size:14.5px; color:var(--tx-dim); margin-bottom:10px}
+.card p:last-child{margin-bottom:0}
+.card b{color:var(--tx)}
+.card ul{margin:4px 0 0; padding-left:0; list-style:none}
+.card li{font-size:14px; color:var(--tx-dim); margin-bottom:9px; padding-left:20px; position:relative; line-height:1.55}
+.card li:last-child{margin-bottom:0}
+.card li::before{content:"▸"; position:absolute; left:2px; color:var(--tone,var(--shell))}
+code{font-family:var(--mono); font-size:12.5px; color:var(--roe); background:#ffb34712; border:1px solid #ffb34722; border-radius:5px; padding:1px 6px}
+
+/* evidence list (file:line) */
+.ev li code{color:var(--brine); background:#58a6ff12; border-color:#58a6ff2e; margin-right:4px}
+
+/* verdict box */
+.verdict{border-left:3px solid var(--tone,var(--shell))}
+.v-ok{--tone:var(--kelp)} .v-nuance{--tone:var(--roe)} .v-fix{--tone:var(--pink)}
+.vtag{display:inline-block; font-family:var(--mono); font-size:11px; font-weight:700; padding:2px 10px; border-radius:999px; margin-right:9px; vertical-align:middle}
+.v-ok .vtag{color:var(--kelp); background:#57c79418; border:1px solid #57c79450}
+.v-nuance .vtag{color:var(--roe); background:#ffb34718; border:1px solid #ffb34750}
+.v-fix .vtag{color:var(--pink); background:#f778ba18; border:1px solid #f778ba50}
+
+/* prev / next */
+.stepnav{display:flex; justify-content:space-between; gap:10px; margin-top:28px}
+.stepnav a{flex:1; min-width:0; text-decoration:none; border:1px solid var(--line); border-radius:11px; padding:13px 16px; background:#161b22; font-size:13.5px; color:var(--tx-dim); transition:.15s}
+.stepnav a:hover{border-color:var(--shell); color:var(--tx); background:#1a2029}
+.stepnav a.next{text-align:right}
+.stepnav a .nl{display:block; font-family:var(--mono); font-size:10px; color:var(--tx-faint); text-transform:uppercase; letter-spacing:1px; margin-bottom:3px}
+.stepnav a.disabled{opacity:.35; pointer-events:none}
+
+.foot{margin-top:30px; padding-top:18px; border-top:1px solid var(--line); color:var(--tx-faint); font-size:12px; line-height:1.7; font-family:var(--mono)}
+.foot a{color:var(--brine); text-decoration:none}
+
+@media (max-width:600px){ .shead h1{font-size:21px} .snum{width:46px; height:46px; font-size:16px} }

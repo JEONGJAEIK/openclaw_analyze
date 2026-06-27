@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>STEP C · 모델·하네스·인증 해석 — OpenClaw 런타임 사다리</title>
+<link rel="stylesheet" href="steps.css">
+</head>
+<body>
+<div class="wrap">
+  <nav class="crumb"><a href="index.html">← 런타임 사다리</a><span class="pos">해석 · C / 17</span></nav>
+
+  <header class="shead phase-res">
+    <div class="snum">C</div>
+    <div>
+      <div class="sphase">Phase · 해석</div>
+      <h1>모델·하네스·인증 해석 + 루프 준비</h1>
+    </div>
+  </header>
+  <p class="slead">"이번 턴을 <b>어떤 모델·하네스·인증</b>으로 돌릴지" 확정하고, 어템프트 루프가 쓸 상태와 컨텍스트 엔진을 초기화한다.</p>
+
+  <section class="card phase-res">
+    <h2>무엇을 하나</h2>
+    <ul>
+      <li><b>워크스페이스 · 플러그인</b> — 워크스페이스 디렉토리 해석(폴백 경고 포함) + 런타임 플러그인 로드.</li>
+      <li><b>초기 모델·프로바이더 + 훅</b> — 초기 모델 해석 후 <code>before_agent_reply</code> 훅 실행(처리된 응답으로 조기 반환 가능), <code>resolveHookModelSelection</code>으로 훅이 모델을 오버라이드할 수도 있다.</li>
+      <li><b>하네스 선택 + 풀 모델 해석</b> — 하네스를 고르고 후보 프로바이더들을 순회하며 모델을 해석(미지 모델이면 <code>FailoverError</code>).</li>
+      <li><b>인증 프로필</b> — 프로필 후보 순서를 계산하고 auth 컨트롤러를 생성·초기화.</li>
+      <li><b>루프 준비</b> — 재시도 캡·idle 타임아웃 브레이커·컴팩션 카운터·usage 누적기 등 런루프 상태를 초기화하고, 컨텍스트 엔진을 <b>한 번</b> 해석해 어템프트 간 재사용.</li>
+    </ul>
+  </section>
+
+  <section class="card phase-res ev">
+    <h2>코드 위치 (검증됨)</h2>
+    <ul>
+      <li><code>run.ts:948</code> 워크스페이스 · <code>run.ts:969</code> <code>ensureRuntimePluginsLoaded</code></li>
+      <li><code>run.ts:977–1039</code> 초기 모델 해석 + cron 훅 + <code>resolveHookModelSelection</code></li>
+      <li><code>run.ts:1043–1164</code> 하네스 선택 + 모델 해석 루프(미지 시 <code>FailoverError</code>)</li>
+      <li><code>run.ts:1383–1533</code> 인증 프로필 후보 → <code>createEmbeddedRunAuthController</code> → <code>initializeAuthProfile</code></li>
+      <li><code>run.ts:1560–1802</code> 런루프 상태 초기화 + <code>resolveContextEngine</code></li>
+    </ul>
+  </section>
+
+  <section class="card verdict phase-res">
+    <h2>연결 — provider/model 주입 지점</h2>
+    <p>provider/model은 <b>여기(아웃터)에서 해석</b>되어 이너 어템프트로 <b>주입</b>된다. 게이트웨이가 모델을 고르는 게 아니라 이 해석 계층이 고르며, 페일오버가 후보 (provider, model)을 바꿔가며 재시도하는 것도 이 지점을 통해서다.</p>
+  </section>
+
+  <nav class="stepnav">
+    <a class="prev" href="step-02-session-queue.html"><span class="nl">← 이전</span>B · 세션 해석 + 2단 레인 큐</a>
+    <a class="next" href="step-04-attempt-loop.html"><span class="nl">다음 →</span>E · 어템프트 루프</a>
+  </nav>
+
+  <footer class="foot">🦞 OpenClaw 런타임 사다리 · STEP C · <a href="index.html">전체 보기</a></footer>
+</div>
+</body>
+</html>

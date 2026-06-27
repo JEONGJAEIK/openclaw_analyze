@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>STEP G · 출구 · 종료 판정 → 결과 반환 — OpenClaw 런타임 사다리</title>
+<link rel="stylesheet" href="steps.css">
+</head>
+<body>
+<div class="wrap">
+  <nav class="crumb"><a href="index.html">← 런타임 사다리</a><span class="pos">출구 · G / 17</span></nav>
+
+  <header class="shead phase-exit">
+    <div class="snum">⤴</div>
+    <div>
+      <div class="sphase">Phase · 출구</div>
+      <h1>출구 — 종료 판정 → 결과 반환</h1>
+    </div>
+  </header>
+  <p class="slead">루프가 끝나는 곳. 이번 턴이 <b>쓸 만한 답을 냈는지</b> 판정하고, 결과를 만들어 런타임 밖으로 내보낸 뒤 자원을 정리한다.</p>
+
+  <section class="card phase-exit">
+    <h2>무엇을 하나 (순서대로)</h2>
+    <ul>
+      <li><b>incomplete-turn 분류</b> — <code>resolveIncompleteTurnPayloadText</code>로 "안전한 최종 답이 있는지" 판정.</li>
+      <li><b>종료 outcome</b> — 정상이면 실제 어시스턴트 응답(<code>terminalPayloads</code>)을, 아니면 <code>⚠️ incomplete_turn</code> 페이로드를 만든다.</li>
+      <li><b>결과 반환</b> — <code>EmbeddedAgentRunResult</code>(payloads + meta + 배달 플래그)를 반환. 이게 런타임의 <b>출구</b>.</li>
+      <li><b>정리(finally)</b> — fast-mode 리셋, 프롬프트 캐시 drop, auth refresh 타이머 stop, 컨텍스트 엔진 dispose → 두 레인 큐 unwind.</li>
+      <li><b>소비</b> — auto-reply 계층이 <code>.payloads</code>/<code>.meta</code>를 받아 채널로 전송.</li>
+    </ul>
+  </section>
+
+  <section class="card phase-exit ev">
+    <h2>코드 위치</h2>
+    <ul>
+      <li><code>run.ts:3794–3814</code> incomplete-turn 분류 (incomplete-turn.ts:225)</li>
+      <li><code>run.ts:3845–4001</code> incomplete terminal · <code>run.ts:4043–4099</code> 정상 terminal</li>
+      <li><code>run.ts:4146–4191</code> finally 정리 + 레인 unwind</li>
+      <li><code>types.ts:188–223</code> <code>EmbeddedAgentRunResult</code> 형태 (error.kind에 <code>incomplete_turn</code>)</li>
+      <li>소비처: <code>auto-reply/reply/agent-runner-execution.ts:2506</code> 등</li>
+    </ul>
+  </section>
+
+  <section class="card phase-exit">
+    <h2>하네스 경계 — 자체도 외부도 같은 계약</h2>
+    <p>여기서 한 가지가 분명해진다. 지금까지 본 정교한 런타임(<code>runEmbeddedAttempt</code>)은 사실 <b>"openclaw"라는 이름의 하네스 하나</b>일 뿐이다. 모든 시도는 먼저 <b>하네스 선택</b>을 거친다.</p>
+    <ul>
+      <li><b>AgentHarness 계약</b> — 능력들의 합성. 필수는 둘: <code>supports(ctx)</code>(이 실행을 맡을 수 있나? → <code>{ supported, priority }</code>)와 <code>runAttempt(p)</code>(맡으면 어떻게 실행하나? = 하네스 본체). 선택: <code>compact?</code> · <code>classify?</code> · <code>reset?/dispose?</code>.</li>
+      <li><b>자체 하네스</b> — <code>createOpenClawAgentHarness</code>는 <code>id:"openclaw"</code>, <code>runAttempt = runEmbeddedAttempt</code>, <code>priority 0</code>(항상 가능하되 최후의 기본값)인 14줄 어댑터. 자체 런타임을 특권화하지 않는다.</li>
+      <li><b>외부 하네스</b> — Codex(<code>id:"codex"</code>)·Copilot(<code>id:"copilot"</code>)이 플러그인 SDK <code>api.registerAgentHarness(...)</code>로 <b>동일 계약</b>에 꽂힌다. OpenClaw가 Codex를 "감싼다"기보다, Codex가 OpenClaw의 <b>하네스 슬롯에 꽂힌다</b>.</li>
+      <li><b>선택 6가지 이유</b> — <code>forced_openclaw</code> · <code>forced_plugin</code> · <code>auto_plugin</code> · <code>auto_openclaw</code> · <code>implicit_plugin_unavailable_openclaw</code> · <code>cli_runtime_passthrough_openclaw</code>. 6개 중 <b>4개가 …_openclaw</b>로 끝난다 — 외부가 없거나·안 맞거나·불명확하면 항상 자체로 안전 폴백.</li>
+    </ul>
+    <ul class="ev">
+      <li><code>harness/types.ts:121–125</code> 계약 · <code>builtin-openclaw.ts:14</code> <code>id:"openclaw"</code> · <code>selection.ts:325</code> 호출 · <code>backend.ts:10</code> 진입</li>
+      <li><code>extensions/codex/harness.ts</code> · <code>extensions/copilot/harness.ts</code> 외부 동료</li>
+    </ul>
+  </section>
+
+  <section class="card verdict phase-exit">
+    <h2>바깥 껍데기는 항상 OpenClaw의 것</h2>
+    <p>OpenClaw로 <b>Codex를 쓰면</b>: 게이트웨이·디스패치, 선제 컴팩션, 페일오버·재생 안전성이라는 <b>운영 껍데기</b>가 Codex 하네스를 감싼다. <b>자체 런타임을 쓰면</b>: 같은 껍데기가 openclaw 하네스를 감싼다. 외부 하네스는 단일 턴 <code>runAttempt</code>만 끼워질 뿐, 세션·페일오버·컴팩션·종료 판정은 모두 <code>run.ts</code> 소유다.</p>
+    <p>비법 소스는 추론 하네스를 이기는 게 아니라, <b>어떤 하네스든 끼울 수 있는 껍데기</b>다. 껍데기는 모델의 사고를 건드리지 않기에 품질을 떨어뜨리지 않고, 신뢰성·편재성·지속성을 더한다. 그래서 "감쌌는데 더 좋다."</p>
+  </section>
+
+  <section class="card phase-exit">
+    <h2>한 바퀴 끝</h2>
+    <p>여기까지가 <code>runEmbeddedAgent()</code> 입구에서 <code>EmbeddedAgentRunResult</code> 출구까지의 한 턴. 응답은 게이트웨이를 거쳐 채널로 나가고, 다음 메시지는 다시 <a href="step-01-entry.html">A · 진입</a>으로 들어온다.</p>
+  </section>
+
+  <nav class="stepnav">
+    <a class="prev" href="step-16-recovery.html"><span class="nl">← 이전</span>복구 · 페일오버·컴팩션</a>
+    <a class="next" href="index.html"><span class="nl">사다리 끝 →</span>전체 사다리로 돌아가기</a>
+  </nav>
+
+  <footer class="foot">🦞 OpenClaw 런타임 사다리 · STEP G · <a href="index.html">전체 보기</a></footer>
+</div>
+</body>
+</html>

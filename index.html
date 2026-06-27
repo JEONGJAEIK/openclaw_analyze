@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OpenClaw 아키텍처 조사 · 도시에</title>
+<style>
+  :root{
+    /* 깊은 물 속 랍스터 — 기능적 색 체계 */
+    --ink:#0e1116; --abyss:#0a0d12; --panel:#161b22; --panel2:#1a2029; --code:#11151b;
+    --line:#2a323d; --line-soft:#222a34;
+    --shell:#ff7a45;   /* 런타임 / 조사 본선 */
+    --roe:#ffb347;     /* 강조 · 코드/메타 */
+    --brine:#58a6ff;   /* 참조 · 구조 */
+    --kelp:#57c794;    /* 게이트웨이 */
+    --coral:#bc8cff;   /* 코어 */
+    --tx:#e9eef4; --tx-dim:#9aa7b4; --tx-faint:#677482;
+    --mono:ui-monospace,"SF Mono","Cascadia Code","JetBrains Mono",Consolas,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI","Pretendard","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:var(--sans); background:var(--ink); color:var(--tx);
+    line-height:1.6; -webkit-font-smoothing:antialiased;
+    background-image:
+      radial-gradient(1200px 520px at 82% -8%, #ff7a4514, transparent),
+      radial-gradient(900px 480px at 4% 2%, #58a6ff10, transparent),
+      linear-gradient(var(--ink), var(--abyss));
+    background-attachment:fixed;
+  }
+  a{color:inherit}
+  .wrap{max-width:1060px;margin:0 auto;padding:0 26px}
+
+  /* ───────── HERO ───────── */
+  .hero{padding:74px 0 30px}
+  .eyebrow{
+    font-family:var(--mono); font-size:12px; letter-spacing:3.5px; text-transform:uppercase;
+    color:var(--tx-faint); display:flex; align-items:center; gap:11px; margin-bottom:28px;
+  }
+  .eyebrow .claw{font-size:17px; filter:drop-shadow(0 3px 9px #ff7a4560); letter-spacing:0}
+  .eyebrow .rule{flex:1; height:1px; background:linear-gradient(90deg,var(--line),transparent)}
+  .hero-title{
+    font-size:clamp(33px,5.6vw,60px); font-weight:850; letter-spacing:-1.8px; line-height:1.04;
+  }
+  .hero-title .peel{
+    color:var(--shell);
+    /* 껍질을 한 겹 벗긴 듯한 밑줄 — molt */
+    background:linear-gradient(transparent 78%, #ff7a4538 78%);
+  }
+  .hero-sub{
+    margin-top:22px; max-width:600px; font-size:16.5px; color:var(--tx-dim);
+  }
+  .hero-sub b{color:var(--tx)}
+
+  /* 시그니처: 게이트웨이 → 런타임 → 모델 파이프라인 */
+  .pipe{
+    margin:42px 0 8px; display:flex; align-items:stretch; gap:0;
+    border:1px solid var(--line); border-radius:15px; overflow:hidden;
+    background:linear-gradient(180deg,#161b2288,#11151b);
+  }
+  .pnode{flex:1; padding:19px 20px; display:flex; flex-direction:column; gap:5px; position:relative}
+  .pnode .ptag{font-family:var(--mono); font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:var(--tx-faint)}
+  .pnode .pname{font-size:16px; font-weight:750; letter-spacing:-.3px}
+  .pnode .pwhat{font-size:12px; color:var(--tx-dim); line-height:1.45}
+  .pnode .pdot{position:absolute; top:19px; right:16px; width:9px; height:9px; border-radius:50%}
+  .pnode.g .pname{color:var(--kelp)}  .pnode.g .pdot{background:var(--kelp); box-shadow:0 0 11px var(--kelp)}
+  .pnode.r .pname{color:var(--shell)} .pnode.r .pdot{background:var(--shell); box-shadow:0 0 11px var(--shell)}
+  .pnode.m .pname{color:var(--coral)} .pnode.m .pdot{background:var(--coral); box-shadow:0 0 11px var(--coral)}
+  .parrow{
+    display:flex; align-items:center; justify-content:center; width:46px; flex:none;
+    background:var(--code); border-left:1px solid var(--line); border-right:1px solid var(--line);
+    color:var(--shell); font-size:17px;
+  }
+  .hero-meta{
+    margin-top:20px; display:flex; flex-wrap:wrap; gap:8px 9px; align-items:center;
+    font-family:var(--mono); font-size:12px; color:var(--tx-faint);
+  }
+  .hero-meta .chip{border:1px solid var(--line); border-radius:999px; padding:5px 11px; background:#161b2270}
+  .hero-meta .chip b{color:var(--roe); font-weight:700}
+
+  /* ───────── LEGEND ───────── */
+  .legend{
+    margin:30px 0 6px; display:flex; flex-wrap:wrap; gap:16px;
+    padding:14px 18px; border:1px dashed var(--line); border-radius:12px; background:#11151b80;
+  }
+  .legend .lglabel{font-family:var(--mono); font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:var(--tx-faint); align-self:center; margin-right:2px}
+  .lg{display:flex; align-items:center; gap:8px; font-size:13px; color:var(--tx-dim)}
+  .lg i{width:10px; height:10px; border-radius:3px; display:inline-block}
+  .lg.k i{background:var(--kelp)} .lg.r i{background:var(--shell)} .lg.m i{background:var(--coral)} .lg.s i{background:var(--brine)}
+
+  /* ───────── SECTION SHELL ───────── */
+  .blk{margin-top:62px}
+  .blk-head{display:flex; align-items:baseline; gap:14px; margin-bottom:6px}
+  .blk-mark{font-family:var(--mono); font-size:12px; letter-spacing:2px; color:var(--shell); border:1px solid var(--shell); border-radius:6px; padding:3px 8px; text-transform:uppercase}
+  .blk-mark.alt{color:var(--brine); border-color:var(--brine)}
+  .blk-title{font-size:24px; font-weight:800; letter-spacing:-.5px}
+  .blk-note{margin:12px 0 24px; color:var(--tx-dim); font-size:14.5px; max-width:680px}
+  .blk-note code{font-family:var(--mono); font-size:13px; color:var(--roe)}
+
+  /* ───────── RUNTIME LADDER (입구 → 출구) ───────── */
+  .blk-mark.flow{color:var(--kelp); border-color:var(--kelp)}
+  .ladder{display:flex; flex-direction:column; gap:11px; position:relative}
+  .rung{display:grid; grid-template-columns:48px 1fr; gap:15px; align-items:stretch; text-decoration:none;
+    border:1px solid var(--line); border-radius:13px; background:linear-gradient(180deg,#1a2029,#161b22);
+    padding:15px 17px; position:relative; transition:transform .16s ease, border-color .16s ease, box-shadow .16s ease}
+  .rung:hover{transform:translateX(5px); border-color:var(--tone,var(--shell)); box-shadow:0 12px 28px #0006}
+  .rung:focus-visible{outline:2px solid var(--tone,var(--shell)); outline-offset:3px}
+  .rung-k{--tone:var(--shell); align-self:center; width:48px; height:48px; border-radius:12px; display:flex; align-items:center; justify-content:center;
+    font-family:var(--mono); font-size:17px; font-weight:800; color:#0e1116; background:var(--tone)}
+  .rung-body{display:flex; flex-direction:column; gap:3px; min-width:0; align-self:center}
+  .rung-t{font-size:16.5px; font-weight:770; letter-spacing:-.3px}
+  .rung-t .tail{font-family:var(--mono); font-size:11px; font-weight:600; color:var(--shell); margin-left:8px; background:#ff7a4514; border:1px solid #ff7a4540; border-radius:999px; padding:1px 8px; vertical-align:middle}
+  .rung-d{font-size:13px; color:var(--tx-dim); line-height:1.45}
+  .rung-f{font-family:var(--mono); font-size:11px; color:var(--tx-faint); margin-top:3px}
+  .r-enter{--tone:var(--kelp)} .r-enter .rung-k{background:var(--kelp)}
+  .r-sess{--tone:var(--brine)} .r-sess .rung-k{background:var(--brine)}
+  .r-res{--tone:var(--coral)} .r-res .rung-k{background:var(--coral)}
+  .r-exit{--tone:var(--roe)} .r-exit .rung-k{background:var(--roe)}
+
+  /* 어템프트 루프 컨테이너 */
+  .loop{border:1.5px solid #ff7a4555; border-radius:16px; background:#ff7a450a; padding:14px 13px 13px; display:flex; flex-direction:column; gap:10px; position:relative; margin:3px 0}
+  .loop::before{content:"↻  어템프트 루프 · while (true)"; position:absolute; top:-11px; left:16px; font-family:var(--mono); font-size:11px; font-weight:700; color:var(--shell); background:var(--ink); padding:2px 11px; border:1px solid #ff7a4555; border-radius:999px}
+  .loop-head{--tone:var(--shell); border-color:#ff7a4540; background:linear-gradient(180deg,#221a18,#181513)}
+  .loop-head .rung-k{background:var(--shell)}
+
+  /* 조립 10단계 (펼침) */
+  .assembly{border:1px dashed var(--line); border-radius:12px; background:#11151b66; padding:4px 13px 11px}
+  .assembly>summary{cursor:pointer; list-style:none; padding:11px 2px 9px; font-size:14.5px; color:var(--tx); display:flex; align-items:center; gap:10px; flex-wrap:wrap}
+  .assembly>summary::-webkit-details-marker{display:none}
+  .assembly>summary::before{content:"▸"; color:var(--shell); transition:transform .15s; font-size:13px}
+  .assembly[open]>summary::before{transform:rotate(90deg)}
+  .assembly>summary b{font-weight:760}
+  .assembly .muted{font-family:var(--mono); font-size:10.5px; color:var(--tx-faint); font-weight:400; letter-spacing:.3px}
+  ol.prep{list-style:none; margin:7px 0 2px; padding:0; display:grid; grid-template-columns:1fr 1fr; gap:7px}
+  ol.prep li a{display:flex; flex-direction:column; gap:1px; height:100%; text-decoration:none; border:1px solid var(--line); border-radius:9px; padding:9px 11px; background:#1a2029; transition:.15s}
+  ol.prep li a:hover{border-color:var(--shell); background:#1d242e; transform:translateY(-2px)}
+  ol.prep li b{font-size:13px; color:var(--tx); font-weight:700}
+  ol.prep li b .n{color:var(--shell); margin-right:6px; font-family:var(--mono)}
+  ol.prep li span{font-size:11.5px; color:var(--tx-dim); line-height:1.4}
+  ol.prep li code{font-family:var(--mono); font-size:10px; color:var(--brine); margin-top:3px}
+  ol.prep li.cond b .n{color:var(--roe)}
+
+  .r-disp{--tone:var(--coral)} .r-disp .rung-k{background:var(--coral); font-size:20px}
+  .r-rec{--tone:var(--brine)} .r-rec .rung-k{background:var(--brine); font-size:20px}
+
+  .ladder-foot{margin-top:14px; font-size:12.5px; color:var(--tx-faint); font-family:var(--mono); display:flex; flex-wrap:wrap; gap:6px 14px}
+  .ladder-foot b{color:var(--tx-dim); font-weight:600}
+
+  /* ───────── 조사 종합 (thesis) ───────── */
+  .synth{display:grid; grid-template-columns:1fr 1fr; gap:13px}
+  .slayer{display:block; text-decoration:none; border:1px solid var(--line); border-radius:13px; padding:16px 18px; background:linear-gradient(180deg,#1a2029,#161b22); position:relative; overflow:hidden; transition:transform .18s ease, border-color .18s ease, box-shadow .18s ease}
+  .slayer::before{content:""; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--tone,var(--shell))}
+  .slayer:hover{transform:translateY(-3px); border-color:var(--tone,var(--shell)); box-shadow:0 12px 30px #0006}
+  .slayer.s1{--tone:var(--kelp)} .slayer.s2{--tone:var(--shell)} .slayer.s3{--tone:var(--brine)} .slayer.s4{--tone:var(--coral)}
+  .slayer .sh{font-size:15px; font-weight:760; margin-bottom:6px; color:var(--tx)}
+  .slayer .sh .ep{font-family:var(--mono); font-size:10px; color:var(--tone,var(--shell)); border:1px solid var(--tone,var(--shell)); border-radius:999px; padding:1px 8px; margin-left:7px; vertical-align:middle; font-weight:600}
+  .slayer .sd{font-size:13px; color:var(--tx-dim); line-height:1.5}
+  .synth-cap{margin-top:13px; padding:15px 18px; border:1px solid #ff7a4540; background:#ff7a450a; border-radius:12px; font-size:14.5px; color:var(--tx-dim); line-height:1.6}
+  .synth-cap b{color:var(--tx)}
+  @media (max-width:600px){ .synth{grid-template-columns:1fr} }
+
+  /* ───────── REFERENCE MAPS (구조 문서) ───────── */
+  .maps{display:grid; grid-template-columns:1fr 1fr; gap:15px}
+  .map{
+    --tone:var(--brine);
+    display:flex; flex-direction:column; gap:13px; text-decoration:none;
+    border:1px solid var(--line); border-radius:15px; padding:22px 22px 20px;
+    background:linear-gradient(180deg,#1a2029,#161b22); position:relative; overflow:hidden;
+    transition:transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+  }
+  .map::after{content:""; position:absolute; inset:0 0 auto 0; height:3px; background:var(--tone); opacity:.85}
+  .map.runtime{--tone:var(--shell)}
+  .map:hover{transform:translateY(-4px); border-color:var(--tone); box-shadow:0 14px 36px #0006}
+  .map:focus-visible{outline:2px solid var(--tone); outline-offset:3px}
+  .map-top{display:flex; align-items:center; justify-content:space-between; gap:10px}
+  .map-kind{font-family:var(--mono); font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:var(--tone)}
+  .map-file{font-family:var(--mono); font-size:11px; color:var(--tx-faint)}
+  .map-title{font-size:19px; font-weight:780; letter-spacing:-.4px}
+  .map-desc{font-size:13.5px; color:var(--tx-dim); line-height:1.5}
+  /* 미니 시각화: 디렉토리 트리 글리프 */
+  .tree{font-family:var(--mono); font-size:11.5px; color:var(--tx-faint); line-height:1.5; margin-top:auto}
+  .tree b{color:var(--brine); font-weight:600}
+  /* 미니 시각화: 3영역 막대 */
+  .segbar{display:flex; gap:4px; margin-top:auto}
+  .segbar span{flex:1; text-align:center; font-family:var(--mono); font-size:10.5px; padding:6px 4px; border-radius:6px; color:#0e1116; font-weight:700}
+  .segbar .a{background:var(--shell)} .segbar .l{background:var(--brine)} .segbar .c{background:var(--coral)}
+  .map-go{display:flex; align-items:center; gap:6px; font-size:13px; font-weight:650; color:var(--tone); font-family:var(--mono)}
+
+  /* ───────── INVESTIGATION (조사 기록 스파인) ───────── */
+  .molt{font-family:var(--mono); font-size:11.5px; letter-spacing:2px; color:var(--shell); text-transform:uppercase; opacity:.8}
+  .case{margin-top:8px}
+  .row{display:grid; grid-template-columns:34px 1fr; gap:18px}
+  .rail{display:flex; flex-direction:column; align-items:center}
+  .knot{
+    width:34px; height:34px; border-radius:50%; flex:none; display:flex; align-items:center; justify-content:center;
+    font-family:var(--mono); font-size:12px; font-weight:700; position:relative; z-index:1;
+    background:var(--panel2); border:2px solid var(--line); color:var(--tx-faint);
+  }
+  .thread{width:2px; flex:1; background:var(--shell); opacity:.5; margin:3px 0}
+  .row:last-child .thread{display:none}
+  /* 닫힌 사건 = 문서 있음 */
+  .row.closed .knot{background:var(--shell); border-color:var(--shell); color:#0e1116; box-shadow:0 0 0 4px #ff7a4518}
+  .item{
+    text-decoration:none; display:block; margin-bottom:14px; border-radius:13px;
+    border:1px solid var(--line); background:linear-gradient(180deg,#1a2029,#161b22);
+    padding:16px 18px; transition:transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+  }
+  .row.closed .item:hover{transform:translateX(4px); border-color:var(--shell); box-shadow:0 10px 28px #0005}
+  .row.closed .item:focus-visible{outline:2px solid var(--shell); outline-offset:3px}
+  .it-top{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:7px}
+  .it-title{font-size:16.5px; font-weight:760; letter-spacing:-.3px}
+  .st{font-family:var(--mono); font-size:10.5px; font-weight:700; padding:3px 9px; border-radius:999px; letter-spacing:.5px; white-space:nowrap}
+  .st.cl{color:var(--shell); background:#ff7a4516; border:1px solid #ff7a4546}
+  .it-find{font-size:13.5px; color:var(--tx-dim); line-height:1.5}
+  .it-find .lab{font-family:var(--mono); font-size:11px; color:var(--tx-faint); margin-right:7px; text-transform:uppercase; letter-spacing:.5px}
+  .it-find code{font-family:var(--mono); font-size:12.5px; color:var(--roe)}
+  .it-go{margin-top:9px; font-family:var(--mono); font-size:12px; font-weight:650; color:var(--shell); display:inline-flex; align-items:center; gap:6px}
+
+  /* ───────── 다이어그램 갤러리 ───────── */
+  .blk-mark.views{color:var(--coral); border-color:var(--coral)}
+  .gallery{display:block; text-decoration:none; border:1px solid var(--line); border-radius:15px; overflow:hidden; background:linear-gradient(180deg,#1a2029,#161b22); transition:transform .2s ease, border-color .2s ease, box-shadow .2s ease; position:relative}
+  .gallery::after{content:""; position:absolute; inset:0 0 auto 0; height:3px; background:var(--coral); opacity:.85}
+  .gallery:hover{transform:translateY(-3px); border-color:var(--coral); box-shadow:0 14px 36px #0006}
+  .gallery:focus-visible{outline:2px solid var(--coral); outline-offset:3px}
+  .gthumbs{display:grid; grid-template-columns:repeat(5,1fr); gap:8px; padding:14px 14px 0}
+  .gthumbs img{width:100%; height:118px; object-fit:cover; object-position:top center; background:#fff; border:1px solid var(--line); border-radius:8px; display:block}
+  .gmeta{padding:13px 18px 15px; display:flex; flex-wrap:wrap; align-items:center; gap:10px 14px; justify-content:space-between}
+  .gchips{display:flex; flex-wrap:wrap; gap:6px}
+  .gchips span{font-family:var(--mono); font-size:11.5px; color:var(--coral); background:#bc8cff12; border:1px solid #bc8cff33; border-radius:7px; padding:3px 9px}
+  .ggo{font-family:var(--mono); font-size:13px; font-weight:650; color:var(--coral)}
+  @media (max-width:600px){ .gthumbs{grid-template-columns:repeat(2,1fr)} }
+
+  /* ───────── FOOTER ───────── */
+  .foot{margin:70px 0 60px; padding-top:24px; border-top:1px solid var(--line); color:var(--tx-faint); font-size:13px; line-height:1.7}
+  .foot code{font-family:var(--mono); color:var(--tx-dim)}
+  .foot .ex{color:var(--shell); font-family:var(--mono); letter-spacing:2px; font-size:11px}
+
+  /* ───────── MOTION (한 번의 로드 시퀀스) ───────── */
+  @media (prefers-reduced-motion: no-preference){
+    .pnode,.parrow{opacity:0; animation:rise .55s cubic-bezier(.2,.7,.3,1) forwards}
+    .pnode.g{animation-delay:.05s} .parrow.a1{animation-delay:.18s}
+    .pnode.r{animation-delay:.30s} .parrow.a2{animation-delay:.42s}
+    .pnode.m{animation-delay:.54s}
+    .hero-title{opacity:0; animation:rise .6s ease forwards}
+    .hero-sub{opacity:0; animation:rise .6s ease .12s forwards}
+    @keyframes rise{from{opacity:0; transform:translateY(10px)} to{opacity:1; transform:none}}
+  }
+
+  @media (max-width:720px){
+    .pipe{flex-direction:column}
+    .parrow{width:auto; height:38px; border:none; border-top:1px solid var(--line); border-bottom:1px solid var(--line)}
+    .parrow span{transform:rotate(90deg); display:inline-block}
+    .maps{grid-template-columns:1fr}
+    ol.prep{grid-template-columns:1fr}
+    .hero{padding:52px 0 24px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ───────── HERO ───────── -->
+  <header class="hero">
+    <div class="eyebrow"><span class="claw">🦞</span> OpenClaw · 런타임 해부 도시에 <span class="rule"></span> main@f65aca64</div>
+    <h1 class="hero-title">좋은 하네스를 한 겹 더 감쌌는데,<br>왜 <span class="peel">품질이 안 깨지나</span></h1>
+    <p class="hero-sub">
+      OpenClaw가 Claude·Codex를 감싸고도 품질을 지키는 비결을 <b>코드 레벨로 추적</b>한 기록.
+      게이트웨이에서 출발해 모델에 닿기까지의 파이프라인을 한 겹씩 벗겨낸다.
+    </p>
+
+    <!-- 시그니처 모티프: 추적 대상 파이프라인 -->
+    <div class="pipe" aria-label="게이트웨이에서 런타임을 거쳐 모델로 향하는 파이프라인">
+      <div class="pnode g">
+        <span class="pdot"></span>
+        <span class="ptag">control plane</span>
+        <span class="pname">Gateway</span>
+        <span class="pwhat">모든 채널을 받아 공통 메시지로 정규화·라우팅</span>
+      </div>
+      <div class="parrow a1"><span>→</span></div>
+      <div class="pnode r">
+        <span class="pdot"></span>
+        <span class="ptag">the subject</span>
+        <span class="pname">Agent Runtime</span>
+        <span class="pwhat">한 턴을 조립하고 모델 호출을 방어막으로 감싼다</span>
+      </div>
+      <div class="parrow a2"><span>→</span></div>
+      <div class="pnode m">
+        <span class="pdot"></span>
+        <span class="ptag">provider</span>
+        <span class="pname">Model</span>
+        <span class="pwhat">Anthropic·OpenAI·Google… 프로바이더 스트림</span>
+      </div>
+    </div>
+
+    <div class="hero-meta">
+      <span class="chip">사다리 단계 <b>17</b></span>
+      <span class="chip">참조 지도 <b>2</b></span>
+      <span class="chip">다이어그램 <b>5</b> · Excalidraw</span>
+      <span class="chip">방법 <b>코드 트레이싱</b></span>
+    </div>
+
+    <div class="legend" aria-label="색상 범례">
+      <span class="lglabel">색은 곧 역할</span>
+      <span class="lg k"><i></i>Gateway</span>
+      <span class="lg r"><i></i>Runtime</span>
+      <span class="lg m"><i></i>Model</span>
+      <span class="lg s"><i></i>구조·참조</span>
+    </div>
+  </header>
+
+  <!-- ───────── 런타임 사다리 (입구 → 출구) ───────── -->
+  <section class="blk" id="ladder">
+    <div class="blk-head">
+      <span class="blk-mark flow">Flow</span>
+      <h2 class="blk-title">런타임 파이프라인 — 입구에서 출구까지</h2>
+    </div>
+    <p class="blk-note">
+      사용자 요청이 <code>runEmbeddedAgent()</code>로 들어와 응답으로 나가기까지 거치는 단계. 각 칸을 누르면
+      <b>코드 근거(file:line)와 상세 설명</b>이 담긴 전용 페이지로 이동한다. ★ 가운데 <b>어템프트 루프</b>가 한 턴이 실제로 조립·실행되는 곳.
+    </p>
+
+    <div class="ladder">
+
+      <!-- A 진입 -->
+      <a class="rung r-enter" href="step-01-entry.html">
+        <span class="rung-k">A</span>
+        <span class="rung-body">
+          <span class="rung-t">진입 &amp; 설정 해석</span>
+          <span class="rung-d">런타임의 단일 공개 진입점 — provider/model 정규화, config 폴백, lifecycle 캡처 후 위임</span>
+          <span class="rung-f">run.ts:602 · runEmbeddedAgent()</span>
+        </span>
+      </a>
+
+      <!-- B 세션·큐 -->
+      <a class="rung r-sess" href="step-02-session-queue.html">
+        <span class="rung-k">B</span>
+        <span class="rung-body">
+          <span class="rung-t">세션 해석 + 2단 레인 큐</span>
+          <span class="rung-d">세션키 백필 → 세션 해석 → 세션레인(같은 세션 직렬화) → 글로벌레인(교차 세션 동시성 제한)</span>
+          <span class="rung-f">run.ts:630 · 786 enqueueSession · 793 enqueueGlobal</span>
+        </span>
+      </a>
+
+      <!-- C 해석 -->
+      <a class="rung r-res" href="step-03-resolution.html">
+        <span class="rung-k">C</span>
+        <span class="rung-body">
+          <span class="rung-t">모델·하네스·인증 해석</span>
+          <span class="rung-d">워크스페이스/플러그인 → 모델·프로바이더 해석(+훅) → 하네스 선택 → 인증 프로필 → 런루프·컨텍스트엔진 초기화</span>
+          <span class="rung-f">run.ts:977–1164 · auth 1383–1533 · init 1560–1802</span>
+        </span>
+      </a>
+
+      <!-- E 어템프트 루프 -->
+      <div class="loop">
+        <a class="rung loop-head" href="step-04-attempt-loop.html">
+          <span class="rung-k">E</span>
+          <span class="rung-body">
+            <span class="rung-t">어템프트 루프 <span class="tail">재시도·페일오버 드라이버</span></span>
+            <span class="rung-d">매 반복마다 이너 어템프트 1회를 디스패치하고, 결과를 분류해 재시도/회전/폴백/컴팩션 또는 종료</span>
+            <span class="rung-f">run.ts:1885 while(true) · 이너 호출 run.ts:2044</span>
+          </span>
+        </a>
+
+        <!-- 조립 10단계 (펼침) -->
+        <details class="assembly" open>
+          <summary><b>조립 10단계</b> <span class="muted">prepStages.mark() — 모델 호출 前 조립 · 5번째는 조건부(보통 9개 발화)</span></summary>
+          <ol class="prep">
+            <li><a href="step-05-workspace-sandbox.html"><b><span class="n">1</span>workspace-sandbox</b><span>워크스페이스 경로 + 샌드박스 컨텍스트 해석</span><code>attempt.ts:955</code></a></li>
+            <li><a href="step-06-skills.html"><b><span class="n">2</span>skills</b><span>런용 스킬 엔트리 + 스킬 프롬프트 해석</span><code>attempt.ts:1130</code></a></li>
+            <li><a href="step-07-core-plugin-tools.html"><b><span class="n">3</span>core-plugin-tools</b><span>코어+플러그인 도구 빌드 + allow-list</span><code>attempt.ts:1362</code></a></li>
+            <li><a href="step-08-bootstrap-context.html"><b><span class="n">4</span>bootstrap-context</b><span>BOOTSTRAP·AGENTS 컨텍스트 파일 주입</span><code>attempt.ts:1453</code></a></li>
+            <li class="cond"><a href="step-09-code-mode-tool-search.html"><b><span class="n">5</span>code-mode · tool-search</b><span>도구 노출 카탈로그 적용 (조건부)</span><code>attempt.ts:1761</code></a></li>
+            <li><a href="step-10-bundle-tools.html"><b><span class="n">6</span>bundle-tools</b><span>MCP/LSP 런타임 도구 번들 + 런플랜</span><code>attempt.ts:1775</code></a></li>
+            <li><a href="step-11-system-prompt.html"><b><span class="n">7</span>system-prompt</b><span>시스템 프롬프트 pair 빌드 (2단 변환)</span><code>attempt.ts:2089</code></a></li>
+            <li><a href="step-12-session-resource-loader.html"><b><span class="n">8</span>session-resource-loader</b><span>SessionManager + 컨텍스트엔진 부트스트랩</span><code>attempt.ts:2310</code></a></li>
+            <li><a href="step-13-agent-session.html"><b><span class="n">9</span>agent-session</b><span>agent-core 세션 생성 + 프롬프트 설치</span><code>attempt.ts:2537</code></a></li>
+            <li><a href="step-14-stream-setup.html"><b><span class="n">10</span>stream-setup</b><span>실제 streamFn 해석 + transport 적용</span><code>attempt.ts:2943</code></a></li>
+          </ol>
+        </details>
+
+        <!-- 디스패치 -->
+        <a class="rung r-disp" href="step-15-dispatch.html">
+          <span class="rung-k">↯</span>
+          <span class="rung-body">
+            <span class="rung-t">디스패치 — 모델 호출 + 도구 루프</span>
+            <span class="rung-d">LLM 스트림 다겹 래핑(~17겹) → 컨텍스트 조립 → pre-prompt 예산검사 → 모델 왕복 + 내부 도구 루프 → stop-reason</span>
+            <span class="rung-f">attempt.ts:2952–3160 · 4599 · 4764–4804 · 5532</span>
+          </span>
+        </a>
+
+        <!-- 복구 -->
+        <a class="rung r-rec" href="step-16-recovery.html">
+          <span class="rung-k">⟳</span>
+          <span class="rung-body">
+            <span class="rung-t">복구 — 페일오버 · 컴팩션 · 재생안전</span>
+            <span class="rung-d">결과 분류 후 살아남기: 페일오버 5액션 사다리 · 컴팩션 4-루트+요약 감사 · 재생 안전성 · 도구호출 복구</span>
+            <span class="rung-f">failover-policy.ts:7 · preemptive-compaction.ts:248 · run.ts:3379</span>
+          </span>
+        </a>
+      </div>
+
+      <!-- G 출구 -->
+      <a class="rung r-exit" href="step-17-exit.html">
+        <span class="rung-k">⤴</span>
+        <span class="rung-body">
+          <span class="rung-t">출구 — 종료 판정 → 결과 반환</span>
+          <span class="rung-d">incomplete-turn 분류 → terminal outcome → EmbeddedAgentRunResult 반환 → finally 정리 → 레인 unwind</span>
+          <span class="rung-f">run.ts:3794–4099 · 4146–4191</span>
+        </span>
+      </a>
+
+    </div>
+
+    <div class="ladder-foot">
+      <span><b>근거:</b> run.ts · attempt.ts · failover-policy.ts · preemptive-compaction.ts · harness/</span>
+    </div>
+  </section>
+
+  <!-- ───────── 참조 지도 ───────── -->
+  <section class="blk">
+    <div class="blk-head">
+      <span class="blk-mark alt">Ref</span>
+      <h2 class="blk-title">참조 지도</h2>
+    </div>
+    <p class="blk-note">움직이는 조사가 아니라, 언제든 펼쳐 보는 <b>정적 지형도</b>. "지금 어디를 보고 있나"를 잡아주는 두 장.</p>
+
+    <div class="maps">
+      <a class="map" href="directory-structure.html">
+        <div class="map-top"><span class="map-kind">디렉토리 지도</span><span class="map-file">directory-structure.html</span></div>
+        <div class="map-title">프로젝트 전체 구조</div>
+        <div class="map-desc">모노레포 최상위부터 <code style="font-family:var(--mono);color:var(--brine)">src/</code> 68개 모듈까지, 디렉토리별 역할을 한 장에.</div>
+        <div class="tree">openclaw/<br>├─ <b>src/</b> · 코어 런타임 (68)<br>├─ <b>packages/</b> · 라이브러리 (21)<br>├─ <b>extensions/</b> · 플러그인 (139)<br>└─ <b>apps · ui · docs · skills</b></div>
+        <div class="map-go">펼치기 →</div>
+      </a>
+
+      <a class="map runtime" href="agent-runtime-structure.html">
+        <div class="map-top"><span class="map-kind">런타임 지도</span><span class="map-file">agent-runtime-structure.html</span></div>
+        <div class="map-title">에이전트 런타임 3영역</div>
+        <div class="map-desc">"런타임"은 한 폴더가 아니다. 본체 + 모델 연결 + 공유 코어, 세 곳에 걸쳐 있다.</div>
+        <div class="segbar"><span class="a">src/agents</span><span class="l">src/llm</span><span class="c">agent-core</span></div>
+        <div class="map-go">펼치기 →</div>
+      </a>
+    </div>
+  </section>
+
+  <!-- ───────── 다이어그램 ───────── -->
+  <section class="blk">
+    <div class="blk-head">
+      <span class="blk-mark views">Views</span>
+      <h2 class="blk-title">다이어그램</h2>
+    </div>
+    <p class="blk-note">에이전트 런타임 <b>내부</b>를 5가지 각도로 그린 Excalidraw 다이어그램 · 들어오는·나가는 곳은 가장자리에 작게. 클릭하면 갤러리에서 크게 볼 수 있다.</p>
+
+    <a class="gallery" href="agent-runtime-views.html">
+      <div class="gthumbs">
+        <img src="view-1-sequence.png" alt="각도 1 시간순" loading="lazy">
+        <img src="view-2-controlflow.png" alt="각도 2 제어 흐름" loading="lazy">
+        <img src="view-3-onion.png" alt="각도 3 방어막 동심원" loading="lazy">
+        <img src="view-4-modulemap.png" alt="각도 4 모듈 지도" loading="lazy">
+        <img src="agent-runtime-internals.png" alt="전체 종합" loading="lazy">
+      </div>
+      <div class="gmeta">
+        <div class="gchips"><span>① 시간순</span><span>② 제어 흐름</span><span>③ 방어막 동심원</span><span>④ 모듈 지도</span><span>종합 상세</span></div>
+        <div class="ggo">갤러리 열기 → agent-runtime-views.html</div>
+      </div>
+    </a>
+  </section>
+
+  <!-- ───────── 조사 종합 ───────── -->
+  <section class="blk">
+    <div class="blk-head">
+      <span class="blk-mark">Thesis</span>
+      <h2 class="blk-title">왜 감쌌는데 품질이 안 깨지나</h2>
+    </div>
+    <p class="blk-note">위 17단계를 관통하는 하나의 답 — OpenClaw의 가치는 <b>더 똑똑한 프롬프트가 아니라 모델 바깥의 운영 껍데기</b>다. 네 겹 모두 모델의 사고를 건드리지 않는다. (각 카드 → 해당 단계로)</p>
+
+    <div class="synth">
+      <a class="slayer s1" href="step-02-session-queue.html">
+        <div class="sh">🛰️ 멀티플렉싱 껍데기 <span class="ep">진입·세션</span></div>
+        <div class="sd">게이트웨이가 모든 채널을 공통 메시지로 정규화 → 런타임은 채널을 모른 채 한 번만 작성. auto-reply가 큐잉·라우팅을 맡는다.</div>
+      </a>
+      <a class="slayer s2" href="step-15-dispatch.html">
+        <div class="sh">🧩 경계 엔지니어링 <span class="ep">디스패치</span></div>
+        <div class="sd">한 턴을 조립하고 모델 호출을 여러 겹으로 래핑 — 프로바이더 결함(thinking 재생 거부 등)을 흡수. 프롬프트는 base+provider 변환으로 모델을 존중한다.</div>
+      </a>
+      <a class="slayer s3" href="step-16-recovery.html">
+        <div class="sh">🗜️ 지속 가능성 껍데기 <span class="ep">복구</span></div>
+        <div class="sd">선제 컴팩션(요약은 최후, 요약마저 감사) + 실패별 복구 사다리 + 재생 안전성(부수효과 있으면 재생 금지). 긴 세션을 손실·중복 없이 유지한다.</div>
+      </a>
+      <a class="slayer s4" href="step-17-exit.html">
+        <div class="sh">🔌 교체 가능한 하네스 <span class="ep">출구</span></div>
+        <div class="sd">openclaw·codex·copilot이 동일 계약으로 꽂히고 선택 계층이 매 시도 최적을 고른다. 추론은 최고의 하네스에, OpenClaw는 껍데기를 책임진다.</div>
+      </a>
+    </div>
+
+    <div class="synth-cap">
+      한 문장으로 — OpenClaw가 수많은 사용자를 모은 이유는 더 똑똑한 프롬프트가 아니라, <b>최고의 하네스(자체든 Codex든)를 어디서나·안정적으로·오래 돌게 만드는 운영 껍데기</b>다. 껍데기는 모델의 사고를 건드리지 않기에 품질을 떨어뜨리지 않고 신뢰성·편재성·지속성을 더한다. 그래서 "감쌌는데 더 좋다."
+    </div>
+  </section>
+
+  <!-- ───────── FOOTER ───────── -->
+  <footer class="foot">
+    🦞 <strong>OpenClaw 아키텍처 조사 · 도시에</strong> · 2026-06-27<br>
+    근거: 코드 트레이싱(<code>run.ts · attempt.ts · failover-policy.ts · preemptive-compaction.ts · harness/</code>)<br>
+    <span class="ex">EXFOLIATE! EXFOLIATE!</span>
+  </footer>
+
+</div>
+</body>
+</html>

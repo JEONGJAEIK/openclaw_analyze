@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>조립 2 · skills — OpenClaw 런타임 사다리</title>
+<link rel="stylesheet" href="steps.css">
+</head>
+<body>
+<div class="wrap">
+  <nav class="crumb"><a href="index.html">← 런타임 사다리</a><span class="pos">조립 2/10 · 어템프트 루프</span></nav>
+
+  <header class="shead phase-asm">
+    <div class="snum">2</div>
+    <div>
+      <div class="sphase">조립 10단계 · prepStages</div>
+      <h1>skills</h1>
+    </div>
+  </header>
+  <p class="slead">이번 실행에 어떤 <b>스킬</b>이 붙는지, 그리고 그 스킬을 프롬프트에 어떻게 노출할지 해석한다.</p>
+
+  <section class="card phase-asm">
+    <h2>무엇을 하나</h2>
+    <ul>
+      <li>런용 <b>스킬 엔트리</b>를 해석(<code>resolveEmbeddedRunSkillEntries</code>).</li>
+      <li>그 스킬들을 모델에 노출할 <b>스킬 프롬프트</b>를 구성(<code>resolveSkillsPromptForRun</code>).</li>
+    </ul>
+  </section>
+
+  <section class="card phase-asm ev">
+    <h2>코드 위치 (검증됨)</h2>
+    <ul>
+      <li><code>attempt.ts:1130</code> <code>prepStages.mark</code> (스킬 조립 완료 지점)</li>
+      <li><code>attempt.ts:1099</code> <code>resolveEmbeddedRunSkillEntries</code></li>
+      <li><code>attempt.ts:1122</code> <code>resolveSkillsPromptForRun</code></li>
+    </ul>
+  </section>
+
+  <nav class="stepnav">
+    <a class="prev" href="step-05-workspace-sandbox.html"><span class="nl">← 이전 · 조립 1</span>workspace-sandbox</a>
+    <a class="next" href="step-07-core-plugin-tools.html"><span class="nl">다음 → 조립 3</span>core-plugin-tools</a>
+  </nav>
+
+  <footer class="foot">🦞 OpenClaw 런타임 사다리 · 조립 2/10 · <a href="index.html">전체 보기</a></footer>
+</div>
+</body>
+</html>

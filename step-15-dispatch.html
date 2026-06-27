@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>디스패치 · 모델 호출 + 도구 루프 — OpenClaw 런타임 사다리</title>
+<link rel="stylesheet" href="steps.css">
+</head>
+<body>
+<div class="wrap">
+  <nav class="crumb"><a href="index.html">← 런타임 사다리</a><span class="pos">디스패치 · 어템프트 루프</span></nav>
+
+  <header class="shead phase-disp">
+    <div class="snum">↯</div>
+    <div>
+      <div class="sphase">Phase · 디스패치</div>
+      <h1>디스패치 — 모델 호출 + 도구 루프</h1>
+    </div>
+  </header>
+  <p class="slead">조립이 끝난 뒤 실제로 <b>모델을 부르는</b> 곳. 모델 호출을 날것으로 던지지 않고 <b>여러 겹 방어막</b>으로 감싼 뒤, 예산을 점검하고 모델 왕복과 내부 도구 루프를 돌린다.</p>
+
+  <section class="card phase-disp">
+    <h2>무엇을 하나 (순서대로)</h2>
+    <ul>
+      <li><b>① LLM 스트림 다겹 래핑</b> — base streamFn 위에 캐시·thinking 정리·Anthropic 복구·tool-call 정규화/복구·idle-timeout·diagnostic 등을 겹겹이 씌운다.</li>
+      <li><b>② 컨텍스트 조립</b> — 최종 메시지 윈도를 조립(<code>assembleAttemptContextEngine</code>).</li>
+      <li><b>③ pre-prompt 예산 검사</b> — 보내기 직전 컴팩션 결정(<code>shouldPreemptivelyCompactBeforePrompt</code>). 자세히는 <a href="step-16-recovery.html">복구</a>.</li>
+      <li><b>④ 런타임컨텍스트 주입 + 디스패치</b> — 프롬프트/런타임컨텍스트 변환을 설치하고 <code>activeSession.prompt()</code>로 모델 왕복 + <b>내부 도구 호출 루프</b>를 돈다.</li>
+      <li><b>⑤ stop-reason 처리</b> — <code>lastAssistant.stopReason</code>을 읽어 결과를 만들거나 페일오버 결정을 끌어낸다.</li>
+    </ul>
+  </section>
+
+  <section class="card phase-disp ev">
+    <h2>코드 위치</h2>
+    <ul>
+      <li><code>attempt.ts:2952–3160</code> 스트림 래핑 스택 (base <code>resolveEmbeddedAgentStreamFn</code> :2856 위에)</li>
+      <li><code>attempt.ts:3299–3352</code> 컨텍스트 조립</li>
+      <li><code>attempt.ts:4599–4601</code> <code>shouldPreemptivelyCompactBeforePrompt</code> (pre-prompt 예산)</li>
+      <li><code>attempt.ts:4764–4804</code> 런타임컨텍스트 주입 + <code>activeSession.prompt()</code></li>
+      <li><code>attempt.ts:5532 · 5556</code> stop-reason 처리</li>
+    </ul>
+  </section>
+
+  <section class="card verdict phase-disp">
+    <h2>LLM 경계 — 모델 호출을 감싸는 방어막</h2>
+    <p>이 단계의 하이라이트. 세션의 <code>streamFn</code>(실제 모델 호출 함수)을 <b>조건부로 겹겹이 래핑</b>한다 — base 위에 약 <b>17겹</b>이 쌓이고, 그중 <b>6겹은 무조건</b> 적용된다(yield-abort·malformed 정리·text 승격·이름 trim·민감 stop-reason·diagnostic). 날것의 호출이 아니라 프로바이더 결함을 흡수하는 막을 두른 뒤 모델로 간다.</p>
+    <p>대표적인 겹:</p>
+    <ul>
+      <li><b>캐시 관측</b> — 프롬프트 캐시 적중/무효를 단계별 기록(<code>cacheTrace.wrapStreamFn</code>, attempt.ts:2958).</li>
+      <li><b>메시지 정규화</b> — 과거 메시지에서 <code>thinking</code>/<code>reasoning</code> 블록 제거, 히스토리 오염 방지(attempt.ts:2966).</li>
+      <li><b>Anthropic 복구</b> — Claude 엔드포인트가 재생된 <code>thinking</code> 블록을 거부하면, thinking 없이 <b>1회 재시도</b>하고 성공 시 트랜스크립트를 자동 수리(attempt.ts:2983).</li>
+      <li><b>도구호출 정규화/복구</b> — 망가진 tool-call을 파서 수준에서 흡수 → <a href="step-16-recovery.html">복구</a>.</li>
+    </ul>
+  </section>
+
+  <section class="card verdict phase-disp">
+    <h2>왜 이게 품질을 지키나</h2>
+    <p>날것 래퍼라면 프로바이더 결함 하나에 턴이 깨진다. 실제 <code>attempt.ts</code> 주석이 그 사례를 말한다:</p>
+    <p style="font-style:italic; color:var(--tx-dim); border-left:2px solid var(--coral); padding-left:12px">"Anthropic Claude endpoints can reject replayed <code>thinking</code> blocks on any follow-up provider call… Sanitize outbound messages where policy allows rewriting; otherwise preserve latest thinking and let the recovery wrapper retry once without it."</p>
+    <p>OpenClaw는 정책 기반 정규화 + 자동 재시도 + 트랜스크립트 수리로 <b>사용자가 모르게</b> 넘어간다. 비법은 프롬프트 마법이 아니라, <b>프로바이더 결함을 흡수하는 경계 엔지니어링</b>이다.</p>
+  </section>
+
+  <nav class="stepnav">
+    <a class="prev" href="step-14-stream-setup.html"><span class="nl">← 이전 · 조립 10</span>stream-setup</a>
+    <a class="next" href="step-16-recovery.html"><span class="nl">다음 →</span>복구 · 페일오버·컴팩션</a>
+  </nav>
+
+  <footer class="foot">🦞 OpenClaw 런타임 사다리 · 디스패치 · <a href="index.html">전체 보기</a></footer>
+</div>
+</body>
+</html>

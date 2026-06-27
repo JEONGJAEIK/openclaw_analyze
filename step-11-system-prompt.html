@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>조립 7 · system-prompt — OpenClaw 런타임 사다리</title>
+<link rel="stylesheet" href="steps.css">
+</head>
+<body>
+<div class="wrap">
+  <nav class="crumb"><a href="index.html">← 런타임 사다리</a><span class="pos">조립 7/10 · 어템프트 루프</span></nav>
+
+  <header class="shead phase-asm">
+    <div class="snum">7</div>
+    <div>
+      <div class="sphase">조립 10단계 · prepStages</div>
+      <h1>system-prompt</h1>
+    </div>
+  </header>
+  <p class="slead">시스템 프롬프트를 만든다. 핵심은 <b>덮어쓰지 않고 변환</b>한다는 것 — base + provider 변환의 <b>2단 구조</b>.</p>
+
+  <section class="card phase-asm">
+    <h2>무엇을 하나</h2>
+    <ul>
+      <li>런타임 파라미터를 빌드(<code>buildSystemPromptParams</code>).</li>
+      <li>시스템 프롬프트 <b>pair</b>를 빌드(<code>buildAttemptSystemPrompt</code>) + 리포트 생성.</li>
+      <li>결과: <code>{ baseSystemPrompt, systemPrompt }</code> — base는 보존, provider용은 변환본.</li>
+    </ul>
+  </section>
+
+  <section class="card phase-asm">
+    <h2>2단 변환 구조</h2>
+    <ul>
+      <li><b>1단(base):</b> <code>buildEmbeddedSystemPrompt(...)</code> — OpenClaw 소유 베이스 프롬프트.</li>
+      <li><b>2단(provider 변환):</b> <code>transformProviderSystemPrompt({ context: { systemPrompt: baseSystemPrompt } })</code> — 프로바이더 훅이 <b>base를 입력으로 받아</b> 모델 특성에 맞게 변환본을 반환.</li>
+      <li><b>raw 실행 존중:</b> <code>isRawModelRun</code>이면 provider 프롬프트를 <b>빈 문자열</b>로 보내 모델 기본 동작을 가리지 않는다. base는 진단·프롬프트 캐시 경계용으로 보존.</li>
+    </ul>
+  </section>
+
+  <section class="card phase-asm ev">
+    <h2>코드 위치</h2>
+    <ul>
+      <li><code>attempt.ts:2089</code> <code>prepStages.mark</code> (시스템 프롬프트 완료 지점)</li>
+      <li><code>attempt.ts:1919</code> <code>buildSystemPromptParams</code> · <code>attempt.ts:1994</code> <code>buildAttemptSystemPrompt</code></li>
+      <li><code>attempt-system-prompt.ts:39–59</code> 2단 변환 본체 (<code>{ baseSystemPrompt, systemPrompt }</code> pair 반환)</li>
+    </ul>
+  </section>
+
+  <section class="card verdict phase-asm">
+    <h2>왜 이게 품질을 지키나</h2>
+    <p>어설픈 래퍼의 전형적 실패는 <b>모델/프로바이더 무관하게 프롬프트를 강제 덮어쓰는</b> 것이다. OpenClaw는 베이스를 만들되 프로바이더 변환 훅을 거치고, raw 실행은 아예 비워 모델을 존중한다. 모델의 사고를 가리지 않으면서 자기 운영 맥락만 얹는 첫 번째 구체적 장치다.</p>
+  </section>
+
+  <nav class="stepnav">
+    <a class="prev" href="step-10-bundle-tools.html"><span class="nl">← 이전 · 조립 6</span>bundle-tools</a>
+    <a class="next" href="step-12-session-resource-loader.html"><span class="nl">다음 → 조립 8</span>session-resource-loader</a>
+  </nav>
+
+  <footer class="foot">🦞 OpenClaw 런타임 사다리 · 조립 7/10 · <a href="index.html">전체 보기</a></footer>
+</div>
+</body>
+</html>
