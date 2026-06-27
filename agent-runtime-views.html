@@ -34,7 +34,7 @@
   .card{background:var(--card); border:1px solid var(--line); border-radius:16px; overflow:hidden; transition:border-color .18s, transform .18s; position:relative}
   .card::before{content:""; position:absolute; left:0; top:0; right:0; height:3px; background:var(--tone, var(--shell))}
   .card:hover{border-color:var(--tone, var(--shell)); transform:translateY(-3px)}
-  .card.t-seq{--tone:var(--kelp)} .card.t-flow{--tone:var(--roe)} .card.t-onion{--tone:var(--coral)} .card.t-mod{--tone:var(--brine)} .card.t-full{--tone:var(--shell)}
+  .card.t-seq{--tone:var(--kelp)} .card.t-flow{--tone:var(--roe)} .card.t-onion{--tone:var(--coral)} .card.t-mod{--tone:var(--brine)} .card.t-loop{--tone:#f778ba} .card.t-full{--tone:var(--shell)}
   .chead{padding:18px 20px 12px}
   .ctop{display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin-bottom:6px}
   .cnum{font-family:var(--mono); font-size:12px; font-weight:700; color:var(--tone, var(--shell)); border:1px solid var(--tone, var(--shell)); border-radius:6px; padding:2px 8px}
@@ -73,7 +73,7 @@
       이미지를 클릭하면 크게 볼 수 있고, 각 카드에서 편집용 <code style="font-family:var(--mono);color:var(--roe)">.excalidraw</code> 원본도 열 수 있습니다.
     </p>
     <div class="meta">
-      <span class="chip">다이어그램 <b>5</b></span>
+      <span class="chip">다이어그램 <b>6</b></span>
       <span class="chip">도구 <b>Excalidraw</b></span>
       <span class="chip">근거 <b>코드 트레이싱 (run.ts · attempt.ts · harness · agent-hooks)</b></span>
     </div>
@@ -119,6 +119,16 @@
       </div>
       <div class="cimg" onclick="zoom('view-4-modulemap.png')"><img src="view-4-modulemap.png" alt="각도 4 — 모듈 지도" loading="lazy"><span class="zoom">⤢ 크게</span></div>
       <div class="cfoot"><a href="view-4-modulemap.png" target="_blank">🖼 PNG 새 탭</a><a href="view-4-modulemap.excalidraw">✎ .excalidraw 원본</a></div>
+    </article>
+
+    <article class="card t-loop">
+      <div class="chead">
+        <div class="ctop"><span class="cnum">각도 5</span><span class="cpat">패턴 · 중첩 루프</span></div>
+        <div class="ctitle">세 겹의 루프 (Loop Nesting)</div>
+        <div class="cdesc">한 턴이 도는 <b>세 겹의 되돌이</b> — 안쪽 에이전트 루프(모델↔도구), 가운데 어템프트 루프(재시도·복구·32~160회), 바깥 모델 폴백 드라이버(<code style="font-family:var(--mono)">FailoverError</code>→다음 모델). <b>가벼운 회복은 안에서, 무거운 회복은 밖에서.</b></div>
+      </div>
+      <div class="cimg" onclick="zoom('view-5-loops.png')"><img src="view-5-loops.png" alt="각도 5 — 세 겹의 루프" loading="lazy"><span class="zoom">⤢ 크게</span></div>
+      <div class="cfoot"><a href="view-5-loops.png" target="_blank">🖼 PNG 새 탭</a><a href="view-5-loops.excalidraw">✎ .excalidraw 원본</a></div>
     </article>
 
     <article class="card t-full">

@@ -223,7 +223,7 @@
   .gallery::after{content:""; position:absolute; inset:0 0 auto 0; height:3px; background:var(--coral); opacity:.85}
   .gallery:hover{transform:translateY(-3px); border-color:var(--coral); box-shadow:0 14px 36px #0006}
   .gallery:focus-visible{outline:2px solid var(--coral); outline-offset:3px}
-  .gthumbs{display:grid; grid-template-columns:repeat(5,1fr); gap:8px; padding:14px 14px 0}
+  .gthumbs{display:grid; grid-template-columns:repeat(6,1fr); gap:8px; padding:14px 14px 0}
   .gthumbs img{width:100%; height:118px; object-fit:cover; object-position:top center; background:#fff; border:1px solid var(--line); border-radius:8px; display:block}
   .gmeta{padding:13px 18px 15px; display:flex; flex-wrap:wrap; align-items:center; gap:10px 14px; justify-content:space-between}
   .gchips{display:flex; flex-wrap:wrap; gap:6px}
@@ -296,7 +296,7 @@
     <div class="hero-meta">
       <span class="chip">사다리 단계 <b>17</b></span>
       <span class="chip">참조 지도 <b>2</b></span>
-      <span class="chip">다이어그램 <b>5</b> · Excalidraw</span>
+      <span class="chip">다이어그램 <b>6</b> · Excalidraw</span>
       <span class="chip">방법 <b>코드 트레이싱</b></span>
     </div>
 
@@ -451,7 +451,7 @@
       <span class="blk-mark views">Views</span>
       <h2 class="blk-title">다이어그램</h2>
     </div>
-    <p class="blk-note">에이전트 런타임 <b>내부</b>를 5가지 각도로 그린 Excalidraw 다이어그램 · 들어오는·나가는 곳은 가장자리에 작게. 클릭하면 갤러리에서 크게 볼 수 있다.</p>
+    <p class="blk-note">에이전트 런타임 <b>내부</b>를 여섯 각도로 그린 Excalidraw 다이어그램 · 들어오는·나가는 곳은 가장자리에 작게. 클릭하면 갤러리에서 크게 볼 수 있다.</p>
 
     <a class="gallery" href="agent-runtime-views.html">
       <div class="gthumbs">
@@ -459,10 +459,11 @@
         <img src="view-2-controlflow.png" alt="각도 2 제어 흐름" loading="lazy">
         <img src="view-3-onion.png" alt="각도 3 방어막 동심원" loading="lazy">
         <img src="view-4-modulemap.png" alt="각도 4 모듈 지도" loading="lazy">
+        <img src="view-5-loops.png" alt="각도 5 세 겹의 루프" loading="lazy">
         <img src="agent-runtime-internals.png" alt="전체 종합" loading="lazy">
       </div>
       <div class="gmeta">
-        <div class="gchips"><span>① 시간순</span><span>② 제어 흐름</span><span>③ 방어막 동심원</span><span>④ 모듈 지도</span><span>종합 상세</span></div>
+        <div class="gchips"><span>① 시간순</span><span>② 제어 흐름</span><span>③ 방어막 동심원</span><span>④ 모듈 지도</span><span>⑤ 세 겹의 루프</span><span>종합 상세</span></div>
         <div class="ggo">갤러리 열기 → agent-runtime-views.html</div>
       </div>
     </a>
