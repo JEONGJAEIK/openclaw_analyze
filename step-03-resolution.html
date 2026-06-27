@@ -17,33 +17,66 @@
       <h1>모델·하네스·인증 해석 + 루프 준비</h1>
     </div>
   </header>
-  <p class="slead">"이번 턴을 <b>어떤 모델·하네스·인증</b>으로 돌릴지" 확정하고, 어템프트 루프가 쓸 상태와 컨텍스트 엔진을 초기화한다.</p>
+  <p class="slead">세션이 정해지고 차례가 됐다. 이제 한 턴을 실제로 돌리기 직전 — 이 단계는 <b>'무엇으로 돌릴지'</b>를 정한다. 어떤 <b>추론 엔진</b>으로, 어떤 <b>모델</b>로, 어느 <b>계정</b>으로. 그리고 그중 하나가 막혔을 때 <b>갈아끼울 채비</b>까지 갖춘 뒤에야 루프를 시작한다.</p>
 
   <section class="card phase-res">
-    <h2>무엇을 하나</h2>
-    <ul>
-      <li><b>워크스페이스 · 플러그인</b> — 워크스페이스 디렉토리 해석(폴백 경고 포함) + 런타임 플러그인 로드.</li>
-      <li><b>초기 모델·프로바이더 + 훅</b> — 초기 모델 해석 후 <code>before_agent_reply</code> 훅 실행(처리된 응답으로 조기 반환 가능), <code>resolveHookModelSelection</code>으로 훅이 모델을 오버라이드할 수도 있다.</li>
-      <li><b>하네스 선택 + 풀 모델 해석</b> — 하네스를 고르고 후보 프로바이더들을 순회하며 모델을 해석(미지 모델이면 <code>FailoverError</code>).</li>
-      <li><b>인증 프로필</b> — 프로필 후보 순서를 계산하고 auth 컨트롤러를 생성·초기화.</li>
-      <li><b>루프 준비</b> — 재시도 캡·idle 타임아웃 브레이커·컴팩션 카운터·usage 누적기 등 런루프 상태를 초기화하고, 컨텍스트 엔진을 <b>한 번</b> 해석해 어템프트 간 재사용.</li>
-    </ul>
+    <h2>이 단계가 하는 일</h2>
+    <p><b>이번 턴을 '무엇으로' 돌릴지 확정하고, 막혔을 때 갈아끼울 채비까지 갖춘다.</b> 추론 엔진·모델·계정을 고르고, 재시도 루프가 쓸 상태를 한 번에 차린다.</p>
+    <p>step-02가 "<b>이 요청을 지금 돌려도 된다</b>"까지 정리해 줬다. 그런데 막상 돌리려면 결정할 게 남았다 — <b>누가 생각하고(추론 엔진), 어떤 머리로(모델), 누구 자격으로(계정)</b> 이 턴을 처리할 것인가. 이 단계가 그걸 정한다.</p>
+    <p>핵심 성격이 둘 있다. 첫째, <b>하나로 못 박지 않는다</b> — 고른 게 막힐 수 있으니(속도 제한·만료·다운·없는 모델) 항상 <b>갈아끼울 여지</b>를 함께 마련한다. 둘째, 이 채비를 <b>루프가 돌기 전에 한 번만</b> 차려 둔다 — 그래야 재시도가 싸고, 일관되고, 폭주하지 않는다. 아래 네 가지로 본다.</p>
+  </section>
+
+  <section class="card phase-res">
+    <h2>① 무대를 세운다 — 어디서, 무엇을 가지고</h2>
+    <p><b>에이전트가 일할 작업 공간을 정하고, 플러그인을 먼저 불러온다.</b> 뒤이어 고를 엔진·모델·도구가 이때 비로소 '선택지'로 등장하기 때문이다.</p>
+    <p><b>작업 공간</b>은 이 에이전트가 파일을 읽고 명령을 실행할 <b>프로젝트 폴더</b>다. 요청이 이걸 명시했으면 그대로 쓰고, 비워 왔으면 설정에서 유추하되 <b>경고를 남긴다</b> — 누군가 작업 공간을 빠뜨렸다는 신호다. 엉뚱한 폴더에서 돌면 남의 프로젝트 파일을 건드릴 수 있어, 추측은 하되 티를 낸다.</p>
+    <p>그다음 <b>플러그인</b>을 불러온다(프로세스당 한 번, 이후 재사용). 순서가 중요하다 — 플러그인이 바로 <b>외부 추론 엔진(Codex·Copilot)·추가 모델 제공사·도구·훅·기록 엔진</b>을 등록하기 때문이다. 플러그인을 먼저 깔아야 다음 단계의 '엔진을 고르고 모델을 해석하는' 일이 그것들을 후보로 볼 수 있다. 안 그러면 전부 기본 빌트인으로 조용히 떨어진다.</p>
+  </section>
+
+  <section class="card verdict v-nuance">
+    <h2>② 무엇으로 답할지 고른다 — 추론 엔진과 모델</h2>
+    <p><span class="vtag">하네스 = 추론 엔진</span> <b>이 턴을 실제로 굴릴 '추론 엔진(하네스)'과 모델을 고른다.</b> OpenClaw는 자기 엔진을 우대하지 않는다 — 더 나은 엔진이 있으면 그쪽이 이기고, 없으면 자기 엔진이 받는다.</p>
+    <p><b>하네스</b>는 한 번의 시도를 실제로 굴리는 <b>추론 엔진 어댑터</b>다 — 갈아 끼울 수 있는 '두뇌 구동부'. OpenClaw에는 자체 엔진이 있고, <b>Codex·Copilot</b>도 <b>똑같은 슬롯</b>에 끼워진다. 이 단계가 이번 턴을 어느 엔진이 굴릴지 고른다.</p>
+    <p>고르는 방식이 인상적이다. 외부 엔진들은 "<b>내가 이 요청 맡을 수 있다</b>"를 우선순위 점수로 주장하고(예: 100점), OpenClaw 자체 엔진은 <b>0점</b> — 가장 낮다. 즉 OpenClaw는 후보 경쟁에 끼지도 않고, <b>아무도 안 맡을 때만</b> 받는 최후의 기본값이다. 자기 런타임을 특권화하지 않는다는 설계가 점수에 박혀 있다(<a href="step-17-exit.html">STEP G</a>에서 하네스 계약을 더 깊이 본다).</p>
+    <p>엔진이 정해지면 <b>모델·프로바이더</b>를 구체적으로 해석한다 — 사용자가 콕 집었으면 그걸, 아니면 설정된 기본을. 없는 모델이면 그냥 멈추지 않고 "<b>다음 후보로 넘어가라</b>"는 신호(failover)를 띄운다. 이 직전엔 <b>플러그인이 끼어들 틈</b>도 있다 — 예약 작업 같은 건 <b>모델 없이 답을 대신 내고 끝</b>내거나, 이 턴에 <b>쓸 모델을 바꿔치울</b> 수 있다. 둘 다 비싼 모델 호출이 일어나기 전이다.</p>
+  </section>
+
+  <section class="card phase-res">
+    <h2>③ 어느 계정으로 — 그리고 막히면 갈아끼운다</h2>
+    <p><b>이 프로바이더를 인증할 계정(인증 프로필)을 순위 매겨 줄 세우고, 활성 계정이 막히면 다음 계정으로 회전한다.</b> 계정 하나가 막혀도 턴은 죽지 않는다.</p>
+    <p><b>인증 프로필</b>은 한 프로바이더에 로그인하는 <b>계정/자격 하나</b>다 — API 키, 토큰, 또는 ChatGPT·Claude 구독 같은 OAuth 로그인. 한 프로바이더에 <b>여러 계정</b>을 둘 수 있고, 이 단계는 그것들을 <b>순위 매긴 후보 줄</b>로 세운다. 하나로 정하는 게 아니라.</p>
+    <p>활성 계정이 벽에 부딪히면(속도 제한·만료·결제 중단) <b>컨트롤러</b>가 다음 후보로 <b>회전</b>한다. 막힌 계정은 잠시 <b>쿨다운</b>에 들어가 쉬고(반복 실패일수록 더 길게), 여러 계정이 있으면 <b>부하를 고루 분산</b>한다. OAuth 로그인은 만료되기 전에 <b>알아서 갱신</b>해 긴 작업 중 인증이 끊기지 않게 한다. 단순 만료라면 계정을 버리지 않고 <b>같은 계정으로 한 번 더</b> 시도한다.</p>
+    <p><b>얻는 것</b> — 한 계정의 사고가 턴 전체를 무너뜨리지 못한다. 그리고 계정 회전으로도 안 되면 더 바깥의 페일오버가 <b>모델 자체를 다음 후보로</b> 바꿔 이 해석 단계를 처음부터 다시 돈다. 엔진도, 모델도, 계정도 <b>단일 실패점이 아니다</b>.</p>
+  </section>
+
+  <section class="card phase-res">
+    <h2>④ 루프가 쓸 채비를 한 번에 갖춘다</h2>
+    <p><b>재시도 루프가 쓸 상태와 안전장치를 루프 전에 딱 한 번 차린다.</b> 한 번 차려 모든 시도가 공유해야 — 싸고, 일관되고, 폭주하지 않는다.</p>
+    <p>곧 시작될 <b>어템프트 루프</b>(<a href="step-04-attempt-loop.html">STEP E</a>)는 같은 턴을 여러 번 시도할 수 있다 — 압축하고, 인증 갱신하고, 재시도하고. 그때 쓸 것들을 미리 차려 둔다: <b>대화 기록을 조립·압축하는 엔진</b>(한 번 해석해 재사용 — 매번 DB 연결을 다시 여는 낭비와 압축 진행 상태 유실을 막는다), 그리고 <b>재시도 횟수·비용 누적기·안전 차단기</b>들.</p>
+    <p>여기서 핵심은 이 상태가 <b>'시도 하나'가 아니라 '실행 전체' 범위</b>라는 점이다. 안전 차단기가 시도마다 리셋되면 폭주를 못 막는다 — 막힌 프로바이더가 매 재시도마다 차단기를 새로 장전해 계속 과금할 테니까. 실제로 하트비트 하나가 <b>60초 만에 유료 호출 수백~천여 회, 사고 한 건에 $20~30</b>을 태운 적이 있었고, 그 뒤 "<b>연속 N회 헛돌면 멈춘다</b>"는 차단기가 실행 전체를 가로질러 세도록 여기서 장전된다. (이 차단기가 실제로 발동하는 건 <a href="step-16-recovery.html">STEP F · 복구</a>.)</p>
   </section>
 
   <section class="card phase-res ev">
-    <h2>코드 위치 (검증됨)</h2>
+    <h2>코드 위치</h2>
     <ul>
-      <li><code>run.ts:948</code> 워크스페이스 · <code>run.ts:969</code> <code>ensureRuntimePluginsLoaded</code></li>
-      <li><code>run.ts:977–1039</code> 초기 모델 해석 + cron 훅 + <code>resolveHookModelSelection</code></li>
-      <li><code>run.ts:1043–1164</code> 하네스 선택 + 모델 해석 루프(미지 시 <code>FailoverError</code>)</li>
-      <li><code>run.ts:1383–1533</code> 인증 프로필 후보 → <code>createEmbeddedRunAuthController</code> → <code>initializeAuthProfile</code></li>
-      <li><code>run.ts:1560–1802</code> 런루프 상태 초기화 + <code>resolveContextEngine</code></li>
+      <li><code>run.ts:948</code> 작업공간 해석 · <code>run.ts:969</code> <code>ensureRuntimePluginsLoaded</code> (플러그인 1회 로드)</li>
+      <li><code>run.ts:977</code> <code>resolveInitialEmbeddedRunModel</code> — 초기 모델 추정</li>
+      <li><code>run.ts:1006–1041</code> <code>before_agent_reply</code> 훅(모델 없이 조기 응답·cron 한정) + <code>resolveHookModelSelection</code>(모델 오버라이드)</li>
+      <li><code>run.ts:1043</code> <code>ensureSelectedAgentHarnessPlugin</code> + <code>selectAgentHarness</code> — 하네스 선택 (<code>selection.ts:156</code>)</li>
+      <li><code>run.ts:1043–1164</code> 모델·프로바이더 풀 해석 (미지 모델 → <code>FailoverError</code> <code>model_not_found</code>)</li>
+      <li><code>run.ts:1339–1393</code> 인증 프로필 후보 줄세우기 (<code>order.ts:244</code> <code>resolveAuthProfileOrder</code>)</li>
+      <li><code>run.ts:1442–1526</code> <code>createEmbeddedRunAuthController</code> + <code>initializeAuthProfile</code> — 회전·갱신</li>
+      <li><code>run.ts:1560–1802</code> 루프 상태 초기화(차단기 <code>#76293</code>·<code>#77474</code>) + <code>resolveContextEngine</code>(1회)</li>
+      <li><code>run.ts:1885</code> 어템프트 루프 <code>while(true)</code> 시작</li>
+      <li>하네스: <code>harness/types.ts</code> · <code>builtin-openclaw.ts</code>(priority 0) · <code>extensions/codex</code>·<code>copilot</code></li>
     </ul>
   </section>
 
   <section class="card verdict phase-res">
-    <h2>연결 — provider/model 주입 지점</h2>
-    <p>provider/model은 <b>여기(아웃터)에서 해석</b>되어 이너 어템프트로 <b>주입</b>된다. 게이트웨이가 모델을 고르는 게 아니라 이 해석 계층이 고르며, 페일오버가 후보 (provider, model)을 바꿔가며 재시도하는 것도 이 지점을 통해서다.</p>
+    <h2>큰 그림 — '무엇으로든 돌아가게' 만드는 이음새</h2>
+    <p>이 단계는 OpenClaw의 두 가지 핵심 성질이 만나는 <b>이음새</b>다. 하나는 <b>교체 가능한 하네스</b> — 추론은 자체 엔진이든 Codex든 '가장 나은 것'이 맡고, OpenClaw는 점수 경쟁에 끼지 않는 최후의 기본값으로 물러선다. 다른 하나는 <b>실패에 견디는 채비</b> — 엔진·모델·계정 어느 하나도 단일 실패점이 아니며, 막히면 회전하거나 폴백한다.</p>
+    <p>그래서 이 단계는 '하나로 정하기'가 아니라 '<b>가장 나은 것을 고르되, 갈아끼울 줄을 세워 두기</b>'다. 이 결정과 안전장치를 루프 전에 한 번 차려 두면 뒤따르는 시도들은 일관된 한 정체 위에서 싸게 재시도할 수 있다. 그리고 이 조율을 <b>모델은 전혀 모른다</b> — 어느 엔진·계정으로 실어 나를지는 껍데기의 일이고, 모델은 그저 자기 차례에 한 턴을 받을 뿐이다. "감쌌는데도 품질이 안 깨지는" 세 번째 이유가 여기 있다: 신뢰성·교체성을 더하되 모델의 사고에는 손대지 않는다.</p>
+    <p><b>이 단계의 끝</b> — '무엇으로 돌릴지'가 확정됐고, 안전장치가 장전됐다. 이제 그 정체를 들고 실제 한 턴을 조립·실행하는 <a href="step-04-attempt-loop.html">어템프트 루프(STEP E)</a>로 들어간다.</p>
   </section>
 
   <nav class="stepnav">

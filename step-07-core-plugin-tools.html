@@ -8,32 +8,77 @@
 </head>
 <body>
 <div class="wrap">
-  <nav class="crumb"><a href="index.html">← 런타임 사다리</a><span class="pos">조립 3/10 · 어템프트 루프</span></nav>
+  <nav class="crumb"><a href="index.html">← 런타임 사다리</a><span class="pos">조립 3/10 · core-plugin-tools</span></nav>
 
   <header class="shead phase-asm">
     <div class="snum">3</div>
     <div>
       <div class="sphase">조립 10단계 · prepStages</div>
-      <h1>core-plugin-tools</h1>
+      <h1>core-plugin-tools — 모델에게 '손'을 쥐여 준다</h1>
     </div>
   </header>
-  <p class="slead">모델에게 줄 <b>도구 집합</b>을 만든다 — 코어 코딩 도구 + 플러그인 도구, 그리고 allow-list로 거른다.</p>
+  <p class="slead">한 턴을 모델에게 넘기기 직전, 이 단계는 모델이 이번에 쓸 <b>도구</b>를 고른다. 도구란 모델의 <b>손</b>이다 — 파일을 읽고, 코드를 고치고, 명령을 돌리고, 답을 보내고, 웹을 뒤지는. 모델 자신은 말만 할 줄 알 뿐, 손이 없으면 아무것도 만지지 못한다. 이 단계가 <b>이번 턴에 어떤 손을 쥐여 줄지</b>를 정한다.</p>
 
   <section class="card phase-asm">
-    <h2>무엇을 하나</h2>
-    <ul>
-      <li>코어 + 플러그인 도구를 빌드(<code>createOpenClawCodingTools</code>).</li>
-      <li>이번 어템프트의 <b>allow-list</b>를 적용(<code>applyEmbeddedAttemptToolsAllow</code>) — 허용되지 않은 도구는 제외.</li>
-    </ul>
+    <h2>이 단계가 하는 일</h2>
+    <p><b>모델에게 줄 도구 집합을 짓고, 이 실행에 허락된 것만 남긴다.</b> 두 곳에서 온 도구를 한 벌로 합쳐 짓되, 이번 실행이 손대도 되는 것만 추려 모델 앞에 놓는다.</p>
+    <p>모델은 텍스트밖에 못 낸다. "이 파일을 이렇게 고치면 된다"고 <b>말할</b> 수는 있어도, 그 파일을 직접 <b>건드릴</b> 수는 없다. 그 사이를 잇는 것이 도구다 — 도구가 붙어야 비로소 모델의 '생각'이 읽기·쓰기·실행·전송 같은 '행동'이 된다. 그러니 이 단계가 정하는 건 모델이 무엇을 <b>아느냐</b>가 아니라, 이번 턴에 무엇에 <b>손댈 수 있느냐</b>다.</p>
+    <p>그런데 도구를 다루는 데는 두 가지 긴장이 있다. 하나 — 도구는 OpenClaw에 내장된 것도 있고 <b>플러그인이 들고 온 것</b>도 있어, 출처가 둘이다. 둘 — 모든 턴이 모든 도구를 받아선 안 되니, <b>쓸 수 있는 도구를 못 박는 장치</b>가 필요하다. 아래 네 가지로 본다 — <b>① 도구가 왜 필요한가, ② 두 출처가 한 집합으로, ③ 거칠게 짓고 곱게 친다, ④ 무엇을 줄여도 '말할 손'은 남긴다</b>.</p>
+  </section>
+
+  <section class="card phase-asm">
+    <h2>① 도구 = 모델의 손 — '생각'을 '행동'으로 바꾼다</h2>
+    <p><b>도구는 모델이 바깥세상에 손을 뻗는 유일한 통로다.</b> 도구가 없으면 모델은 아무리 좋은 답을 떠올려도 그걸 글로 읊을 뿐, 무엇 하나 실제로 바꾸지 못한다.</p>
+    <p>예를 들어 보자. 도구 없는 모델은 "이 버그는 이 함수의 이 줄을 이렇게 고치면 됩니다"까지 <b>말한다</b>. 거기서 끝이다. 하지만 <code>read</code>·<code>edit</code> 같은 도구가 손에 쥐어지면, 모델은 그 파일을 직접 <b>열어 읽고, 고쳐 쓰고, 명령을 돌려 확인하고, 결과를 사용자에게 보낸다</b>. 말로 끝나던 것이 일로 끝난다.</p>
+    <p>그래서 이 단계는 이번 턴에 한해 모델의 <b>'능력 범위'를 그려 주는</b> 일이다. 같은 모델이라도 어떤 턴에는 파일을 마음껏 다루는 손을, 어떤 턴에는 "답만 보내는" 손 하나만 받는다. 무엇을 쥐여 줄지에 따라 그 턴이 닿을 수 있는 세계의 크기가 정해진다.</p>
+  </section>
+
+  <section class="card verdict v-nuance">
+    <h2>② 두 곳에서 와서 한 집합이 된다 — 코어 + 플러그인</h2>
+    <p><span class="vtag">코어 + 플러그인</span> <b>도구는 두 출처에서 오지만, 모델에겐 구분 없는 한 벌로 보인다.</b> OpenClaw는 자기 도구를 우대하지 않는다 — 플러그인 도구도 같은 집합에 나란히 꽂힌다.</p>
+    <p>첫 출처는 <b>코어 도구</b> — OpenClaw에 내장된 것들이다. 크게 셋이다: 파일을 다루는 <b>코딩 도구</b>(<code>read</code>·<code>write</code>·<code>edit</code>), 셸을 다루는 <b>실행 도구</b>(<code>exec</code>·<code>process</code>·<code>apply_patch</code>), 그리고 OpenClaw 고유의 <b>운영 도구</b>(답을 보내는 <code>message</code>, 예약을 거는 <code>cron</code>, 웹을 뒤지는 <code>web_search</code>·<code>web_fetch</code>, 세션을 다루는 <code>sessions_*</code>, 하위 에이전트를 띄우는 <code>subagents</code>, 스킬 작업장 <code>skill_workshop</code>, 캔버스·이미지 생성 등).</p>
+    <p>둘째 출처는 <b>플러그인 도구</b> — 깔려 있는 확장이 등록한 것들이다. 브라우저 제어, 외부 검색, 코드 실행 샌드박스, 채널별 도구(로그인 등), MCP 서버가 노출하는 도구까지. OpenClaw가 직접 만들지 않은 능력이 전부 이 갈래로 들어온다.</p>
+    <p><b>핵심은 둘이 한 집합으로 합쳐진다는 것</b>이다. 모델 앞에 놓인 도구 목록에는 "이건 코어, 저건 플러그인"이라는 꼬리표가 없다 — 전부 그냥 '도구 하나'다. <b>얻는 것</b> — 새 능력을 더하고 싶으면 플러그인 하나를 깔면 되고, 런타임 코드는 손댈 필요가 없다. 모델은 출처를 전혀 모른 채 <b>균일한 한 벌의 손</b>을 받고, 확장은 런타임을 건드리지 않고도 그 손을 늘린다.</p>
+  </section>
+
+  <section class="card verdict v-nuance">
+    <h2>③ 거칠게 짓고, 곱게 친다 — 두 겹의 거름</h2>
+    <p><span class="vtag">두 겹 거름</span> <b>'무엇을 지을지'를 거칠게 한 번, '무엇을 남길지'를 곱게 한 번 — 두 겹으로 거른다.</b> 거친 겹은 낭비를 막고, 고운 겹은 정확성을 책임진다.</p>
+    <p>모든 턴이 모든 도구를 받아선 안 된다. 그래서 이 실행이 쓸 수 있는 도구를 못 박는 <b>허용 목록</b>이 있다. 단순하게 하자면 "일단 다 짓고, 허용 목록에 없는 건 버리면" 된다. 하지만 그건 낭비다 — 어떤 도구는 짓는 데 비싸다(플러그인 자원을 열고, 외부 연결을 맺는다). 결국 버릴 도구를 비싸게 짓는 셈이다. 그래서 두 겹으로 나눈다.</p>
+    <p><b>거친 겹 — 짓기 계획.</b> 무엇이든 짓기 전에, 먼저 허용 목록을 보고 "<b>어느 갈래를 아예 지을까</b>"부터 정한다. 목록이 플러그인 도구 하나만 부른다면, 코어 코딩 도구 공장은 <b>돌리지도 않는다</b>. 몇 가지 분명한 경우가 있다 — 허용 목록이 <b>아예 없으면</b> 전부 짓고(제한 없음), <b>빈 목록</b>이면 (도구를 의도적으로 끈 것이니) 아무것도 안 짓고, <b>'*'(와일드카드)</b>면 전부 짓는다. 그리고 목록에 적힌 이름이 코어 도구로 알려진 게 아니면 <b>플러그인 도구로 가정</b>한다 — 그래야 좁은 허용 목록에서도 깔린 플러그인이 빠짐없이 모습을 드러낸다.</p>
+    <p><b>고운 겹 — 허용 거름.</b> 짓기 계획이 고른 갈래가 실제 도구 목록으로 지어지면, 이제 <b>허용된 이름만 정확히</b> 남긴다. 이때 '도구 묶음'과 '플러그인 묶음' 같은 묶음 이름은 그 안의 실제 도구들로 펼쳐 가며 맞춘다. 이것이 "허락된 것만 살아남는다"를 보장하는 마지막 체다.</p>
+    <p><b>얻는 것</b> — 거친 겹이 '버릴 걸 굳이 비싸게 짓는' 낭비를 걷어 내고, 고운 겹이 '허락된 것만 남는' 정확성을 보장한다. 두 겹을 거치며 도구 집합은 <b>빠르게, 그러면서도 어긋남 없이</b> 추려진다.</p>
+  </section>
+
+  <section class="card phase-asm">
+    <h2>④ 무엇을 줄여도 '말할 손'은 남긴다 — message 탈출구</h2>
+    <p><b>이 턴이 반드시 답을 전해야 하는 모드라면, 허용 목록이 아무리 좁아도 답을 보내는 손 하나는 끼워 넣는다.</b> 빈 목록이면 그 손 하나만 남는다.</p>
+    <p>안전을 위해 도구를 깎다 보면 위험한 끝이 있다 — 허용 목록을 너무 조여 <b>답을 돌려줄 도구마저 사라지는</b> 경우다. 그러면 모델은 일을 다 해 놓고도 그 결과를 사용자에게 전할 길이 없다. 말문이 막힌 턴이 되는 것이다.</p>
+    <p>그래서 한 가지 안전장치를 둔다. 이 실행이 <b>답을 message 도구로 전해야 하는</b> 모드라면, 허용 목록을 추리기 전에 거기에 <code>message</code>를 슬쩍 끼워 넣는다. 허용 목록이 텅 비어 있었다면 <b><code>message</code> 하나만 남는</b> 목록(<code>["message"]</code>)이 된다. 다른 도구를 아무리 깎아도, 모델은 <b>'대답을 전달할 손' 하나만은 늘 쥐고</b> 있게 된다.</p>
+    <p><b>얻는 것</b> — 도구를 좁혀 안전을 높이면서도, "<b>일은 했는데 답을 못 보내는</b>" 사고는 구조적으로 막힌다. 좁히기와 '말은 통해야 한다'는 보장이 서로 부딪치지 않는다.</p>
   </section>
 
   <section class="card phase-asm ev">
-    <h2>코드 위치 (검증됨)</h2>
+    <h2>코드 위치</h2>
     <ul>
-      <li><code>attempt.ts:1362</code> <code>prepStages.mark</code> (도구 조립 완료 지점)</li>
-      <li><code>attempt.ts:1254</code> <code>createOpenClawCodingTools</code></li>
-      <li><code>attempt.ts:1356</code> <code>applyEmbeddedAttemptToolsAllow</code></li>
+      <li><code>attempt.ts:1192</code> <code>mergeForcedEmbeddedAttemptToolsAllow</code> — ④ 강제 시 <code>message</code> 끼우기</li>
+      <li><code>attempt.ts:1198</code> <code>resolveEmbeddedAttemptToolConstructionPlan</code> — ③ 거친 겹(짓기 계획)</li>
+      <li><code>attempt.ts:1226</code> <code>effectiveToolsAllow</code> — 이번 실행의 허용 목록</li>
+      <li><code>attempt.ts:1251</code> <code>shouldConstructTools</code> 게이트 — 거짓이면 도구를 짓지 않음(<code>toolsRaw=[]</code>)</li>
+      <li><code>attempt.ts:1254</code> <code>createOpenClawCodingTools</code> — 코어+플러그인 도구 집합 짓기</li>
+      <li><code>attempt.ts:1356</code> <code>applyEmbeddedAttemptToolsAllow</code> — ③ 고운 겹(허용 거름)</li>
+      <li><code>attempt.ts:1362</code> <code>prepStages.mark("core-plugin-tools")</code> — 이 단계 완료 지점</li>
+      <li>짓기 계획·거름 정의: <code>attempt-tool-construction-plan.ts:193</code> 짓기 계획 · <code>:151</code> 갈래 판정 · <code>:103</code> 허용 거름 · <code>:133</code> 강제 message</li>
+      <li>갈래 정의: <code>attempt-tool-construction-plan.ts:15</code> 코딩(<code>read·write·edit</code>) · <code>:17</code> 셸(<code>exec·process·apply_patch</code>) · <code>:22</code> 운영(<code>message·cron·web_search·sessions_*…</code>) · <code>:53/:61</code> 전부/없음 계획</li>
+      <li>도구 짓기 본체: <code>agent-tools.ts:394</code> <code>createOpenClawCodingTools</code> · <code>:1015</code> 운영 도구 · <code>:1013</code> 채널 도구 · <code>:936</code> 플러그인 도구</li>
     </ul>
+  </section>
+
+  <section class="card verdict phase-asm">
+    <h2>큰 그림 — 이 단계가 모델에 더하는 것</h2>
+    <p>한 걸음 물러나 보면, 이 단계가 더하는 것은 '더 똑똑한 답'이 아니라 <b>모델이 닿을 수 있는 세계의 경계</b>다. 그리고 그 경계를 네 가지 성질로 그린다 — <b>균일</b>(코어와 플러그인을 구분 없이 한 벌로), <b>확장</b>(플러그인으로 능력을 더하되 런타임은 불변), <b>범위 한정</b>(허용 목록으로 이 턴이 손댈 곳을 못 박음), <b>절약</b>(버릴 도구는 애초에 짓지 않음).</p>
+    <p>결정적으로, 이 모든 결정은 <b>모델의 사고에는 닿지 않는다</b>. 코어냐 플러그인이냐, 몇 개를 깎았는지, 어느 갈래를 안 지었는지 — 모델은 그저 잘 추려진 한 벌의 손을 받아 자기 일을 할 뿐이다. 어떤 손을 쥐여 줄지는 <b>껍데기의 일</b>이고, 그 손으로 무엇을 할지가 <b>모델의 일</b>이다. "감쌌는데도 품질이 안 깨지는" 또 하나의 이유가 여기 있다 — 능력의 범위를 정하고 자원을 아끼되, 모델이 무엇을 어떻게 생각할지에는 손대지 않는다.</p>
+    <p><b>이 단계의 끝</b> — 이번 턴의 도구 집합이 확정됐다. 이 한 벌의 손은 뒤따르는 조립 단계들로 이어지고, 마침내 모델이 불릴 때 모델은 바로 <b>이 집합에서</b> 도구를 골라 손을 뻗는다.</p>
   </section>
 
   <nav class="stepnav">
