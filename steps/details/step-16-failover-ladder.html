@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>깊이 보기 · 실패 모양·처방 사다리 — 모양마다 가장 싼 처방부터</title>
+<link rel="stylesheet" href="../../assets/steps.css">
+</head>
+<body>
+<div class="wrap">
+  <nav class="crumb"><a href="../step-16-recovery.html">← 복구</a><span class="pos">깊이 보기 · 실패 모양·처방 사다리</span></nav>
+
+  <header class="shead phase-rec">
+    <div class="snum">①</div>
+    <div>
+      <div class="sphase">복구 · 깊이 보기</div>
+      <h1>실패엔 모양이 있고, 모양마다 가장 싼 처방이 있다</h1>
+    </div>
+  </header>
+  <p class="slead">모델 호출은 수십 가지 모양으로 미끄러진다 — 잠깐의 속도 제한, 만료된 인증, 죽은 모델. 복구는 이 실패들을 <b>모양별로 분류해, 살릴 가장 싼 처방부터</b> 시도하고, 안 되면 한 단계씩 비싼 처방으로 올라간다.</p>
+
+  <section class="card phase-rec">
+    <h2>왜 모양별로 보나 — 가장 싼 처방부터</h2>
+    <p><b>복구는 실패를 모양별로 분류해, 살릴 가장 싼 처방부터 시도한다. 안 되면 한 단계씩 비싼 처방으로 올라가고, 한 단계가 풀면 거기서 멈춘다(단조 증가).</b></p>
+    <p>왜 모양별인가. 잠깐의 속도 제한과 만료된 인증과 죽은 모델은 전혀 다른 문제다. 같은 처방으로 뭉뚱그리면, 잠깐 기다리면 될 일에 모델을 통째로 갈아끼우는 낭비가 나거나, 갈아끼워야 할 일을 제자리에서 헛되이 두드린다. 그래서 실패의 모양을 먼저 읽는다.</p>
+  </section>
+
+  <section class="card phase-rec">
+    <h2>처방의 사다리 — 그리고 다섯 액션</h2>
+    <p>처방의 사다리, 싼 것에서 비싼 것 순으로:</p>
+    <ul>
+      <li><b>그대로 진행</b> — 무시 가능한 일시적 결함이면, 아무것도 안 바꾸고 다음으로.</li>
+      <li><b>같은 모델로 한 번 더</b> — 단기 속도 제한이나 잠깐의 응답 끊김(유휴)이면, 모델도 계정도 안 바꾸고 제자리 재시도.</li>
+      <li><b>계정을 바꿔</b> — 인증이 막혔거나 과부하면, 다른 <a href="../step-03-resolution.html">인증 프로필</a>로 회전(과부하는 백오프 뒤, 회전 한도까지).</li>
+      <li><b>모델을 갈아끼움</b> — 그 모델론 도저히 안 되면, "안 된다"는 신호를 바깥으로 던져 다음 모델로.</li>
+      <li><b>포기·표시</b> — 복구가 소진되면, 안정적인 오류로 종결.</li>
+    </ul>
+    <p>한 가지 정확히 — 공식 '결정'은 <b>다섯 액션</b> 중 하나를 고른다: <code>continue_normal</code> · <code>rotate_profile</code> · <code>surface_error</code> · <code>fallback_model</code> · <code>return_error_payload</code>. 위의 '<b>같은 모델로 한 번 더</b>'는 별개의 결정 액션이 아니라, <b>'계정 회전'을 실행하는 길목에서 먼저 시도되는 더 싼 수</b>다. 그리고 '모델 교체'만은 이 안쪽 루프가 직접 하지 않고 <b>신호를 바깥 드라이버에 넘긴다</b> — 가벼운 회복은 안에서, 무거운 회복은 밖에서.</p>
+  </section>
+
+  <section class="card phase-rec">
+    <h2>특별한 모양 — 끝났는데 답이 없는 턴</h2>
+    <p>특별한 모양 하나 — "<b>끝났는데 답이 없는</b>" 턴이다. 모델이 추론만 적고 보이는 답을 안 냈거나(최대 <b>2회</b>), 아예 빈 응답이면(최대 <b>1회</b>), 가장 싼 처방은 "<b>그 부분 턴에서 이어서 답을 내라 — 반복·재시작 금지</b>" 지시를 덧대 다시 부르는 것이다. 처음부터 다시 시키지 않으니 부분 진행이 살고, '재시작 금지'가 같은 작업을 무한 반복하는 걸 막는다. (또 흔한 모양 — 망가진 도구 호출 — 은 더 안쪽, 스트림 경계에서 파서가 흡수한다.)</p>
+  </section>
+
+  <section class="card phase-rec ev">
+    <h2>코드 위치</h2>
+    <ul>
+      <li>페일오버 결정: <code>failover-policy.ts:7–21</code> 5액션 union(<code>continue_normal·rotate_profile·surface_error·fallback_model·return_error_payload</code>) · <code>:160</code> <code>resolveRunFailoverDecision</code>(단계별 허용 액션을 좁힘)</li>
+      <li>실행: <code>assistant-failover.ts:122</code> <code>handleAssistantFailover</code> — 회전·과부하 백오프·<b>same-model 재시도</b>·폴백 신호·결제 분기를 한 함수가 소유(<code>:168</code> <code>maybeRetrySameModelRateLimit</code> · <code>:170</code> <code>advanceAuthProfile</code> · <code>:151</code> <code>overloadProfileRotationLimit</code>) · <code>run.ts:3379</code> 결정 · <code>:3394</code> 호출</li>
+      <li>불완전 턴: <code>incomplete-turn.ts:133</code> 추론만 한도(2) · <code>:134</code> 빈 응답 한도(1) · <code>:135/:137</code> "이어서·재시작 금지" 지시문</li>
+      <li>도구 호출 복구(안쪽): <code>attempt.tool-call-argument-repair.ts</code>(곡선 따옴표·잘린 JSON·방언) · <code>packages/tool-call-repair/</code> → 자세히는 <a href="../step-15-dispatch.html">디스패치</a></li>
+    </ul>
+  </section>
+
+  <nav class="stepnav">
+    <a class="prev" href="../step-16-recovery.html"><span class="nl">← 단계로</span>복구 · 페일오버·컴팩션</a>
+    <a class="next" href="step-16-preemptive-compaction.html"><span class="nl">다음 →</span>② 선제 컴팩션 — 터지기 전에 줄인다</a>
+  </nav>
+
+  <footer class="foot">🦞 OpenClaw 런타임 사다리 · 복구 깊이 보기 · 실패 모양·처방 사다리 · <a href="../../index.html">전체 보기</a></footer>
+</div>
+</body>
+</html>

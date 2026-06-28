@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>깊이 보기 · 루프 채비 — 한 번 차려 모든 시도가 나눠 쓴다</title>
+<link rel="stylesheet" href="../../assets/steps.css">
+</head>
+<body>
+<div class="wrap">
+  <nav class="crumb"><a href="../step-03-resolution.html">← STEP C · 해석</a><span class="pos">깊이 보기 · 루프 채비</span></nav>
+
+  <header class="shead phase-res">
+    <div class="snum">④</div>
+    <div>
+      <div class="sphase">STEP C · 깊이 보기</div>
+      <h1>루프가 쓸 채비를 한 번에 갖춘다</h1>
+    </div>
+  </header>
+  <p class="slead">추론 엔진·모델·계정이 정해졌다. 마지막으로, 곧 시작될 <b>재시도 루프</b>가 같은 턴을 여러 번 시도하며 나눠 쓸 상태와 안전장치를, 루프가 돌기 전에 딱 한 번 차려 둔다. 한 번 차려 모든 시도가 공유해야 싸고, 일관되고, 폭주하지 않기 때문이다.</p>
+
+  <section class="card phase-res">
+    <h2>한 번 차려 모든 시도가 나눠 쓴다</h2>
+    <p><b>재시도 루프가 쓸 상태와 안전장치를 루프 전에 딱 한 번 차린다.</b> 한 번 차려 모든 시도가 공유해야 — 싸고, 일관되고, 폭주하지 않는다.</p>
+    <p>곧 시작될 <b>어템프트 루프</b>(<a href="../step-04-attempt-loop.html">STEP D</a>)는 같은 턴을 여러 번 시도할 수 있다 — 압축하고, 인증 갱신하고, 재시도하고. 그때 쓸 것들을 미리 차려 둔다: <b>대화 기록을 조립·압축하는 엔진</b>(한 번 해석해 재사용 — 매번 DB 연결을 다시 여는 낭비와 압축 진행 상태 유실을 막는다), 그리고 <b>재시도 횟수·비용 누적기·안전 차단기</b>들.</p>
+  </section>
+
+  <section class="card phase-res">
+    <h2>'시도 하나'가 아니라 '실행 전체' 범위</h2>
+    <p>여기서 핵심은 이 상태가 <b>'시도 하나'가 아니라 '실행 전체' 범위</b>라는 점이다. 안전 차단기가 시도마다 리셋되면 폭주를 못 막는다 — 막힌 프로바이더가 매 재시도마다 차단기를 새로 장전해 계속 과금할 테니까. 실제로 하트비트 하나가 <b>60초 만에 유료 호출 수백~천여 회, 사고 한 건에 $20~30</b>을 태운 적이 있었고, 그 뒤 "<b>연속 N회 헛돌면 멈춘다</b>"는 차단기가 실행 전체를 가로질러 세도록 여기서 장전된다. (이 차단기가 실제로 발동하는 건 <a href="../step-16-recovery.html">STEP E · 복구</a>.)</p>
+  </section>
+
+  <section class="card phase-res ev">
+    <h2>코드 위치</h2>
+    <ul>
+      <li><code>run.ts:1560–1802</code> 루프 상태 초기화(차단기 <code>#76293</code>·<code>#77474</code>) + <code>resolveContextEngine</code>(1회)</li>
+      <li><code>run.ts:1885</code> 어템프트 루프 <code>while(true)</code> 시작 — 채비가 끝나고 루프가 도는 경계</li>
+    </ul>
+  </section>
+
+  <nav class="stepnav">
+    <a class="prev" href="step-03-auth-profile.html"><span class="nl">← 돌아가기</span>③ 인증 프로필</a>
+    <a class="next" href="../step-04-attempt-loop.html"><span class="nl">다음 단계 →</span>D · 어템프트 루프</a>
+  </nav>
+
+  <footer class="foot">🦞 OpenClaw 런타임 사다리 · STEP C 깊이 보기 · 루프 채비 · <a href="../../index.html">전체 보기</a></footer>
+</div>
+</body>
+</html>

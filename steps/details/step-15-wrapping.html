@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>깊이 보기 · 방어막 겹겹 — 모델 호출을 감싸는 경계 엔지니어링</title>
+<link rel="stylesheet" href="../../assets/steps.css">
+</head>
+<body>
+<div class="wrap">
+  <nav class="crumb"><a href="../step-15-dispatch.html">← 디스패치</a><span class="pos">깊이 보기 · 방어막 겹겹</span></nav>
+
+  <header class="shead phase-disp">
+    <div class="snum">②</div>
+    <div>
+      <div class="sphase">디스패치 · 깊이 보기</div>
+      <h1>방어막 겹겹 — 어떤 호출도 날것으로 가지 않는다</h1>
+    </div>
+  </header>
+  <p class="slead">디스패치의 루프가 도는 동안, 모델로 가는 어떤 호출도 날것으로 나가지 않는다. 세션의 호출 함수 위에 방어막이 겹겹이 쌓여, 프로바이더의 결함을 사용자가 모르게 흡수한다.</p>
+
+  <section class="card verdict v-nuance phase-disp">
+    <h2>방어막 겹겹 — 경계 엔지니어링</h2>
+    <p><span class="vtag">경계 엔지니어링</span> <b>루프가 도는 모든 모델 호출은, 그대로 나가지 않고 여러 겹의 방어막을 통과한다.</b> 세션의 호출 함수(<a href="../step-14-stream-setup.html">streamFn</a>) 위에 약 <b>17겹</b>이 조건부로 쌓이고, 그중 <b>6겹은 어떤 실행에서도 무조건</b> 둘린다.</p>
+    <p>왜 감싸나. 프로바이더의 모델 호출은 온갖 방식으로 미끄러진다 — Claude가 재생된 thinking 블록을 거부하고, 어떤 모델은 도구 이름에 공백을 묻혀 보내고(<code>" read "</code>), 어떤 건 도구 호출 ID 형식이 까다롭고, 거부(refusal)를 낯선 멈춤 이유로 돌려보낸다. 이걸 날것으로 두면 <b>결함 하나에 턴이 깨진다</b>.</p>
+    <p>그래서 호출 함수를 겹겹이 감싼다. 대표적인 겹 — <b>캐시 관측</b>(프롬프트 캐시 적중·무효 기록), <b>메시지 정규화</b>(과거 thinking/reasoning 블록 제거로 히스토리 오염 방지), <b>도구호출 정돈</b>(망가진 이름·ID·인자를 파서 수준에서 흡수), <b>민감 멈춤 복구</b>(모델 거부가 처리 안 된 오류로 새지 않게), <b>유휴 타임아웃</b>(응답이 끊기면 감지), <b>진단</b>(매 호출을 추적). 마지막 여섯 결은 무조건 둘린다.</p>
+  </section>
+
+  <section class="card phase-disp">
+    <h2>가장 또렷한 예 — Claude의 thinking 거부</h2>
+    <p>가장 또렷한 예가 Claude의 thinking 거부다. 정책이 허락하면 보내는 메시지에서 thinking을 <b>미리 정리</b>하고, 아니면 thinking 없이 <b>한 번 자동 재시도</b>한 뒤 성공하면 트랜스크립트까지 조용히 수리한다. 실제 코드 주석이 그 사례를 말한다:</p>
+    <p class="quote">"Anthropic Claude endpoints can reject replayed <code>thinking</code> blocks on any follow-up provider call… Sanitize outbound messages where policy allows rewriting; otherwise preserve latest thinking and let the recovery wrapper retry once without it."</p>
+    <p><b>얻는 것</b> — 사용자는 이 결함들을 전혀 모른다. 비법은 프롬프트 마법이 아니라 <b>프로바이더 결함을 흡수하는 경계 엔지니어링</b>이다. (망가진 도구 호출을 살리는 더 깊은 사다리는 <a href="../step-16-recovery.html">복구</a>에서 본다.)</p>
+  </section>
+
+  <section class="card phase-disp ev">
+    <h2>코드 위치</h2>
+    <ul>
+      <li><code>attempt.ts:2952–3173</code> 스트림 다겹 래핑(base <code>streamFn</code> 위에 · 6겹 무조건)</li>
+      <li>대표 겹: <code>:2958</code> 캐시 관측 · <code>:2966</code> thinking/reasoning 제거 · <code>:2983</code> <code>wrapAnthropicStreamWithRecovery</code>(거부된 thinking 복구+수리)</li>
+      <li>무조건 6겹: <code>:3054</code> yield-abort · <code>:3067</code> malformed 정리 · <code>:3073</code> text 승격 · <code>:3077</code> 이름 trim · <code>:3110</code> 민감 stop-reason · <code>:3142</code> diagnostic</li>
+    </ul>
+  </section>
+
+  <nav class="stepnav">
+    <a class="prev" href="step-15-tool-loop.html"><span class="nl">← 이전 조각</span>① 모델↔도구 루프</a>
+    <a class="next" href="step-15-context-budget.html"><span class="nl">다음 →</span>③ 컨텍스트 조립 + 예산 점검</a>
+  </nav>
+
+  <footer class="foot">🦞 OpenClaw 런타임 사다리 · 디스패치 깊이 보기 · 방어막 겹겹 · <a href="../../index.html">전체 보기</a></footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>깊이 보기 · 요약 감사 — 요약마저 믿지 않는다</title>
+<link rel="stylesheet" href="../../assets/steps.css">
+</head>
+<body>
+<div class="wrap">
+  <nav class="crumb"><a href="../step-16-recovery.html">← 복구</a><span class="pos">깊이 보기 · 요약 감사</span></nav>
+
+  <header class="shead phase-rec">
+    <div class="snum">③</div>
+    <div>
+      <div class="sphase">복구 · 깊이 보기</div>
+      <h1>요약마저 믿지 않는다 — 생성 · 감사 · 폴백</h1>
+    </div>
+  </header>
+  <p class="slead">맥락이 넘쳐 요약이 불가피해질 때가 있다. 문제는 요약이 핵심을 빠뜨리면 <b>이후 모든 턴이 잘못된 과거 위에서</b> 돈다는 것 — 그래서 복구는 모델이 만든 요약마저 감사하고, 미달이면 안전한 대체본으로 떨어진다.</p>
+
+  <section class="card phase-rec">
+    <h2>요약을 그대로 믿지 않는 이유</h2>
+    <p><b>요약이 불가피할 때조차, 모델이 만든 요약을 그대로 싣지 않는다 — 생성한 뒤 품질을 감사하고, 미달이면 안전한 대체본으로 떨어진다.</b></p>
+    <p>왜. 요약은 긴 과거를 압축하는데, 그 요약이 핵심을 빠뜨리거나 식별자를 변형하면 <b>이후 모든 턴이 잘못된 과거 위에서</b> 돈다. 압축의 마지막 보루를 모델의 변덕에 통째로 맡길 수는 없다.</p>
+  </section>
+
+  <section class="card phase-rec">
+    <h2>세 겹 감사, 그리고 미달이면 폴백</h2>
+    <p>그래서 세 겹으로 감사한다 — <b>①</b> 필수 다섯 섹션(<code>결정</code> · <code>미해결 할 일</code> · <code>제약/규칙</code> · <code>대기 중인 사용자 요청</code> · <code>정확한 식별자</code>)이 다 있나? <b>②</b> ID·URL·경로·포트·해시·날짜 같은 정확한 식별자가 그대로 보존됐나? <b>③</b> 최신 사용자 요청이 반영됐나? (운영자가 커스텀 지시문을 넣으면 인젝션 방어막으로 감싼다.)</p>
+    <p>감사에 미달이면, <b>깨진 요약은 절대 싣지 않는다</b> — 유효했던 이전 요약을 재사용하거나, 다섯 섹션 골격으로 떨어진다. 길이도 ~800자(~200토큰)로 묶는다. <b>얻는 것</b> — 긴 대화의 '기억'이 조용히 오염되는 일을 막는다. 요약을 쓰되, 요약을 맹신하지 않는다.</p>
+  </section>
+
+  <section class="card phase-rec ev">
+    <h2>코드 위치</h2>
+    <ul>
+      <li>요약 감사: <code>compaction-safeguard-quality.ts:234</code> <code>auditSummaryQuality</code> · <code>:105</code> <code>buildStructuredFallbackSummary</code> · <code>:14</code> <code>REQUIRED_SUMMARY_SECTIONS</code>(5섹션)</li>
+    </ul>
+  </section>
+
+  <nav class="stepnav">
+    <a class="prev" href="step-16-preemptive-compaction.html"><span class="nl">← 이전</span>② 선제 컴팩션</a>
+    <a class="next" href="step-16-replay-safety.html"><span class="nl">다음 →</span>④ 재생 안전성</a>
+  </nav>
+
+  <footer class="foot">🦞 OpenClaw 런타임 사다리 · 복구 깊이 보기 · 요약 감사 · <a href="../../index.html">전체 보기</a></footer>
+</div>
+</body>
+</html>

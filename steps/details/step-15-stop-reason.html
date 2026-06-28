@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>깊이 보기 · stop-reason 판정 — 멈춤의 이유가 다음을 가른다</title>
+<link rel="stylesheet" href="../../assets/steps.css">
+</head>
+<body>
+<div class="wrap">
+  <nav class="crumb"><a href="../step-15-dispatch.html">← 디스패치</a><span class="pos">깊이 보기 · stop-reason 판정</span></nav>
+
+  <header class="shead phase-disp">
+    <div class="snum">④</div>
+    <div>
+      <div class="sphase">디스패치 · 깊이 보기</div>
+      <h1>stop-reason 판정 — 멈춤의 이유를 읽는다</h1>
+    </div>
+  </header>
+  <p class="slead">모델↔도구 루프가 멎으면, 디스패치는 모델이 '왜 멈췄는지'를 읽는다. 그 이유 하나가 이 턴을 끝낼지, 갈아탈 신호를 띄울지 가른다.</p>
+
+  <section class="card phase-disp">
+    <h2>멈춤의 이유를 읽는다</h2>
+    <p><b>모델↔도구 루프가 멎으면, 모델이 '왜 멈췄는지'(stop-reason)를 읽는다. 그 이유가 이 턴을 끝낼지, 갈아탈 신호를 띄울지 가른다.</b></p>
+    <p>모델은 여러 이유로 멈춘다 — 답을 다 해서, 도구를 부르려고, 거부(민감)해서, 길이 한계에 닿아서, 오류로. 루프가 끝났을 때 마지막 응답에 붙은 이 <b>멈춤의 이유</b>가 결과의 성격을 정한다.</p>
+  </section>
+
+  <section class="card phase-disp">
+    <h2>판정이 다음을 가른다</h2>
+    <p>깨끗이 맺었으면 그 답을 <b>종결할 결과</b>로 빚고, 무언가 어긋난 멈춤이면 "이걸론 안 된다"는 <b>신호를 바깥으로</b> 띄운다 — 그러면 더 바깥의 드라이버가 재시도·교체로 받는다. 디스패치는 멈춤을 '판정'까지 하고, 그 판정에 따른 회복은 다음 단계의 몫이다. <b>얻는 것</b> — 모델이 어떻게 멈췄든, 그 끝은 늘 <b>다음 행동으로 번역</b>된다. 침묵도, 거부도, 완성도 — 저마다 알맞은 다음으로 이어진다.</p>
+  </section>
+
+  <section class="card phase-disp ev">
+    <h2>코드 위치</h2>
+    <ul>
+      <li><code>attempt.ts:5530</code> <code>resolveTerminalAssistantTexts</code> · <code>:5532·5556</code> <code>lastAssistant.stopReason</code> 판정 → 종료/페일오버</li>
+    </ul>
+  </section>
+
+  <nav class="stepnav">
+    <a class="prev" href="step-15-context-budget.html"><span class="nl">← 이전 조각</span>③ 컨텍스트 조립 + 예산 점검</a>
+    <a class="next" href="../step-16-recovery.html"><span class="nl">다음 단계 →</span>복구 · 페일오버·컴팩션</a>
+  </nav>
+
+  <footer class="foot">🦞 OpenClaw 런타임 사다리 · 디스패치 깊이 보기 · stop-reason 판정 · <a href="../../index.html">전체 보기</a></footer>
+</div>
+</body>
+</html>

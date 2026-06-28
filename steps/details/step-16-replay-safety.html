@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>깊이 보기 · 재생 안전성 — 복구가 새 문제를 만들지 않게</title>
+<link rel="stylesheet" href="../../assets/steps.css">
+</head>
+<body>
+<div class="wrap">
+  <nav class="crumb"><a href="../step-16-recovery.html">← 복구</a><span class="pos">깊이 보기 · 재생 안전성</span></nav>
+
+  <header class="shead phase-rec">
+    <div class="snum">④</div>
+    <div>
+      <div class="sphase">복구 · 깊이 보기</div>
+      <h1>복구가 새 문제를 만들지 않게 — 재생 안전성</h1>
+    </div>
+  </header>
+  <p class="slead">재시도는 강력하지만 위험하다. 같은 턴을 그대로 다시 돌리면 <b>이미 보낸 메시지가 두 번 가고, 이미 한 작업이 두 번 실행</b>될 수 있다. 그래서 복구는 다시 돌리기 전에 '재생해도 안전한가'부터 부수효과 증거로 판정한다.</p>
+
+  <section class="card verdict v-nuance phase-rec">
+    <h2>재생 안전 — 다시 돌려도 되는가</h2>
+    <p><span class="vtag">재생 안전</span> <b>재시도는 강력하지만 위험하다. 이미 메시지를 보냈거나 세션을 띄웠거나 예약을 기록한 턴을 그대로 다시 돌리면 중복이 난다. 그래서 재시도 전에 "재생해도 안전한가"를 부수효과 증거로 판정한다.</b></p>
+  </section>
+
+  <section class="card phase-rec">
+    <h2>재생 금지 증거, 그리고 fail-closed</h2>
+    <p>이 한 줄이 핵심이다 — <b>재생 안전 = 재생이 무효가 아니고 그리고 부수효과 흔적도 없을 때</b>. 재생 금지 증거란 이런 것들이다: 읽기 전용이 아닌(부수효과 가능) 도구를 썼거나, 비동기 작업을 시작했거나, 메시지를 전송했거나, 세션 spawn이 수락됐거나, cron 기록이 성공했거나. <b>하나라도</b> 있으면 재생을 막는다.</p>
+    <p>그리고 <b>보수적으로 닫는다(fail-closed)</b> — 안전을 증명할 메타데이터가 없는 옛 시도는 기본적으로 '재생 위험'으로 본다. 모르면, 재생하지 않는다.</p>
+  </section>
+
+  <section class="card phase-rec">
+    <h2>왜 이게 비법인가</h2>
+    <p>왜 이게 비법인가. 대부분의 재시도 구현은 <b>멱등성을 무시하고 그냥 다시 돌린다</b> — 그러면 같은 메시지가 두 번 가고, 같은 작업이 두 번 실행된다. OpenClaw는 안전할 때만 재생하고, 안전할 때만 모델을 바꿔 다시 시도한다. <b>얻는 것</b> — 끈질긴 복구와 '부작용 없음'이 양립한다. 사용자는 복구의 흔적도, 복구가 부를 뻔한 중복도 보지 못한다.</p>
+  </section>
+
+  <section class="card phase-rec ev">
+    <h2>코드 위치</h2>
+    <ul>
+      <li>재생 안전: <code>replay-state.ts:63</code> <code>replaySafe = !replayInvalid &amp;&amp; !hadPotentialSideEffects</code> · <code>tool-replay-safety.ts</code>(읽기전용 도구만 재생) · <code>delivery-evidence.ts</code>(전송·spawn·cron 증거)</li>
+    </ul>
+  </section>
+
+  <nav class="stepnav">
+    <a class="prev" href="step-16-summary-audit.html"><span class="nl">← 이전</span>③ 요약 감사</a>
+    <a class="next" href="../step-17-exit.html"><span class="nl">다음 단계 →</span>F · 출구 · 종료 판정 → 결과 반환</a>
+  </nav>
+
+  <footer class="foot">🦞 OpenClaw 런타임 사다리 · 복구 깊이 보기 · 재생 안전성 · <a href="../../index.html">전체 보기</a></footer>
+</div>
+</body>
+</html>

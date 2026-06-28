@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>깊이 보기 · 한 바퀴 해부 — 매번 입력을 새로 짜서 한 번 보낸다</title>
+<link rel="stylesheet" href="../../assets/steps.css">
+</head>
+<body>
+<div class="wrap">
+  <nav class="crumb"><a href="../step-04-attempt-loop.html">← STEP D · 어템프트 루프</a><span class="pos">깊이 보기 · 한 바퀴 해부</span></nav>
+
+  <header class="shead phase-loop">
+    <div class="snum">②</div>
+    <div>
+      <div class="sphase">STEP D · 깊이 보기</div>
+      <h1>한 바퀴를 뜯어보면 — 매번 입력을 '새로' 짜서 딱 한 번 보낸다</h1>
+    </div>
+  </header>
+  <p class="slead">되돌이의 한 바퀴는 단순 반복이 아니다. 매 반복은 <b>이번 시도의 입력을 새로 조립</b>해 안쪽 시도를 딱 한 번 디스패치한다 — 그래서 두 번째 시도는 첫 번째가 막힌 그 지점을 비껴간다.</p>
+
+  <section class="card phase-loop">
+    <h2>한 바퀴의 차례 — ⓐ한도·ⓑ조립·ⓒ디스패치·ⓓ분류</h2>
+    <p><b>매 반복은 이번 시도의 입력을 새로 조립해, 안쪽 시도를 한 번 디스패치한다.</b> 그래서 재시도는 단순 반복이 아니라, <b>직전 결과를 반영한 갱신된 시도</b>다.</p>
+    <p>한 바퀴의 차례는 이렇다 — <b>ⓐ</b> 먼저 한도를 검사하고(돈 차단기를 지나야 들어온다), <b>ⓑ</b> 이번 시도의 프롬프트와 실행 계획을 새로 조립하고, <b>ⓒ</b> 안쪽 시도를 한 번 디스패치하고, <b>ⓓ</b> 돌아온 결과를 정규화해 분류한다. 핵심은 <b>ⓑ</b> — 매번 입력을 "새로" 짠다는 점이다.</p>
+  </section>
+
+  <section class="card phase-loop">
+    <h2>매번 입력을 '새로' 짜는 이유</h2>
+    <p>왜 새로 짜야 하나. 직전 시도가 맥락을 압축했다면 이번엔 <b>압축된 기록 위에서</b> 부르고, 직전이 답을 일부만 냈다면 "처음부터 다시 말고 <b>이어서</b> 답을 내라"는 지시를 프롬프트에 덧대고, 마무리 검수가 수정을 요청했다면 그 수정 지시를 얹는다. 매번 같은 입력을 그대로 다시 보내면 같은 실패가 되풀이될 뿐이다. 직전 결과를 반영해 입력을 갱신하기에, <b>두 번째 시도는 첫 번째가 막힌 바로 그 지점을 비껴간다</b>.</p>
+    <p>이 단계가 보는 건 "한 번 보낸다"까지다. 그 안에서 프롬프트가 실제로 어떻게 <a href="../step-05-workspace-sandbox.html">10단계로 조립</a>되고, 모델과 어떻게 왕복하며 도구를 돌리는지(<a href="../step-15-dispatch.html">디스패치</a>)는 안쪽 시도의 몫이다(그 단계들은 <a href="../step-04-attempt-loop.html">단계 허브</a>에 순서대로 펼쳐 둔다). 이 단계는 그 시도를 <b>감싸 돌리는 바퀴</b>일 뿐이다.</p>
+  </section>
+
+  <section class="card phase-loop ev">
+    <h2>코드 위치</h2>
+    <ul>
+      <li>한 바퀴: <code>run.ts:1886</code> 한도 가드 · <code>1930</code> 프롬프트(+'이어서' 지시) 조립 · <code>1953</code> <code>buildAgentRuntimePlan</code> · <code>2044</code> 안쪽 시도 디스패치 · <code>2235</code> <code>normalizeEmbeddedRunAttemptResult</code>(분류 입력)</li>
+      <li>안쪽 시도 경로: <code>backend.ts:10</code> → <code>harness/selection.ts:300</code> <code>runAgentHarnessAttempt</code> → <code>:325</code> → <code>harness/lifecycle.ts:202</code> → <code>builtin-openclaw.ts</code> → <code>attempt.ts:837</code> <code>runEmbeddedAttempt</code></li>
+    </ul>
+  </section>
+
+  <nav class="stepnav">
+    <a class="prev" href="step-04-why-loop.html"><span class="nl">← 이전</span>① 될 때까지 돌리는 이유</a>
+    <a class="next" href="step-04-classify.html"><span class="nl">다음 →</span>③ 결과 분류</a>
+  </nav>
+
+  <footer class="foot">🦞 OpenClaw 런타임 사다리 · STEP D 깊이 보기 · 한 바퀴 해부 · <a href="../../index.html">전체 보기</a></footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>깊이 보기 · 무대 — 작업 공간과 플러그인을 먼저 세운다</title>
+<link rel="stylesheet" href="../../assets/steps.css">
+</head>
+<body>
+<div class="wrap">
+  <nav class="crumb"><a href="../step-03-resolution.html">← STEP C · 해석</a><span class="pos">깊이 보기 · 무대</span></nav>
+
+  <header class="shead phase-res">
+    <div class="snum">①</div>
+    <div>
+      <div class="sphase">STEP C · 깊이 보기</div>
+      <h1>무대를 세운다 — 작업 공간과 플러그인</h1>
+    </div>
+  </header>
+  <p class="slead">해석 단계가 본격적으로 '무엇으로 돌릴지'를 고르기 전에, 그 선택이 설 무대부터 마련한다. 에이전트가 일할 <b>작업 공간</b>을 정하고, 곧 고를 거리가 될 엔진·모델·도구를 등록하는 <b>플러그인</b>을 먼저 불러온다. 이 두 가지가 갖춰져야 다음 단계의 선택지가 비로소 존재한다.</p>
+
+  <section class="card phase-res">
+    <h2>작업 공간 — 어디서 일하나</h2>
+    <p><b>에이전트가 일할 작업 공간을 정하고, 플러그인을 먼저 불러온다.</b> 뒤이어 고를 엔진·모델·도구가 이때 비로소 '선택지'로 등장하기 때문이다.</p>
+    <p><b>작업 공간</b>은 이 에이전트가 파일을 읽고 명령을 실행할 <b>프로젝트 폴더</b>다. 요청이 이걸 명시했으면 그대로 쓰고, 비워 왔으면 설정에서 유추하되 <b>경고를 남긴다</b> — 누군가 작업 공간을 빠뜨렸다는 신호다. 엉뚱한 폴더에서 돌면 남의 프로젝트 파일을 건드릴 수 있어, 추측은 하되 티를 낸다.</p>
+  </section>
+
+  <section class="card phase-res">
+    <h2>플러그인 — 먼저 깔아야 선택지가 생긴다</h2>
+    <p>그다음 <b>플러그인</b>을 불러온다(프로세스당 한 번, 이후 재사용). 순서가 중요하다 — 플러그인이 바로 <b>외부 추론 엔진(Codex·Copilot)·추가 모델 제공사·도구·훅·기록 엔진</b>을 등록하기 때문이다. 플러그인을 먼저 깔아야 다음 단계의 '엔진을 고르고 모델을 해석하는' 일이 그것들을 후보로 볼 수 있다. 안 그러면 전부 기본 빌트인으로 조용히 떨어진다.</p>
+  </section>
+
+  <section class="card phase-res ev">
+    <h2>코드 위치</h2>
+    <ul>
+      <li><code>run.ts:948</code> 작업공간 해석 · <code>run.ts:969</code> <code>ensureRuntimePluginsLoaded</code> (플러그인 1회 로드)</li>
+    </ul>
+  </section>
+
+  <nav class="stepnav">
+    <a class="prev" href="../step-03-resolution.html"><span class="nl">← 돌아가기</span>C · 모델·하네스·인증 해석</a>
+    <a class="next" href="step-03-harness-model.html"><span class="nl">다음 →</span>② 추론 엔진·모델 선택</a>
+  </nav>
+
+  <footer class="foot">🦞 OpenClaw 런타임 사다리 · STEP C 깊이 보기 · 무대 — 작업공간·플러그인 · <a href="../../index.html">전체 보기</a></footer>
+</div>
+</body>
+</html>

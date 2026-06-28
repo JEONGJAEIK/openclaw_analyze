@@ -91,7 +91,7 @@
   <!-- ─────────── 시퀀스 다이어그램 ─────────── -->
   <div class="breakout">
     <div class="diagram-card">
-      <div class="dgm-cap"><b>실선 →</b> 호출 · <b>점선 ⇠</b> 반환 · <b>번호</b> 시간순 · <b>겹친 상자</b> 되돌이/분기 · <b>밑줄 선</b> 클릭 → 그 단계 페이지 · 넓은 그림은 좌우로 스크롤</div>
+      <div class="dgm-cap"><b>실선 →</b> 호출 · <b>점선 ⇠</b> 반환 · <b>번호</b> 시간순 · <b>겹친 상자</b> 되돌이/분기 · <b>밑줄 선·노트</b> 클릭 → 그 한 동작의 초점 페이지 · 넓은 그림은 좌우로 스크롤</div>
       <div class="dgm-tools">
         <button type="button" onclick="exportSeqPNG()">🖼 PNG 새 탭</button>
         <button type="button" onclick="exportSeqSVG()">🗎 SVG 새 탭</button>
@@ -123,7 +123,9 @@ sequenceDiagram
   U->>GW: 채널 메시지 (텔레그램·슬랙·웹…)
   GW->>GW: 공통 메시지로 정규화 · 큐잉 · 중복제거 · 라우팅
   GW->>EN: runEmbeddedAgent(params)
-  EN->>EN: 모델지정 정돈 · 기본값 채움 · 생애 도장
+  EN->>EN: 모델 지정값 정돈 (지정/비움 가리기)
+  EN->>EN: 기본값 채움 (설정 스냅샷)
+  EN->>EN: 생애 도장 (재시작 유령 차단)
   EN->>LQ: runEmbeddedAgentInternal()
 
   %% ---------- 세션 · 큐 (가장자리) ----------
@@ -152,10 +154,16 @@ sequenceDiagram
 
       %% ---- 조립 10단계 ----
       rect rgba(255,122,69,0.05)
-        AS->>AS: 1 workspace-sandbox · 2 skills · 3 core+plugin 도구·allow-list
-        AS->>AS: 4 bootstrap-context · 5 code-mode·tool-search(조건부) · 6 MCP/LSP 번들
-        AS->>AS: 7 system-prompt (base+provider 변환) · 8 session-resource-loader
-        AS->>AS: 9 agent-session 생성 · 10 stream-setup (streamFn 해석)
+        AS->>AS: 1 workspace-sandbox
+        AS->>AS: 2 skills
+        AS->>AS: 3 core+plugin 도구·allow-list
+        AS->>AS: 4 bootstrap-context
+        AS->>AS: 5 code-mode·tool-search (조건부)
+        AS->>AS: 6 MCP/LSP 번들
+        AS->>AS: 7 system-prompt (base+provider 변환)
+        AS->>AS: 8 session-resource-loader
+        AS->>AS: 9 agent-session 생성
+        AS->>AS: 10 stream-setup (streamFn 해석)
       end
       AS-->>AL: 조립된 한 턴 (프롬프트·도구·세션·streamFn)
       AL->>DP: ⓒ 안쪽 시도 디스패치 (run.ts:2044)
@@ -311,41 +319,60 @@ sequenceDiagram
   // (네이티브 링크 — ctrl/가운데 클릭·상태바 URL 지원). 가장 구체적인 페이지
   // 우선(디테일 페이지가 있으면 그쪽), 조립 묶음 줄은 맨 앞 단계로 보낸다.
   (function () {
+    // 한 화살표(시퀀스) = 한 초점 페이지. 빽빽한 단계 페이지는 허브로 두고,
+    // 각 소주제는 details/ 의 조각 페이지로 분리했다. lookup은 위에서부터
+    // 첫 부분일치를 쓰므로, 더 구체적인 키를 먼저 둔다.
     var MAP = [
+      // ── 진입 ──
       ['runEmbeddedAgent(params)', '../steps/step-01-entry.html'],
-      ['생애 도장', '../steps/step-01-entry.html'],
-      ['runEmbeddedAgentInternal', '../steps/step-01-entry.html'],
+      ['모델 지정값 정돈', '../steps/details/step-01-normalize.html'],
+      ['기본값 채움', '../steps/details/step-01-config-snapshot.html'],
+      ['생애 도장', '../steps/details/step-01-lifecycle-stamp.html'],
+      ['runEmbeddedAgentInternal', '../steps/step-02-session-queue.html'],
+      // ── 세션 · 큐 ──
       ['세션키 백필', '../steps/details/step-02-session-address.html'],
       ['세션 레인 enqueue', '../steps/details/step-02-session-lane.html'],
       ['지난 턴 뒷정리', '../steps/details/step-02-compaction.html'],
       ['글로벌 레인 enqueue', '../steps/details/step-02-global-lane.html'],
+      // ── 해석 ──
       ['이 모델로 해석 시작', '../steps/step-03-resolution.html'],
-      ['작업공간 해석', '../steps/step-03-resolution.html'],
-      ['하네스 선택', '../steps/step-03-resolution.html'],
+      ['작업공간 해석', '../steps/details/step-03-workspace-plugins.html'],
+      ['하네스 선택', '../steps/details/step-03-harness-model.html'],
       ['인증 프로필 후보', '../steps/details/step-03-auth-profile.html'],
-      ['루프 상태·비용 차단기 장전', '../steps/step-03-resolution.html'],
+      ['루프 상태·비용 차단기 장전', '../steps/details/step-03-loop-arming.html'],
+      // ── 어템프트 루프 ──
       ['어템프트 루프 진입', '../steps/step-04-attempt-loop.html'],
-      ['한도·비용 차단기 가드', '../steps/step-04-attempt-loop.html'],
-      ['이번 시도 입력 새로 조립', '../steps/step-04-attempt-loop.html'],
+      ['한도·비용 차단기 가드', '../steps/details/step-04-breaker.html'],
+      ['이번 시도 입력 새로 조립', '../steps/details/step-04-one-turn.html'],
+      // ── 조립 10단계 (한 줄 = 한 페이지) ──
       ['1 workspace-sandbox', '../steps/step-05-workspace-sandbox.html'],
+      ['2 skills', '../steps/step-06-skills.html'],
+      ['3 core+plugin', '../steps/step-07-core-plugin-tools.html'],
       ['4 bootstrap-context', '../steps/step-08-bootstrap-context.html'],
+      ['5 code-mode·tool-search', '../steps/step-09-code-mode-tool-search.html'],
+      ['6 MCP/LSP 번들', '../steps/step-10-bundle-tools.html'],
       ['7 system-prompt', '../steps/step-11-system-prompt.html'],
+      ['8 session-resource-loader', '../steps/step-12-session-resource-loader.html'],
       ['9 agent-session', '../steps/step-13-agent-session.html'],
+      ['10 stream-setup', '../steps/step-14-stream-setup.html'],
+      // ── 디스패치 ──
       ['안쪽 시도 디스패치', '../steps/step-15-dispatch.html'],
-      ['streamFn 다겹 래핑', '../steps/step-15-dispatch.html'],
-      ['컨텍스트 조립', '../steps/step-15-dispatch.html'],
-      ['pre-prompt 예산 점검', '../steps/details/step-02-compaction.html'],
-      ['4-루트', '../steps/details/step-02-compaction.html'],
-      ['promptActiveSession', '../steps/step-15-dispatch.html'],
-      ['래핑된 streamFn 호출', '../steps/step-15-dispatch.html'],
-      ['도구 실행', '../steps/step-15-dispatch.html'],
-      ['stop-reason 판정', '../steps/step-15-dispatch.html'],
-      ['결과 분류', '../steps/step-16-recovery.html'],
-      ['continue_normal', '../steps/step-16-recovery.html'],
-      ['FailoverError 던짐', '../steps/step-16-recovery.html'],
-      ['종료 판정', '../steps/step-17-exit.html'],
-      ['EmbeddedAgentRunResult 빚기', '../steps/step-17-exit.html'],
-      ['finally 정리', '../steps/step-17-exit.html']
+      ['streamFn 다겹 래핑', '../steps/details/step-15-wrapping.html'],
+      ['컨텍스트 조립', '../steps/details/step-15-context-budget.html'],
+      ['pre-prompt 예산 점검', '../steps/details/step-15-context-budget.html'],
+      ['4-루트', '../steps/details/step-16-preemptive-compaction.html'],
+      ['promptActiveSession', '../steps/details/step-15-tool-loop.html'],
+      ['래핑된 streamFn 호출', '../steps/details/step-15-wrapping.html'],
+      ['도구 실행', '../steps/details/step-15-tool-loop.html'],
+      ['stop-reason 판정', '../steps/details/step-15-stop-reason.html'],
+      // ── 복구 ──
+      ['결과 분류', '../steps/details/step-16-failover-ladder.html'],
+      ['continue_normal', '../steps/details/step-16-failover-ladder.html'],
+      ['FailoverError 던짐', '../steps/details/step-16-failover-ladder.html'],
+      // ── 출구 ──
+      ['종료 판정', '../steps/details/step-17-terminal-judgment.html'],
+      ['EmbeddedAgentRunResult 빚기', '../steps/details/step-17-result-cleanup.html'],
+      ['finally 정리', '../steps/details/step-17-result-cleanup.html']
     ];
     var SVGNS = 'http://www.w3.org/2000/svg';
     function lookup(s) {
@@ -365,6 +392,15 @@ sequenceDiagram
       a.appendChild(title);
       a.appendChild(t);
     }
+    // 화살표(메시지)가 없는 소주제는 다이어그램 '노트'를 클릭 지점으로 쓴다.
+    var NOTE_MAP = [
+      ['재생 안전성 검사', '../steps/details/step-16-replay-safety.html'],
+      ['하네스 하나', '../steps/details/step-17-harness-reveal.html']
+    ];
+    function lookupNote(s) {
+      for (var i = 0; i < NOTE_MAP.length; i++) { if (s.indexOf(NOTE_MAP[i][0]) !== -1) return NOTE_MAP[i][1]; }
+      return null;
+    }
     function wire() {
       var svg = document.querySelector('.diagram-card svg');
       if (!svg) return false;
@@ -372,6 +408,7 @@ sequenceDiagram
       if (!texts.length) return false;
       var n = 0;
       texts.forEach(function (t) { var u = lookup(t.textContent || ''); if (u) { wrap(t, u); n++; } });
+      svg.querySelectorAll('text.noteText').forEach(function (t) { var u = lookupNote(t.textContent || ''); if (u) { wrap(t, u); } });
       return n > 0;
     }
     var tries = 0;

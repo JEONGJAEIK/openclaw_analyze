@@ -345,6 +345,14 @@
           <span class="rung-f">run.ts:602 · runEmbeddedAgent()</span>
         </span>
       </a>
+      <details class="assembly">
+        <summary><b>진입 조각</b> <span class="muted">화살표마다 초점 페이지 — 펼쳐 보기</span></summary>
+        <ol class="prep">
+          <li><a href="steps/details/step-01-normalize.html"><b><span class="n">①</span>요청 정돈</b><span>모델 지정값을 다듬어 '지정/비움'을 틀림없이 가린다</span></a></li>
+          <li><a href="steps/details/step-01-config-snapshot.html"><b><span class="n">②</span>기본값 채우기</b><span>빈손 요청에 '이 서버의 현재 설정'을 끼운다</span></a></li>
+          <li><a href="steps/details/step-01-lifecycle-stamp.html"><b><span class="n">③</span>생애 도장</b><span>재시작해도 옛 실행이 유령처럼 끼어들지 못하게</span></a></li>
+        </ol>
+      </details>
 
       <!-- B 세션·큐 -->
       <a class="rung r-sess" href="steps/step-02-session-queue.html">
@@ -355,6 +363,15 @@
           <span class="rung-f">run.ts:630 · 786 enqueueSession · 793 enqueueGlobal</span>
         </span>
       </a>
+      <details class="assembly">
+        <summary><b>세션·큐 조각</b> <span class="muted">화살표마다 초점 페이지 — 펼쳐 보기</span></summary>
+        <ol class="prep">
+          <li><a href="steps/details/step-02-session-address.html"><b><span class="n">①</span>대화 주소</b><span>이 요청이 '어느 대화'인지 하나의 이름표로 못 박는다</span></a></li>
+          <li><a href="steps/details/step-02-session-lane.html"><b><span class="n">②</span>세션 레인</b><span>같은 대화는 정원 1로 한 줄에 직렬화</span></a></li>
+          <li><a href="steps/details/step-02-compaction.html"><b><span class="n">③</span>뒷정리 대기</b><span>지난 턴의 미뤄둔 압축을 새 턴 전에 끝낸다</span></a></li>
+          <li><a href="steps/details/step-02-global-lane.html"><b><span class="n">④</span>글로벌 레인</b><span>전체 동시 실행을 N개(기본 4)로 제한</span></a></li>
+        </ol>
+      </details>
 
       <!-- C 해석 -->
       <a class="rung r-res" href="steps/step-03-resolution.html">
@@ -365,6 +382,15 @@
           <span class="rung-f">run.ts:977–1164 · auth 1383–1533 · init 1560–1802</span>
         </span>
       </a>
+      <details class="assembly">
+        <summary><b>해석 조각</b> <span class="muted">화살표마다 초점 페이지 — 펼쳐 보기</span></summary>
+        <ol class="prep">
+          <li><a href="steps/details/step-03-workspace-plugins.html"><b><span class="n">①</span>무대 — 작업공간·플러그인</b><span>일할 폴더를 정하고 플러그인을 먼저 로드</span></a></li>
+          <li><a href="steps/details/step-03-harness-model.html"><b><span class="n">②</span>추론 엔진·모델</b><span>하네스와 모델을 고른다 (자체는 점수 0, 최후)</span></a></li>
+          <li><a href="steps/details/step-03-auth-profile.html"><b><span class="n">③</span>인증 프로필</b><span>계정을 줄 세우고, 막히면 회전</span></a></li>
+          <li><a href="steps/details/step-03-loop-arming.html"><b><span class="n">④</span>루프 채비</b><span>차단기·컨텍스트엔진을 루프 전에 한 번 장전</span></a></li>
+        </ol>
+      </details>
 
       <!-- D 어템프트 루프 -->
       <div class="loop">
@@ -376,6 +402,15 @@
             <span class="rung-f">run.ts:1885 while(true) · 이너 호출 run.ts:2044</span>
           </span>
         </a>
+        <details class="assembly">
+          <summary><b>어템프트 루프 조각</b> <span class="muted">화살표마다 초점 페이지 — 펼쳐 보기</span></summary>
+          <ol class="prep">
+            <li><a href="steps/details/step-04-why-loop.html"><b><span class="n">①</span>'될 때까지' 돌리는 이유</b><span>되돌릴 수 있는 실패를 사용자에게 떠넘기지 않는다</span></a></li>
+            <li><a href="steps/details/step-04-one-turn.html"><b><span class="n">②</span>한 바퀴 해부</b><span>매번 입력을 새로 짜서 딱 한 번 디스패치</span></a></li>
+            <li><a href="steps/details/step-04-classify.html"><b><span class="n">③</span>결과 분류 — 가장 싼 처방</b><span>실패 모양별로 가장 싼 처방부터 올라간다</span></a></li>
+            <li><a href="steps/details/step-04-breaker.html"><b><span class="n">④</span>비용 차단기</b><span>실행 전체를 가로지르는 두 차단기로 폭주를 막는다</span></a></li>
+          </ol>
+        </details>
 
         <!-- 조립 10단계 (펼침) -->
         <details class="assembly" open>
@@ -403,6 +438,15 @@
             <span class="rung-f">attempt.ts:2952–3160 · 4599 · 4764–4804 · 5532</span>
           </span>
         </a>
+        <details class="assembly">
+          <summary><b>디스패치 조각</b> <span class="muted">화살표마다 초점 페이지 — 펼쳐 보기</span></summary>
+          <ol class="prep">
+            <li><a href="steps/details/step-15-tool-loop.html"><b><span class="n">①</span>모델↔도구 루프</b><span>한 번의 호출이 아니라 되돌이 — 에이전트의 심장</span></a></li>
+            <li><a href="steps/details/step-15-wrapping.html"><b><span class="n">②</span>방어막 겹겹</b><span>~17겹으로 감싸 프로바이더 결함을 흡수</span></a></li>
+            <li><a href="steps/details/step-15-context-budget.html"><b><span class="n">③</span>컨텍스트 조립·예산</b><span>보낼 맥락을 확정하고, 넘칠 듯하면 선제 압축</span></a></li>
+            <li><a href="steps/details/step-15-stop-reason.html"><b><span class="n">④</span>stop-reason 판정</b><span>멈춤의 이유가 종결/갈아탈지를 가른다</span></a></li>
+          </ol>
+        </details>
 
         <!-- 복구 -->
         <a class="rung r-rec" href="steps/step-16-recovery.html">
@@ -413,6 +457,15 @@
             <span class="rung-f">failover-policy.ts:7 · preemptive-compaction.ts:248 · run.ts:3379</span>
           </span>
         </a>
+        <details class="assembly">
+          <summary><b>복구 조각</b> <span class="muted">화살표마다 초점 페이지 — 펼쳐 보기</span></summary>
+          <ol class="prep">
+            <li><a href="steps/details/step-16-failover-ladder.html"><b><span class="n">①</span>실패 모양·처방 사다리</b><span>5액션 — 가장 싼 처방부터, 단조 증가</span></a></li>
+            <li><a href="steps/details/step-16-preemptive-compaction.html"><b><span class="n">②</span>선제 컴팩션</b><span>터지기 전에 4-루트로 가장 적게 잃도록 줄인다</span></a></li>
+            <li><a href="steps/details/step-16-summary-audit.html"><b><span class="n">③</span>요약 감사</b><span>요약마저 믿지 않는다 — 5섹션 감사·폴백</span></a></li>
+            <li><a href="steps/details/step-16-replay-safety.html"><b><span class="n">④</span>재생 안전성</b><span>부수효과 흔적이 있으면 재생 금지</span></a></li>
+          </ol>
+        </details>
       </div>
 
       <!-- G 출구 -->
@@ -424,6 +477,15 @@
           <span class="rung-f">run.ts:3794–4099 · 4146–4191</span>
         </span>
       </a>
+      <details class="assembly">
+        <summary><b>출구 조각</b> <span class="muted">화살표마다 초점 페이지 — 펼쳐 보기</span></summary>
+        <ol class="prep">
+          <li><a href="steps/details/step-17-terminal-judgment.html"><b><span class="n">①</span>종료 판정</b><span>쓸 만한 답인가 — 거짓 성공을 내보내지 않는다</span></a></li>
+          <li><a href="steps/details/step-17-result-cleanup.html"><b><span class="n">②</span>결과 반환·뒷정리</b><span>하나의 결과 객체로 빚고 자원을 회수</span></a></li>
+          <li><a href="steps/details/step-17-harness-reveal.html"><b><span class="n">③</span>반전 — '하네스 하나'였다</b><span>이 런타임이 사실 priority 0짜리 어댑터</span></a></li>
+          <li><a href="steps/details/step-17-pluggable-harness.html"><b><span class="n">④</span>교체 가능한 하네스</b><span>Codex·Copilot도 같은 슬롯 — 비법은 껍데기</span></a></li>
+        </ol>
+      </details>
 
     </div>
 

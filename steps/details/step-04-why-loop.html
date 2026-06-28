@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>깊이 보기 · 될 때까지 돌리는 이유 — 한 턴을 여러 번의 시도로</title>
+<link rel="stylesheet" href="../../assets/steps.css">
+</head>
+<body>
+<div class="wrap">
+  <nav class="crumb"><a href="../step-04-attempt-loop.html">← STEP D · 어템프트 루프</a><span class="pos">깊이 보기 · 될 때까지 돌리는 이유</span></nav>
+
+  <header class="shead phase-loop">
+    <div class="snum">①</div>
+    <div>
+      <div class="sphase">STEP D · 깊이 보기</div>
+      <h1>'한 번'이 아니라 '될 때까지' 돌리는 이유</h1>
+    </div>
+  </header>
+  <p class="slead">어템프트 루프는 모델을 한 번 부르고 끝내는 단계가 아니다. 모델 호출은 수십 가지로 미끄러지고 그 대부분이 <b>되돌릴 수 있는</b> 실패이기에, 한 턴을 <b>여러 번의 시도</b>로 보고 될 때까지 — 혹은 정말 안 될 때까지 — 되돌이로 굴린다.</p>
+
+  <section class="card phase-loop">
+    <h2>두 겹 — 바깥 루프와 안쪽 시도</h2>
+    <p><b>한 턴을 여러 번의 시도로 본다.</b> 바깥의 되돌이 드라이버가 안쪽 '한 번의 시도'를 거듭 굴리고, 사용자에게는 마지막 한 결과만 보인다.</p>
+    <p>용어부터. 여기엔 두 겹이 있다 — <b>바깥 루프(드라이버)</b>와 <b>안쪽 시도(어템프트)</b>. 안쪽 시도 하나가 곧 다음 단계들 전체다: 프롬프트를 <a href="../step-05-workspace-sandbox.html">10단계로 조립</a>하고, 모델을 부르고 도구를 돌리는(<a href="../step-15-dispatch.html">디스패치</a>) 한 차례의 왕복. 이 단계는 그 시도를 직접 하지 않는다 — 그 시도를 <b>몇 번, 어떤 조정을 얹어</b> 굴릴지 정하는 <b>바깥 겹</b>이다.</p>
+  </section>
+
+  <section class="card phase-loop">
+    <h2>한 번으로 끝내지 않는 이유</h2>
+    <p>왜 한 번으로 끝내지 않나? 모델 호출은 수십 가지로 미끄러지는데, 그 대부분이 <b>되돌릴 수 있는</b> 실패이기 때문이다. 일시적 막힘은 잠시 뒤면 풀리고, 맥락 넘침은 줄이면 되고, 멈춤은 다시 부르면 통하는 경우가 많다. 한 번 미끄러졌다고 포기하면, 사실은 쉽게 풀릴 문제까지 사용자에게 실패로 떠넘기게 된다.</p>
+    <p><b>얻는 것</b> — 사용자는 이 모든 되돌이를 전혀 모른다. 화면에는 조용한 재시도의 흔적이 닿지 않고, 끝내 성공한 <b>한 답</b>(또는 정말 안 될 때의, 단 하나의 명확한 실패)만 도착한다. 안에서 다섯 번을 헛돌았든 한 번에 됐든, 바깥에서 보이는 모양은 똑같다.</p>
+  </section>
+
+  <section class="card phase-loop ev">
+    <h2>코드 위치</h2>
+    <ul>
+      <li><code>run.ts:622</code> <code>runEmbeddedAgentInternal</code> — 루프를 품은 함수 (<code>1885–4145</code> while, <code>4146–4188</code> finally 뒷정리)</li>
+      <li><code>run.ts:1885</code> <code>while (true)</code> 어템프트 루프</li>
+    </ul>
+  </section>
+
+  <nav class="stepnav">
+    <a class="prev" href="../step-04-attempt-loop.html"><span class="nl">← 단계로</span>D · 어템프트 루프</a>
+    <a class="next" href="step-04-one-turn.html"><span class="nl">다음 →</span>② 한 바퀴 해부</a>
+  </nav>
+
+  <footer class="foot">🦞 OpenClaw 런타임 사다리 · STEP D 깊이 보기 · 될 때까지 돌리는 이유 · <a href="../../index.html">전체 보기</a></footer>
+</div>
+</body>
+</html>

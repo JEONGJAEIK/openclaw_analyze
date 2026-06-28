@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>깊이 보기 · 결과 반환 + 뒷정리 — 하나의 출구로 내보내고 자원을 회수한다</title>
+<link rel="stylesheet" href="../../assets/steps.css">
+</head>
+<body>
+<div class="wrap">
+  <nav class="crumb"><a href="../step-17-exit.html">← STEP F · 출구</a><span class="pos">깊이 보기 · 결과 반환 + 뒷정리</span></nav>
+
+  <header class="shead phase-exit">
+    <div class="snum">②</div>
+    <div>
+      <div class="sphase">STEP F · 깊이 보기</div>
+      <h1>하나의 출구, 그리고 뒷정리 — 결과 반환 + 자원 회수</h1>
+    </div>
+  </header>
+  <p class="slead">종료 판정이 끝나면, 한 턴의 모든 것을 단 하나의 결과 객체로 빚어 런타임 밖으로 내보낸다. 그리고 <code>finally</code>에서 켜 두었던 자원을 빠짐없이 끄고, 들어올 때 섰던 두 겹의 줄을 풀어 다음 일이 들어올 자리를 낸다.</p>
+
+  <section class="card phase-exit">
+    <h2>유일한 출구 — EmbeddedAgentRunResult 하나</h2>
+    <p><b>판정이 끝나면, 한 턴의 모든 것을 단 하나의 결과 객체로 빚어 반환하고, 켜 두었던 자원을 빠짐없이 끈다.</b></p>
+    <p>반환하는 건 <b><code>EmbeddedAgentRunResult</code> 하나</b>다 — 사용자에게 보낼 답글(payloads), 무슨 일이 있었는지(meta: 종료 이유·생존 상태 등), 그리고 배달 관련 플래그. 한 턴의 결말이 이 한 객체에 다 담긴다. 이것이 런타임의 <b>유일한 출구</b>다.</p>
+  </section>
+
+  <section class="card phase-exit">
+    <h2>그다음 finally — 자원을 끄고 두 줄을 푼다</h2>
+    <p>그다음 <b><code>finally</code></b>에서 뒷정리를 한다 — 빠른 모드 리셋, 프롬프트 빌드 캐시 비우기, 인증 갱신 타이머 끄기, 기억 엔진(컨텍스트 엔진) 닫기, 그리고 필요하면 세션 <a href="../step-10-bundle-tools.html">MCP</a> 런타임 은퇴. 마지막으로, 들어올 때 섰던 <b>두 겹의 줄(<a class="dive" href="step-02-session-lane.html">세션 레인</a>·<a href="../step-02-session-queue.html">글로벌 레인</a>)을 풀어</b> 기다리던 다음 일이 들어올 자리를 낸다. <b>얻는 것</b> — 성공이든 실패든 한 턴은 늘 <b>같은 모양의 결과</b>로 나가고, <b>자원을 흘리지 않는다</b>. 다음 턴은 깨끗한 자리에서 시작한다.</p>
+  </section>
+
+  <section class="card phase-exit ev">
+    <h2>코드 위치</h2>
+    <ul>
+      <li><code>run.ts:4043–4099</code> 정상 terminal(<code>:4067</code> <code>return</code>)</li>
+      <li><code>run.ts:4146–4188</code> <code>finally</code>(fast-mode 리셋·프롬프트 캐시 비움·auth 타이머 stop·컨텍스트 엔진 dispose·MCP 은퇴) · <code>:4189–4190</code> 두 레인 unwind</li>
+      <li><code>types.ts</code> <code>EmbeddedAgentRunResult</code>(payloads·meta·배달 플래그; <code>error.kind</code>에 <code>incomplete_turn</code>) · 소비처: auto-reply 계층이 <code>.payloads</code>/<code>.meta</code>를 받아 채널로 전송</li>
+    </ul>
+  </section>
+
+  <nav class="stepnav">
+    <a class="prev" href="step-17-terminal-judgment.html"><span class="nl">← 이전</span>① 종료 판정</a>
+    <a class="next" href="step-17-harness-reveal.html"><span class="nl">다음 →</span>③ 반전 — '하네스 하나'였다</a>
+  </nav>
+
+  <footer class="foot">🦞 OpenClaw 런타임 사다리 · STEP F 깊이 보기 · 결과 반환 + 뒷정리 · <a href="../../index.html">전체 보기</a></footer>
+</div>
+</body>
+</html>

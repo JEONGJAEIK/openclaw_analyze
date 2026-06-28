@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>깊이 보기 · 모델↔도구 루프 — 한 번의 호출이 아니라 되돌이</title>
+<link rel="stylesheet" href="../../assets/steps.css">
+</head>
+<body>
+<div class="wrap">
+  <nav class="crumb"><a href="../step-15-dispatch.html">← 디스패치</a><span class="pos">깊이 보기 · 모델↔도구 루프</span></nav>
+
+  <header class="shead phase-disp">
+    <div class="snum">①</div>
+    <div>
+      <div class="sphase">디스패치 · 깊이 보기</div>
+      <h1>모델↔도구 루프 — 여기서부터 '실행'이다</h1>
+    </div>
+  </header>
+  <p class="slead">디스패치는 준비된 한 턴을 실제로 모델에게 보낸다. 그런데 그 호출은 한 번의 왕복으로 끝나지 않는다 — 모델과 도구가 주고받는 되돌이가 한 턴 안에서 여러 바퀴 돈다. 이 루프가 챗봇과 에이전트를 가른다.</p>
+
+  <section class="card phase-disp">
+    <h2>모델↔도구 되돌이 — 에이전트의 심장 박동</h2>
+    <p><b>디스패치는 모델을 한 번 부르고 끝나지 않는다. 모델과 도구가 주고받는 되돌이 — 에이전트의 심장 박동 — 를 한 턴 안에서 돌린다.</b></p>
+    <p>보통 'AI를 부른다'면 질문을 보내고 답을 받는 한 번의 왕복을 떠올린다. 하지만 에이전트는 다르다. 모델은 답하다가 "이 파일을 읽어야겠다", "이 명령을 돌려 봐야겠다"며 <b>도구를 호출</b>한다. 그러면 런타임이 그 도구를 실제로 돌리고(앞 단계에서 갖춰 둔 도구들), <b>결과를 모델에게 도로 먹인다</b>. 모델은 그 결과를 보고 다음을 잇는다 — 또 도구를 부르거나, 비로소 답을 맺거나.</p>
+    <p>이 '모델 → 도구 → 결과 → 모델 → …'의 되돌이가 <b>한 턴 안에서</b> 여러 바퀴 돈다. 모델이 더 부를 도구가 없어 최종 답을 내놓을 때까지. 이것이 챗봇과 에이전트를 가르는 지점이다 — 에이전트는 답하기 전에 <b>여러 번 행동하고 관찰</b>할 수 있다.</p>
+  </section>
+
+  <section class="card phase-disp">
+    <h2>안쪽 루프와 바깥 루프</h2>
+    <p>한 가지 구분 — 이건 <b>안쪽</b> 루프다(한 번의 시도 안에서 모델↔도구가 도는). 호출이 통째로 미끄러져 재시도하거나 모델을 갈아끼우는 <b>바깥</b> 루프와는 다르다. 안쪽은 "한 번의 시도를 완수"하고, 바깥은 "시도가 안 되면 갈아탄다". 디스패치가 돌리는 건 안쪽 루프다.</p>
+  </section>
+
+  <section class="card phase-disp ev">
+    <h2>코드 위치</h2>
+    <ul>
+      <li><code>attempt.ts:3421</code> <code>promptActiveSession</code>(<code>.prompt()</code> 래퍼 — ① 모델↔도구 루프) · <code>:4764</code> <code>installModelPromptTransform</code> · <code>:4784</code> 런타임컨텍스트 주입 · <code>:4780/4792/4797</code> 디스패치 호출</li>
+    </ul>
+  </section>
+
+  <nav class="stepnav">
+    <a class="prev" href="../step-15-dispatch.html"><span class="nl">← 단계로</span>↯ · 디스패치</a>
+    <a class="next" href="step-15-wrapping.html"><span class="nl">다음 →</span>② 방어막 겹겹</a>
+  </nav>
+
+  <footer class="foot">🦞 OpenClaw 런타임 사다리 · 디스패치 깊이 보기 · 모델↔도구 루프 · <a href="../../index.html">전체 보기</a></footer>
+</div>
+</body>
+</html>

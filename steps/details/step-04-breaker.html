@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>깊이 보기 · 비용 차단기 — 돈을 태우지 않게 멈추는 시점</title>
+<link rel="stylesheet" href="../../assets/steps.css">
+</head>
+<body>
+<div class="wrap">
+  <nav class="crumb"><a href="../step-04-attempt-loop.html">← STEP D · 어템프트 루프</a><span class="pos">깊이 보기 · 비용 차단기</span></nav>
+
+  <header class="shead phase-loop">
+    <div class="snum">④</div>
+    <div>
+      <div class="sphase">STEP D · 깊이 보기</div>
+      <h1>멈추는 시점 — 돈을 태우지 않게 막는 차단기</h1>
+    </div>
+  </header>
+  <p class="slead">되돌이는 강력하지만, 잘못하면 영영 돌며 유료 호출을 끝없이 태운다. 그래서 실행 전체를 가로지르는 <b>두 개의 차단기</b>가 회복이 비용 폭주로 번지지 않게 멈춘다.</p>
+
+  <section class="card phase-loop">
+    <h2>두 개의 차단기</h2>
+    <p><b>되돌이가 무한히 돌지 않도록, 실행 전체를 가로지르는 두 개의 차단기로 멈춘다.</b> 한 번의 모델 호출마다 돈이 나가기에, 회복이 비용 폭주로 번지지 않게 막는 것이 이 단계의 마지막 책임이다.</p>
+    <p>되돌이는 강력하지만 위험하다 — 잘못하면 영영 돌며 유료 호출을 끝없이 태운다. 그래서 두 개의 차단기를 둔다.</p>
+    <ul>
+      <li><b>재시도 한도</b> — 한 턴이 쓸 수 있는 시도 수에 상한을 둔다. 계정 후보가 많을수록 회복할 여지가 크니 상한도 함께 늘어난다(대략 <b>32~160회</b> 사이로 자동 조정). 넘으면 강제 종료하고, 결과를 "<b>막힘(blocked)</b>"으로 표시한다.</li>
+      <li><b>무응답 비용폭주 차단기</b> — 모델이 <b>진척(보이는 답·도구 호출) 없이 멈추기만</b> 다섯 번 <b>연속</b>이면 즉시 정지한다. (토큰이 일부 과금돼도 '진척'으로 치지 않는다 — 그게 바로 막으려는 사고다.)</li>
+    </ul>
+  </section>
+
+  <section class="card phase-loop">
+    <h2>'시도'가 아니라 '실행 전체'를 센다</h2>
+    <p>핵심은 이 카운터가 "시도 하나"가 아니라 "<b>실행 전체</b>"를 가로질러 센다는 것이다. 시도마다 리셋하면 막힌 모델이 매 재시도마다 카운터를 새로 장전해 <b>영영 안 걸린다</b>. 실제로 하트비트 하나가 60초 만에 유료 호출 수백~천여 회를, 사고 한 건에 <b>$20~30</b>을 태운 적이 있었다. 그래서 차단기는 실행 전체를 가로질러 세고, 멈출 땐 망설임 없이 멈춘다.</p>
+    <p><b>얻는 것</b> — 회복은 끈질기되, 결코 무한·무한 비용이 아니다. 안전과 비용 한계가 <b>모델의 사고와 무관하게</b> 보장된다. (이 차단기는 <a href="../step-03-resolution.html">STEP C</a>에서 장전됐고, 실제로 발동하는 자리가 바로 여기다.)</p>
+  </section>
+
+  <section class="card phase-loop ev">
+    <h2>코드 위치</h2>
+    <ul>
+      <li>종료: <code>run.ts:1900</code> 재시도 한도 · <code>2307</code> 비용폭주 차단기(blocked) · <code>4067</code> 정상 종료 → 이후 처리는 <a href="../step-17-exit.html">출구(STEP F)</a></li>
+      <li>한도 정의: <code>helpers.ts:106–127</code> (24 + 8×프로필 후보, 32~160 — <code>runRetries</code> 설정으로 조정 가능) · <code>idle-timeout-breaker.ts:16</code> (연속 5, <code>#76293</code>) · <code>run.ts:1560–1561</code> (압축 2/3) · same-model 재시도 <code>run.ts:250</code> idle 1 · <code>helpers.ts:43</code> rate-limit 3 · <code>incomplete-turn.ts:133–134</code> (추론 2·빈 1)</li>
+    </ul>
+  </section>
+
+  <nav class="stepnav">
+    <a class="prev" href="step-04-classify.html"><span class="nl">← 이전</span>③ 결과 분류</a>
+    <a class="next" href="../step-05-workspace-sandbox.html"><span class="nl">다음 단계 →</span>조립 1 · workspace-sandbox</a>
+  </nav>
+
+  <footer class="foot">🦞 OpenClaw 런타임 사다리 · STEP D 깊이 보기 · 비용 차단기 · <a href="../../index.html">전체 보기</a></footer>
+</div>
+</body>
+</html>

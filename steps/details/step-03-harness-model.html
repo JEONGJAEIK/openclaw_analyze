@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>깊이 보기 · 추론 엔진·모델 — 무엇으로 답할지 고른다</title>
+<link rel="stylesheet" href="../../assets/steps.css">
+</head>
+<body>
+<div class="wrap">
+  <nav class="crumb"><a href="../step-03-resolution.html">← STEP C · 해석</a><span class="pos">깊이 보기 · 추론 엔진·모델</span></nav>
+
+  <header class="shead phase-res">
+    <div class="snum">②</div>
+    <div>
+      <div class="sphase">STEP C · 깊이 보기</div>
+      <h1>무엇으로 답할지 고른다 — 추론 엔진과 모델</h1>
+    </div>
+  </header>
+  <p class="slead">무대가 섰으면 이제 이번 턴을 <b>무엇으로 답할지</b> 고른다 — 한 번의 시도를 실제로 굴릴 <b>추론 엔진(하네스)</b>과, 그 위에서 답을 내는 <b>모델</b>. OpenClaw는 둘 중 어느 쪽도 자기 진영으로 못 박지 않는다. 더 나은 엔진이 있으면 그쪽이 이기고, 모델 기본값조차 '그때그때 가장 좋은 것'을 가리킨다.</p>
+
+  <section class="card verdict v-nuance phase-res">
+    <h2>하네스 — 갈아끼울 수 있는 추론 엔진</h2>
+    <p><span class="vtag">하네스 = 추론 엔진</span> <b>이 턴을 실제로 굴릴 '추론 엔진(하네스)'과 모델을 고른다.</b> OpenClaw는 자기 엔진을 우대하지 않는다 — 더 나은 엔진이 있으면 그쪽이 이기고, 없으면 자기 엔진이 받는다.</p>
+    <p><b>하네스</b>는 한 번의 시도를 실제로 굴리는 <b>추론 엔진 어댑터</b>다 — 갈아 끼울 수 있는 '두뇌 구동부'. OpenClaw에는 자체 엔진이 있고, <b>Codex·Copilot</b>도 <b>똑같은 슬롯</b>에 끼워진다. 이 단계가 이번 턴을 어느 엔진이 굴릴지 고른다.</p>
+    <p>고르는 방식이 인상적이다. 외부 엔진들은 "<b>내가 이 요청 맡을 수 있다</b>"를 우선순위 점수로 주장하고(예: 100점), OpenClaw 자체 엔진은 <b>0점</b> — 가장 낮다. 즉 OpenClaw는 후보 경쟁에 끼지도 않고, <b>아무도 안 맡을 때만</b> 받는 최후의 기본값이다. 자기 런타임을 특권화하지 않는다는 설계가 점수에 박혀 있다(<a href="../step-17-exit.html">STEP F</a>에서 하네스 계약을 더 깊이 본다).</p>
+  </section>
+
+  <section class="card phase-res">
+    <h2>모델 — 무엇으로 답할지</h2>
+    <p>엔진이 정해지면 이제 <b>무엇으로 답할지</b>를 구체적으로 해석한다. 여기엔 두 가지가 묶여 있다 — <b>프로바이더</b>(어느 회사의 AI인가 · Anthropic·OpenAI·Google 같은 <b>제공사</b>)와 그 안의 <b>모델</b>(그 회사의 어떤 머리). 요청은 이 둘을 <b>함께 담아 올 수도, 비워 둘 수도</b> 있다. 그래서 이 대목의 첫 판단은 단순하다 — <b>요청이 모델을 콕 집었나, 비워 뒀나?</b></p>
+    <p><b>집어 왔으면</b> 그대로 쓴다. <b>비워 왔으면</b> OpenClaw가 기본값을 골라 주는데, 이게 하나로 못 박힌 값이 아니라 <b>층층이 내려가는 폴백</b>이다: 먼저 <b>이 에이전트에 지정된 모델</b>, 없으면 <b>운영자가 설정에 적어 둔 기본 모델</b>, 그것도 없으면 <b>설정에 등록된 첫 프로바이더의 첫 모델</b>, 정말 아무것도 없을 때 비로소 코드에 박힌 <b>최종 baseline</b>으로 떨어진다 — 현재 <code>openai/gpt-5.5</code><a class="fnref" id="fnref-baseline" href="#fn-baseline" aria-label="각주 1: 왜 baseline이 gpt-5.5인가">1</a>(OpenAI의 모델)다. 눈여겨볼 점: <b>OpenClaw는 특정 모델 회사의 제품이 아니다.</b> Anthropic의 Claude·OpenAI의 Codex·Copilot 등 <b>여러 제공사를 두루 감싸는 중립적인 오픈소스 런타임</b>(MIT 라이선스 · OpenClaw Foundation)일 뿐이라, 이 맨 밑바닥 기본조차 <b>어느 한 회사에 매여 있지 않다</b>. 코드 주석도 그저 "<b>그때그때 가장 좋은 모델</b>"에 맞추라고만 적혀 있고, 지금은 마침 그 자리를 OpenAI 모델이 차지했을 뿐이다. 자체 엔진을 점수 0점으로 물러세운 하네스 설계와 같은 결 — OpenClaw는 어느 한쪽도 특권화하지 않는다.</p>
+  </section>
+
+  <section class="card phase-res">
+    <h2>없는 모델이면 — 멈추지 않고 넘긴다</h2>
+    <p>모델이 정해진 뒤, <b>없는 모델</b>을 지목했으면 그냥 멈추지 않고 "<b>다음 후보로 넘어가라</b>"는 신호(failover)를 띄운다. 이 직전엔 <b>플러그인이 끼어들 틈</b>도 있다 — 예약 작업 같은 건 <b>모델 없이 답을 대신 내고 끝</b>내거나, 이 턴에 <b>쓸 모델을 바꿔치울</b> 수 있다. 둘 다 비싼 모델 호출이 일어나기 전이다.</p>
+  </section>
+
+  <section class="card phase-res ev">
+    <h2>코드 위치</h2>
+    <ul>
+      <li><code>run.ts:977</code> <code>resolveInitialEmbeddedRunModel</code> — 초기 모델 추정 (지정 없으면 <code>resolveDefaultModelForAgent</code> → 폴백 baseline <code>agents/defaults.ts</code> <code>DEFAULT_PROVIDER</code>/<code>DEFAULT_MODEL</code> = <code>openai/gpt-5.5</code>)</li>
+      <li><code>run.ts:1006–1041</code> <code>before_agent_reply</code> 훅(모델 없이 조기 응답·cron 한정) + <code>resolveHookModelSelection</code>(모델 오버라이드)</li>
+      <li><code>run.ts:1043</code> <code>ensureSelectedAgentHarnessPlugin</code> + <code>selectAgentHarness</code> — 하네스 선택 (<code>selection.ts:156</code>)</li>
+      <li><code>run.ts:1043–1164</code> 모델·프로바이더 풀 해석 (미지 모델 → <code>FailoverError</code> <code>model_not_found</code>)</li>
+      <li>하네스: <code>harness/types.ts</code> · <code>builtin-openclaw.ts</code>(priority 0) · <code>extensions/codex</code>·<code>copilot</code></li>
+    </ul>
+  </section>
+
+  <section class="footnotes" aria-label="각주">
+    <h2>각주</h2>
+    <div class="fn" id="fn-baseline">
+      <div class="fnnum">1</div>
+      <div class="fnbody">
+        <strong class="fnh">왜 최종 baseline이 <code>openai/gpt-5.5</code>인가</strong>
+        <p><b>① '선호'가 아니라 '바닥'이다.</b> 이 값은 폴백 사다리의 <b>맨 끝</b> — 에이전트에 지정된 모델도, 운영자가 설정에 적어 둔 기본도, 등록된 첫 프로바이더의 첫 모델도 <b>전부 비었을 때만</b> 닿는다. 정상적으로 온보딩·설정을 거치면 거의 도달하지 않는, <b>코드가 끝내 빈손이 되지 않게 받쳐 주는 안전 바닥</b>이다. (같은 파일에 나란히 있는 <code>DEFAULT_CONTEXT_TOKENS = 200_000</code>도 "모델 메타데이터를 못 구했을 때의 보수적 기본"이라는 똑같은 성격이다.)</p>
+        <p><b>② 못 박은 값이 아니라 '제품의 최신 기본'을 가리키는 움직이는 포인터다.</b> 코드 주석이 그대로 말한다 — <i>"제품 차원의 최신 모델 baseline에 맞춰 유지하라(Keep this aligned with the product-level latest-model baseline)."</i> 즉 이 상수는 시간이 흐르며 <b>그때의 대표 최신 모델로 갱신</b>되도록 의도된 값이고, 지금 리비전에선 그게 <code>gpt-5.5</code>로 해석될 뿐이다. 설정이 하나도 없는 새 설치조차 곧장 <b>'지금 시점에 쓸 만한 최신 모델'</b>에 떨어지게 하려는 장치다.</p>
+        <p><b>③ 그래서 취향이 아니라 운영 기본값이다.</b> 본문 ②에서 본 설계와 일관된다 — OpenClaw가 하네스 점수에서 자기 엔진을 <b>0점</b>으로 물러세우듯, 맨 밑바닥 기본 모델조차 자기 진영을 특권화하지 않고 '그 시점의 제품 기본'을 그대로 따른다.</p>
+        <span class="src">근거: <code>src/agents/defaults.ts:1–4</code> (<code>DEFAULT_PROVIDER="openai"</code> · <code>DEFAULT_MODEL="gpt-5.5"</code>) · 사용처 <code>run.ts:598</code> <code>configuredDefault.model || DEFAULT_MODEL</code> <a class="fnback" href="#fnref-baseline">↩ 본문으로</a></span>
+      </div>
+    </div>
+  </section>
+
+  <nav class="stepnav">
+    <a class="prev" href="step-03-workspace-plugins.html"><span class="nl">← 돌아가기</span>① 무대 — 작업공간·플러그인</a>
+    <a class="next" href="step-03-auth-profile.html"><span class="nl">다음 →</span>③ 인증 프로필</a>
+  </nav>
+
+  <footer class="foot">🦞 OpenClaw 런타임 사다리 · STEP C 깊이 보기 · 추론 엔진·모델 · <a href="../../index.html">전체 보기</a></footer>
+</div>
+</body>
+</html>

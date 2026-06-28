@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>깊이 보기 · 선제 컴팩션 — 터지기 전에, 가장 적게 잃도록 줄인다</title>
+<link rel="stylesheet" href="../../assets/steps.css">
+</head>
+<body>
+<div class="wrap">
+  <nav class="crumb"><a href="../step-16-recovery.html">← 복구</a><span class="pos">깊이 보기 · 선제 컴팩션</span></nav>
+
+  <header class="shead phase-rec">
+    <div class="snum">②</div>
+    <div>
+      <div class="sphase">복구 · 깊이 보기</div>
+      <h1>터지기 전에 줄인다 — 가장 적게 잃도록</h1>
+    </div>
+  </header>
+  <p class="slead">맥락 창은 무한하지 않다. 긴 대화는 언젠가 그 창을 넘치는데, 복구는 <b>넘치고 나서 수습하는 대신 넘치기 전에 미리 잰다</b> — 그리고 줄여야 한다면 대화의 사고를 가장 적게 잃는 길부터 고른다.</p>
+
+  <section class="card verdict v-nuance phase-rec">
+    <h2>선제 컴팩션 — 넘치기 전에 미리 줄인다</h2>
+    <p><span class="vtag">선제 컴팩션</span> <b>긴 대화는 언젠가 맥락 창을 넘친다. 복구는 넘치고 나서 수습하지 않고, 넘치기 전에 미리 재서 줄인다 — 그것도 가장 적게 잃는 방식으로.</b></p>
+  </section>
+
+  <section class="card phase-rec">
+    <h2>먼저, 정직하게 잰다</h2>
+    <p>먼저 <b>정직하게 잰다</b>. 어림짐작이 아니라 프로바이더 경계에서 실제로 렌더된 토큰 수를 쓰고, 윈도잉으로 추린 것과 안 추린 전체를 모두 가늠해 <b>더 큰 값</b>을 택한다 — 과소평가로 결국 터지는 걸 막으려고. 예약 토큰이 아무리 커도 사용자 프롬프트 몫의 최소 예산은 사수한다.</p>
+  </section>
+
+  <section class="card phase-rec">
+    <h2>곧장 요약하지 않는다 — 네 갈래</h2>
+    <p>그리고 <b>곧장 요약하지 않는다</b>. 요약은 대화의 추론을 손상시키니, 가능하면 피한다. 압력에 따라 네 갈래로 갈린다:</p>
+    <ul>
+      <li><b>fits</b> — 안 넘침, 그대로 (손실 0).</li>
+      <li><b>truncate_tool_results_only</b> — 줄일 도구 출력이 넘침을 넉넉히 웃돌면(임계 = <code>max(넘침+512토큰, 넘침×1.5)</code>), <b>요약 없이 도구 출력만 절단</b> (대화 무손실).</li>
+      <li><b>compact_then_truncate</b> — 절단만으론 부족하면, 요약 + 절단 (부분 요약).</li>
+      <li><b>compact_only</b> — 줄일 도구 출력이 없으면, 요약이 유일한 길 (요약 필수).</li>
+    </ul>
+    <p>절단·요약과 별개로, 토큰 압력 아래 오래된 무거운 내용(이미지 등)은 가지치되 흔적은 남긴다(<code>[image removed during context pruning]</code>). 그리고 <b>첫 사용자 메시지 이전 — 초기 시스템·부트스트랩 맥락 — 은 절대 가지치지 않는다</b>. <b>얻는 것</b> — 대화는 수백 턴을 가도 창을 안 터뜨리고, 줄여야 할 때도 대화의 사고가 아니라 부피 큰 도구 출력부터 깎는다. 손실은 늘 최소다.</p>
+  </section>
+
+  <section class="card phase-rec ev">
+    <h2>코드 위치</h2>
+    <ul>
+      <li>선제 컴팩션: <code>preemptive-compaction.ts:248</code> <code>shouldPreemptivelyCompactBeforePrompt</code> · <code>preemptive-compaction.types.ts:4–8</code> 4-루트 union · <code>preemptive-compaction.ts:25</code> 512토큰 버퍼 · <code>:303</code> 임계 <code>max(넘침+512t, ×1.5)</code> · <code>compactContextEngineWithSafetyTimeout</code>(실제 압축 실행)</li>
+      <li>가지치기: <code>context-pruning/pruner.ts:290</code> <code>pruneContextMessages</code> · <code>:11</code> 이미지 제거 마커 · <code>:319</code> 부트스트랩 보호</li>
+    </ul>
+  </section>
+
+  <nav class="stepnav">
+    <a class="prev" href="step-16-failover-ladder.html"><span class="nl">← 이전</span>① 실패 모양·처방 사다리</a>
+    <a class="next" href="step-16-summary-audit.html"><span class="nl">다음 →</span>③ 요약 감사</a>
+  </nav>
+
+  <footer class="foot">🦞 OpenClaw 런타임 사다리 · 복구 깊이 보기 · 선제 컴팩션 · <a href="../../index.html">전체 보기</a></footer>
+</div>
+</body>
+</html>

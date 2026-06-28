@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>깊이 보기 · 종료 판정 — 쓸 만한 답을 냈는지 가른다</title>
+<link rel="stylesheet" href="../../assets/steps.css">
+</head>
+<body>
+<div class="wrap">
+  <nav class="crumb"><a href="../step-17-exit.html">← STEP F · 출구</a><span class="pos">깊이 보기 · 종료 판정</span></nav>
+
+  <header class="shead phase-exit">
+    <div class="snum">①</div>
+    <div>
+      <div class="sphase">STEP F · 깊이 보기</div>
+      <h1>쓸 만한 답을 냈는지 가른다 — 종료 판정</h1>
+    </div>
+  </header>
+  <p class="slead">되돌이 루프가 끝내 멎으면, 출구는 가장 먼저 이 턴이 사용자에게 내놓을 <b>쓸 만한 최종 답</b>을 냈는지 가른다. 깨끗이 맺은 답이면 그대로 담고, 부실하면 '성공'인 척 꾸미지 않고 정직하게 '<b>미완</b>'으로 표시한다.</p>
+
+  <section class="card phase-exit">
+    <h2>끝났다고 다 같은 끝이 아니다</h2>
+    <p><b>루프가 멎으면 가장 먼저 묻는다 — 이 턴이 사용자에게 내놓을 '쓸 만한 최종 답'을 냈는가?</b></p>
+    <p>모델이 깨끗이 답을 맺었으면 간단하다 — 그 답을 결과에 담는다. 문제는 답이 부실할 때다. 끝났는데 보이는 답이 없거나, 중간에 끊겼거나, 도구 오류로 멈췄거나. 이런 턴을 '성공'인 척 내보내면 사용자는 빈 답이나 깨진 답을 받는다.</p>
+  </section>
+
+  <section class="card phase-exit">
+    <h2>안전한 최종 답이 있을 때만</h2>
+    <p>그래서 '<b>안전한 최종 답이 있는가</b>'를 따진다 — 대체할 답글이 있고, <b>그리고</b> 중단·타임아웃·오류·부수효과가 하나도 없을 때만 그걸 안전한 마무리로 쓴다. 그 조건이 안 맞으면, 결과를 억지로 답인 척 꾸미지 않고 솔직하게 '<b>미완(incomplete_turn)</b>'으로 표시한다. <b>얻는 것</b> — 출구는 거짓 성공을 내보내지 않는다. 쓸 만한 답이면 그대로, 아니면 '미완'이라는 정직한 신호로. 받는 쪽이 그 신호를 보고 알맞게 처리할 수 있다.</p>
+  </section>
+
+  <section class="card phase-exit ev">
+    <h2>코드 위치</h2>
+    <ul>
+      <li><code>run.ts:3796</code> <code>resolveIncompleteTurnPayloadText</code>(<code>incomplete-turn.ts:225</code>) · <code>:3803</code> <code>incompleteTurnFallbackSafe</code> — 안전한 최종 답 판정</li>
+      <li><code>run.ts:3845–4001</code> 미완 terminal(추론만 소진 <code>3845–3909</code> · 불완전 턴 <code>3921–4000</code>) — <code>incomplete_turn</code>으로 표시하고 반환</li>
+    </ul>
+  </section>
+
+  <nav class="stepnav">
+    <a class="prev" href="../step-17-exit.html"><span class="nl">← 돌아가기</span>F · 출구 — 종료 판정 → 결과 반환</a>
+    <a class="next" href="step-17-result-cleanup.html"><span class="nl">다음 →</span>② 결과 반환 + 뒷정리</a>
+  </nav>
+
+  <footer class="foot">🦞 OpenClaw 런타임 사다리 · STEP F 깊이 보기 · 종료 판정 · <a href="../../index.html">전체 보기</a></footer>
+</div>
+</body>
+</html>
