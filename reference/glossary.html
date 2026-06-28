@@ -209,9 +209,51 @@
       </div>
 
       <div class="gterm">
+        <div class="gtop"><a class="gname deep" href="../steps/details/step-15-tool-loop.html">모델↔도구 루프</a> <span class="gbadge">심화</span> <span class="ghome">step-15-tool-loop</span></div>
+        <p class="gdef">한 번의 모델 호출이 아니라, 모델이 도구를 부르고 그 결과를 되먹이며 한 턴 안에서 여러 바퀴 도는 <b>되돌이</b>. 답하기 전에 여러 번 행동·관찰하는 이 안쪽 루프가 챗봇과 에이전트를 가른다.</p>
+        <p class="gappear"><b>등장</b> ← <a href="../steps/step-15-dispatch.html">디스패치(15)</a></p>
+      </div>
+
+      <div class="gterm">
+        <div class="gtop"><a class="gname deep" href="../steps/details/step-15-wrapping.html">방어막 겹겹 (래핑)</a> <span class="gbadge">심화</span> <span class="ghome">step-15-wrapping</span></div>
+        <p class="gdef">모델로 가는 호출을 날것으로 보내지 않고 세션 호출 함수(<code>streamFn</code>) 위에 약 <b>17겹</b>(6겹은 무조건)을 둘러, thinking 재생 거부·도구 이름 공백 같은 프로바이더 결함을 사용자 모르게 흡수하는 경계 엔지니어링.</p>
+        <p class="gappear"><b>등장</b> ← <a href="../steps/step-15-dispatch.html">디스패치(15)</a></p>
+      </div>
+
+      <div class="gterm">
+        <div class="gtop"><a class="gname deep" href="../steps/details/step-15-stop-reason.html">stop-reason</a> <span class="gbadge">심화</span> <span class="ghome">step-15-stop-reason</span></div>
+        <p class="gdef">모델↔도구 루프가 멎은 이유(완료·도구 호출·거부·길이 한계·오류). 이 멈춤의 이유가 이번 턴을 <b>종결할지</b>, 갈아탈 신호를 바깥에 <b>띄울지</b>를 가른다.</p>
+        <p class="gappear"><b>등장</b> ← <a href="../steps/step-15-dispatch.html">디스패치(15)</a></p>
+      </div>
+
+      <div class="gterm">
         <div class="gtop"><a class="gname" href="../steps/step-16-recovery.html">복구 — 페일오버 · 컴팩션</a> <span class="ghome">step-16-recovery</span></div>
         <p class="gdef">결과를 분류해 <b>살아남기</b>: 실패별 페일오버 사다리, 선제 컴팩션(요약은 최후·요약마저 감사), 재생 안전성으로 긴 세션을 손실·중복 없이 잇는다.</p>
         <p class="gappear"><b>등장</b> ← <a href="../steps/step-03-resolution.html">해석(C)</a> · <a href="../steps/step-04-attempt-loop.html">어템프트 루프(D)</a> · <a href="../steps/step-17-exit.html">출구(17)</a></p>
+      </div>
+
+      <div class="gterm">
+        <div class="gtop"><a class="gname deep" href="../steps/details/step-16-failover-ladder.html">페일오버 (실패 모양·처방 사다리)</a> <span class="gbadge">심화</span> <span class="ghome">step-16-failover-ladder</span></div>
+        <p class="gdef">실패를 모양별로 분류해 가장 싼 처방부터 올라가는 사다리. 공식 결정은 <b>5액션</b>(<code>continue_normal·rotate_profile·surface_error·fallback_model·return_error_payload</code>)이며, 가벼운 회복은 안쪽 루프가, '모델 교체'만은 바깥 드라이버가 맡는다.</p>
+        <p class="gappear"><b>등장</b> ← <a href="../steps/step-16-recovery.html">복구(16)</a></p>
+      </div>
+
+      <div class="gterm">
+        <div class="gtop"><a class="gname deep" href="../steps/details/step-16-preemptive-compaction.html">선제 컴팩션</a> <span class="gbadge">심화</span> <span class="ghome">step-16-preemptive-compaction</span></div>
+        <p class="gdef">맥락 창이 터진 뒤 수습하지 않고, 보내기 전에 미리 재서 <b>가장 적게 잃도록</b> 줄이는 일. 압력에 따라 4-루트(<code>fits</code> · 도구출력 절단 · 요약+절단 · 요약만)로 갈리며, 첫 시스템·부트스트랩 맥락은 절대 가지치지 않는다.</p>
+        <p class="gappear"><b>등장</b> ← <a href="../steps/step-16-recovery.html">복구(16)</a></p>
+      </div>
+
+      <div class="gterm">
+        <div class="gtop"><a class="gname deep" href="../steps/details/step-16-summary-audit.html">요약 감사</a> <span class="gbadge">심화</span> <span class="ghome">step-16-summary-audit</span></div>
+        <p class="gdef">요약이 불가피할 때조차 모델이 만든 요약을 그대로 믿지 않고, 필수 다섯 섹션·식별자 보존·최신 요청 반영을 감사해 미달이면 안전한 대체본(이전 요약 또는 골격)으로 떨어지는 안전장치.</p>
+        <p class="gappear"><b>등장</b> ← <a href="../steps/step-16-recovery.html">복구(16)</a></p>
+      </div>
+
+      <div class="gterm">
+        <div class="gtop"><a class="gname deep" href="../steps/details/step-16-replay-safety.html">재생 안전성</a> <span class="gbadge">심화</span> <span class="ghome">step-16-replay-safety</span></div>
+        <p class="gdef">재시도 전에 '다시 돌려도 안전한가'를 <b>부수효과 증거</b>로 판정하는 규율. 메시지 전송·세션 spawn·cron 기록 등 흔적이 하나라도 있으면 재생을 막고, 증명할 수 없으면 보수적으로 막는다(fail-closed).</p>
+        <p class="gappear"><b>등장</b> ← <a href="../steps/step-16-recovery.html">복구(16)</a></p>
       </div>
 
       <div class="gterm">

@@ -38,7 +38,7 @@
   <section class="card phase-loop ev">
     <h2>코드 위치</h2>
     <ul>
-      <li>종료: <code>run.ts:1900</code> 재시도 한도 · <code>2307</code> 비용폭주 차단기(blocked) · <code>4067</code> 정상 종료 → 이후 처리는 <a href="../step-17-exit.html">출구(STEP F)</a></li>
+      <li>종료: <code>run.ts:1900</code> 재시도 한도 · <code>2307</code> 비용폭주 차단기(blocked) · <code>4067</code> 정상 종료 → 이후 처리는 <a href="../step-17-exit.html">출구(STEP E)</a></li>
       <li>한도 정의: <code>helpers.ts:106–127</code> (24 + 8×프로필 후보, 32~160 — <code>runRetries</code> 설정으로 조정 가능) · <code>idle-timeout-breaker.ts:16</code> (연속 5, <code>#76293</code>) · <code>run.ts:1560–1561</code> (압축 2/3) · same-model 재시도 <code>run.ts:250</code> idle 1 · <code>helpers.ts:43</code> rate-limit 3 · <code>incomplete-turn.ts:133–134</code> (추론 2·빈 1)</li>
     </ul>
   </section>
