@@ -379,7 +379,7 @@
         <span class="rung-body">
           <span class="rung-t">모델·하네스·인증 해석</span>
           <span class="rung-d">워크스페이스/플러그인 → 모델·프로바이더 해석(+훅) → 하네스 선택 → 인증 프로필 → 런루프·컨텍스트엔진 초기화</span>
-          <span class="rung-f">run.ts:977–1164 · auth 1383–1533 · init 1560–1802</span>
+          <span class="rung-f">run.ts:977–1164 · auth 1339–1526 · init 1560–1802</span>
         </span>
       </a>
       <details class="assembly">
@@ -435,7 +435,7 @@
           <span class="rung-body">
             <span class="rung-t">디스패치 — 모델 호출 + 도구 루프</span>
             <span class="rung-d">LLM 스트림 다겹 래핑(~17겹) → 컨텍스트 조립 → pre-prompt 예산검사 → 모델 왕복 + 내부 도구 루프 → stop-reason</span>
-            <span class="rung-f">attempt.ts:2952–3160 · 4599 · 4764–4804 · 5532</span>
+            <span class="rung-f">attempt.ts:2952–3173 · 4599 · 4764–4804 · 5532</span>
           </span>
         </a>
         <details class="assembly">
@@ -527,7 +527,7 @@
       <span class="blk-mark views">Views</span>
       <h2 class="blk-title">다이어그램</h2>
     </div>
-    <p class="blk-note">에이전트 런타임 <b>내부</b>를 여섯 각도로 그린 Excalidraw 다이어그램 · 들어오는·나가는 곳은 가장자리에 작게. 클릭하면 갤러리에서 크게 볼 수 있다. 입구→출구 전체를 시간축으로 따라가는 <a href="diagrams/sequence-request-lifecycle.html" style="color:var(--kelp); font-weight:600">시퀀스 다이어그램 ⇄</a>은 별도 페이지에 있다.</p>
+    <p class="blk-note">에이전트 런타임 <b>내부</b>를 여러 각도로 그린 여섯 점의 Excalidraw 다이어그램 · 들어오는·나가는 곳은 가장자리에 작게. 클릭하면 갤러리에서 크게 볼 수 있다. 입구→출구 전체를 시간축으로 따라가는 <a href="diagrams/sequence-request-lifecycle.html" style="color:var(--kelp); font-weight:600">시퀀스 다이어그램 ⇄</a>은 별도 페이지에 있다.</p>
 
     <a class="gallery" href="diagrams/agent-runtime-views.html">
       <div class="gthumbs">
@@ -579,7 +579,7 @@
 
   <!-- ───────── FOOTER ───────── -->
   <footer class="foot">
-    🦞 <strong>OpenClaw 아키텍처 조사 </strong> · 2026-06-27<br>
+    🦞 <strong>OpenClaw 아키텍처 조사 </strong> · 2026-06-28<br>
     근거: 코드 트레이싱(<code>run.ts · attempt.ts · failover-policy.ts · preemptive-compaction.ts · harness/</code>)<br>
     <span class="ex">EXFOLIATE! EXFOLIATE!</span>
   </footer>
