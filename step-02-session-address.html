@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>깊이 보기 · 대화 주소와 기록 파일 — 우편함 주소와 그 서류철</title>
+<link rel="stylesheet" href="steps.css">
+</head>
+<body>
+<div class="wrap">
+  <nav class="crumb"><a href="step-02-session-queue.html">← STEP B · 세션·큐</a><span class="pos">깊이 보기 · 대화 주소와 기록 파일</span></nav>
+
+  <header class="shead phase-sess">
+    <div class="snum">①</div>
+    <div>
+      <div class="sphase">STEP B · 깊이 보기</div>
+      <h1>대화 주소와 기록 파일 — 우편함 주소와, 그 주소가 가리키는 서류철</h1>
+    </div>
+  </header>
+  <p class="slead">세션·큐 단계는 한 대화를 가리키는 데 <b>두 가지 이름</b>이 쓰인다고 했다 — 논리적 이름표인 <b>대화 주소</b>와, 그 대화의 실제 <b>기록 파일 이름</b>. 이 페이지는 그 두 이름이 각각 무엇으로 이뤄지고, 하나가 어떻게 다른 하나로 이어지며, 그래서 <b>대화가 실제로 '어디에' '어떤 모양으로' 저장되는지</b>를 본다 — 원격 서버인가 내 기기인가, 데이터베이스인가 그냥 파일인가.</p>
+
+  <section class="card phase-sess">
+    <h2>한 대화에 이름이 둘인 까닭</h2>
+    <p><b>한 대화에는 이름이 둘이다 — 사람과 라우팅이 부르는 '대화 주소', 그리고 디스크가 아는 '기록 파일 이름'. 앞은 변치 않는 논리 이름표이고, 뒤는 그 내용을 담은 실제 서류철이다.</b></p>
+    <p><b>대화 주소</b>는 콜론으로 이어 붙인 한 줄짜리 이름표다 — <code>agent:&lt;에이전트&gt;:&lt;채널&gt;:&lt;상대종류&gt;:&lt;상대&gt;</code>. 풀어 읽으면 "<b>어느 에이전트</b>(OpenClaw 안의 한 인격, 기본 <code>main</code>)가, <b>어떤 채널</b>(슬랙·텔레그램·CLI처럼 말이 오가는 통로)에서, <b>어떤 상대</b>(1:1인지 그룹인지, 그리고 그게 누구·어느 방인지)와 나누는 대화"다. 같은 대화는 언제 와도 똑같은 주소가 나온다. 보기 — 기본 메인 대화는 <code>agent:main:main</code>, 슬랙 1:1은 <code>agent:main:slack:direct:u0921</code>, 그룹방은 <code>agent:main:slack:group:c0777</code>, 한 방 안의 갈래(스레드)는 끝에 <code>:thread:17</code>이 더 붙는다.</p>
+    <p><b>기록 파일 이름</b>은 그 대화의 내용이 실제로 쌓이는 파일의 이름이다 — <code>&lt;기록 ID&gt;.jsonl</code>. 여기서 기록 ID는 뜻을 담지 않은 짧고 안전한 식별자(흔히 무작위 UUID)일 뿐, 주소처럼 읽히지 않는다.</p>
+    <p><b>왜 굳이 둘로 나눴나</b> — 둘은 서로 다른 일을 맡기 때문이다. 주소는 <b>안정적이고 뜻이 있어야</b> 한다(곧 줄 세우기·기록 압축·메모리 회상·훅이 전부 이 주소를 손잡이로 삼는다). 반대로 파일 이름은 <b>갈아끼울 수 있어야</b> 한다 — 기록을 정리(압축)하며 새 파일로 갈거나, 파일을 옮겨도 "이게 어떤 대화인가"라는 정체는 흔들리면 안 된다. 이름을 나눠 둔 덕에, <b>본문(파일)이 아래에서 바뀌어도 주소는 그대로</b> 대화를 가리킨다.</p>
+  </section>
+
+  <section class="card phase-sess">
+    <h2>주소에서 파일로 — 가운데에 '색인'이 있다</h2>
+    <p><b>대화 주소만으로는 파일을 바로 찾지 못한다. 둘 사이에 작은 색인 하나가 있어, 주소를 받아 실제 파일을 일러 준다.</b></p>
+    <p>그 색인이 <code>sessions.json</code>이다 — 한 에이전트의 <b>모든 대화 주소를, 각자의 기록 파일과 메타로 이어 주는 장부</b>다. 구조는 단순한 지도다: <b>대화 주소 → 그 대화의 엔트리</b>. 엔트리 안에는 기록 ID와 <b>기록 파일을 가리키는 포인터</b>, 그리고 마지막 갱신 시각·상태·모델 선택 같은 메타가 들어 있다. 주소로 장부를 한 번 들춰 엔트리를 얻고, 그 엔트리가 가리키는 <code>.jsonl</code>이 곧 펼쳐 읽을 서류철이다.</p>
+    <p>우편함에 빗대면 셋의 관계가 또렷해진다 — <b>대화 주소</b>는 우편함에 적힌 번호(논리적 이름), <b>색인(<code>sessions.json</code>)</b>은 "몇 번 우편함은 어느 서류철"을 적어 둔 대장, <b>기록 파일(<code>.jsonl</code>)</b>은 그 대장이 가리키는 실제 서류철이다. 주소가 파일 경로를 직접 품지 않아도 되니, 같은 폴더에 <b>색인 한 장 + 대화 서류철 여러 장</b>이 나란히 살 수 있다.</p>
+  </section>
+
+  <section class="card phase-sess">
+    <h2>그 파일은 어디에 사나 — 서버가 아니라 '이 기기'다</h2>
+    <p><b>대화는 멀리 있는 서버나 클라우드 데이터베이스가 아니라, OpenClaw가 실제로 도는 바로 그 기기의 로컬 파일로 산다.</b></p>
+    <p>OpenClaw는 <b>자기 기기에서 직접 돌리는 개인용 어시스턴트</b>다. 그래서 모든 세션 자료는 그 기기의 홈 아래 <b>한 곳의 상태 폴더</b>에 모인다 — 기본값은 <code>~/.openclaw</code>이고, 에이전트마다 <code>~/.openclaw/agents/&lt;에이전트&gt;/sessions/</code> 밑에 색인과 기록 파일이 함께 놓인다. (이 위치는 <code>OPENCLAW_STATE_DIR</code> 한 줄로 통째로 옮길 수 있다.)</p>
+    <p>이 파일들의 <b>주인은 게이트웨이</b>(요청을 받아 런타임에 넘기는 그 한 겹)다. 화면(TUI·대시보드)은 디스크를 직접 뒤지지 않고 게이트웨이에 물어본다. 그러니 "대화가 어디 저장되나"의 답은 늘 <b>게이트웨이가 도는 기기의 로컬 디스크</b> — 개인용으로 자기 기기에서 돌린다면 곧 '내 기기'다. 어디에도 외부 관리형 데이터베이스는 끼지 않는다.</p>
+    <p><b>얻는 것</b> — 대화가 <b>내 손 안에</b> 머문다. 서버를 거치지 않으니 사적이고, 폴더째 복사하면 그대로 옮겨 가는 이동성도 생긴다. '데이터베이스'라 부를 만한 것조차, 사실은 들여다볼 수 있는 <b>파일 한 폴더</b>일 뿐이다.</p>
+  </section>
+
+  <section class="card phase-sess">
+    <h2>그 파일은 어떤 모양인가 — 한 줄이 한 사건인 JSONL</h2>
+    <p><b>기록 파일은 JSONL이다 — 한 줄이 곧 하나의 사건이고, 새 일은 파일 끝에 '덧붙이기'만 한다. 색인은 그와 달리 통짜 JSON 객체 하나다.</b></p>
+    <p>JSONL은 "한 줄에 JSON 하나"라는 뜻이다. 기록 파일의 <b>첫 줄</b>은 이 대화가 무엇인지 적은 머리글이고, 그 뒤로는 사용자 말·어시스턴트 말·도구 결과·생각(thinking) 같은 사건이 <b>저마다 한 줄</b>씩 쌓인다. 핵심은 <b>덧붙이기 전용(append-only)</b>이라는 점 — 새 사건이 생기면 기존 내용은 건드리지 않고 <b>파일 맨 끝에 새 줄만</b> 더한다. 파일 권한은 주인만 읽고 쓰도록 <code>0600</code>으로 잠가 둔다.</p>
+    <p>반면 색인 <code>sessions.json</code>은 줄 단위가 아니라 <b>들여쓴 JSON 객체 하나</b>(주소→엔트리 지도)이고, 통째로 안전하게 갈아치우는 방식으로 저장된다. 둘 다 <b>SQLite 같은 데이터베이스도, 알아볼 수 없는 이진 파일도 아니다</b> — 사람이 그대로 열어 읽을 수 있는 글자 파일이다.</p>
+    <p><b>왜 이렇게</b> — 덧붙이기 전용이라 매 턴 긴 기록을 통째로 다시 쓸 필요가 없어 <b>값싸고, 중간에 멈춰도 앞부분이 멀쩡하다</b>. 한 줄이 한 사건이라 끝부분만 빠르게 이어 읽기 좋고, 글자 파일이라 열어 보거나 검색하기도 쉽다. 사적인 보관은 <code>0600</code> 권한이 받쳐 준다.</p>
+  </section>
+
+  <section class="card verdict v-nuance phase-sess">
+    <h2>미묘함 하나 — 주소가 같아도 파일은 갈릴 수 있다</h2>
+    <p><span class="vtag">주소 ≠ 파일</span> <b>대화 주소는 한 대화를 평생 가리키지만, 그 대화의 기록 파일은 도중에 바뀔 수 있다.</b> 둘을 색인으로 떼어 둔 진짜 이유가 여기서 드러난다.</p>
+    <p>대화가 길어지면 기록을 <b>요약해 압축</b>하면서 새 기록 ID로 갈아탈 수 있다. 이때 변하는 건 <b>색인 속 포인터</b>뿐 — 엔트리의 기록 ID·파일 포인터가 새 파일을 가리키도록 바뀐다. <b>대화 주소는 그대로다.</b> 그래서 줄 세우기도, 다음 턴의 기록 읽기도, 메모리 회상도 전혀 흔들리지 않는다. 만약 주소가 파일 경로를 직접 품고 있었다면 파일을 갈 때마다 정체가 끊겼을 것이다 — 이름을 둘로 나눠 둔 설계가 바로 그 끊김을 막는다.</p>
+  </section>
+
+  <section class="card verdict phase-sess">
+    <h2>큰 그림 — 이름을 나누고 평범한 로컬 파일에 담는다</h2>
+    <p>한 대화를 <b>두 이름</b>으로 부르고 그 사이에 작은 <b>색인</b> 한 장을 끼운 덕에, 대화의 '정체'(주소)는 안정적이면서 '본문'(파일)은 아래에서 자유롭게 자라고·압축되고·갈릴 수 있다. 세션·큐 단계가 줄 세우기의 손잡이로 삼은 그 <b>하나의 확정된 이름표</b>가, 바로 이 분리 위에 안전하게 선다.</p>
+    <p>그리고 그 본문을 <b>원격 DB가 아니라 내 기기의 평범한 글자 파일</b>(기록은 JSONL, 색인은 JSON)에 담은 덕에, 긴 대화는 값싸고·사적이고·옮기기 쉬운 채로 오래 보관된다. 거창한 저장 엔진 없이 '폴더 하나'로 이 모든 걸 떠받치는 것 — 모델 바깥에서 조용히 일하는 운영 껍데기의 또 한 모습이다. <a href="step-02-session-lane.html" class="dive">세션 레인</a>이 같은 대화를 한 줄로 직렬화해 <b>한 파일에 겹쳐 쓰는 사고를 막아 주는</b> 것과 짝을 이뤄, 이 기록은 늘 일관되게 쌓인다.</p>
+  </section>
+
+  <section class="card phase-sess ev">
+    <h2>코드 위치</h2>
+    <ul>
+      <li><code>routing/session-key.ts:211</code> <code>buildAgentMainSessionKey</code> · <code>:220</code> <code>buildAgentPeerSessionKey</code> — 대화 주소 조립(<code>agent:&lt;id&gt;:&lt;channel&gt;:&lt;peerKind&gt;:&lt;peerId&gt;</code>, 스레드 <code>:thread:&lt;id&gt;</code>)</li>
+      <li><code>config/sessions/paths.ts:63</code> <code>SAFE_SESSION_ID_RE</code>(기록 ID 규칙) · <code>:256</code> <code>resolveSessionTranscriptPathInDir</code> → <code>&lt;sessionId&gt;.jsonl</code></li>
+      <li><code>config/sessions/types.ts:213</code> <code>SessionEntry</code> — <code>sessionId</code>(필수) + <code>sessionFile?</code>(파일 포인터) + 메타 · 색인은 <code>Record&lt;string, SessionEntry&gt;</code> 맵(<code>combined-store-gateway.ts:25</code>)</li>
+      <li><code>config/sessions/paths.ts:280</code> <code>resolveSessionFilePath</code> — 엔트리의 <code>sessionFile</code>로, 없으면 <code>&lt;sessionId&gt;.jsonl</code>로 실제 경로 해석</li>
+      <li><code>config/paths.ts:58</code> <code>resolveStateDir</code> — 저장 루트 기본 <code>~/.openclaw</code>, <code>OPENCLAW_STATE_DIR</code>로 변경 · <code>config/sessions/paths.ts:18</code> <code>&lt;root&gt;/agents/&lt;id&gt;/sessions</code> · <code>:37</code> <code>sessions.json</code></li>
+      <li><code>config/sessions/transcript-jsonl.ts:16</code> <code>serializeJsonlLine</code>(<code>JSON.stringify</code> 한 줄) · <code>:87</code> 덧붙이기(파일 모드 <code>0600</code>)</li>
+    </ul>
+  </section>
+
+  <nav class="stepnav">
+    <a class="prev" href="step-02-session-queue.html"><span class="nl">← 돌아가기</span>B · 세션 해석 + 2단 레인 큐</a>
+    <a class="next" href="step-02-session-lane.html"><span class="nl">자매 깊이 보기 →</span>세션 레인 — 한 대화를 한 줄로</a>
+  </nav>
+
+  <footer class="foot">🦞 OpenClaw 런타임 사다리 · STEP B 깊이 보기 · 대화 주소와 기록 파일 · <a href="index.html">전체 보기</a></footer>
+</div>
+</body>
+</html>

@@ -36,8 +36,8 @@
   <section class="card verdict v-nuance">
     <h2>② 두 곳에서 와서 한 집합이 된다 — 코어 + 플러그인</h2>
     <p><span class="vtag">코어 + 플러그인</span> <b>도구는 두 출처에서 오지만, 모델에겐 구분 없는 한 벌로 보인다.</b> OpenClaw는 자기 도구를 우대하지 않는다 — 플러그인 도구도 같은 집합에 나란히 꽂힌다.</p>
-    <p>첫 출처는 <b>코어 도구</b> — OpenClaw에 내장된 것들이다. 크게 셋이다: 파일을 다루는 <b>코딩 도구</b>(<code>read</code>·<code>write</code>·<code>edit</code>), 셸을 다루는 <b>실행 도구</b>(<code>exec</code>·<code>process</code>·<code>apply_patch</code>), 그리고 OpenClaw 고유의 <b>운영 도구</b>(답을 보내는 <code>message</code>, 예약을 거는 <code>cron</code>, 웹을 뒤지는 <code>web_search</code>·<code>web_fetch</code>, 세션을 다루는 <code>sessions_*</code>, 하위 에이전트를 띄우는 <code>subagents</code>, 스킬 작업장 <code>skill_workshop</code>, 캔버스·이미지 생성 등).</p>
-    <p>둘째 출처는 <b>플러그인 도구</b> — 깔려 있는 확장이 등록한 것들이다. 브라우저 제어, 외부 검색, 코드 실행 샌드박스, 채널별 도구(로그인 등), MCP 서버가 노출하는 도구까지. OpenClaw가 직접 만들지 않은 능력이 전부 이 갈래로 들어온다.</p>
+    <p>첫 출처는 <b>코어 도구</b> — OpenClaw에 내장된 것들이다. 크게 셋이다: 파일을 다루는 <b>코딩 도구</b>(<code>read</code>·<code>write</code>·<code>edit</code>), 셸을 다루는 <b>실행 도구</b>(<code>exec</code>·<code>process</code>·<code>apply_patch</code>), 그리고 OpenClaw 고유의 <b>운영 도구</b>(답을 보내는 <code>message</code>, 예약을 거는 <code>cron</code>, 웹을 뒤지는 <code>web_search</code>·<code>web_fetch</code>, 세션을 다루는 <code>sessions_*</code>, 하위 에이전트를 띄우는 <code>subagents</code>, <a href="step-06-skills.html">스킬</a> 작업장 <code>skill_workshop</code>, 캔버스·이미지 생성 등).</p>
+    <p>둘째 출처는 <b>플러그인 도구</b> — 깔려 있는 확장이 등록한 것들이다. 브라우저 제어, 외부 검색, 코드 실행 <a href="step-05-workspace-sandbox.html">샌드박스</a>, 채널별 도구(로그인 등), <a href="step-10-bundle-tools.html">MCP</a> 서버가 노출하는 도구까지. OpenClaw가 직접 만들지 않은 능력이 전부 이 갈래로 들어온다.</p>
     <p><b>핵심은 둘이 한 집합으로 합쳐진다는 것</b>이다. 모델 앞에 놓인 도구 목록에는 "이건 코어, 저건 플러그인"이라는 꼬리표가 없다 — 전부 그냥 '도구 하나'다. <b>얻는 것</b> — 새 능력을 더하고 싶으면 플러그인 하나를 깔면 되고, 런타임 코드는 손댈 필요가 없다. 모델은 출처를 전혀 모른 채 <b>균일한 한 벌의 손</b>을 받고, 확장은 런타임을 건드리지 않고도 그 손을 늘린다.</p>
   </section>
 

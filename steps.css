@@ -50,9 +50,24 @@ code{font-family:var(--mono); font-size:12.5px; color:var(--roe); background:#ff
 .card p a:hover,.card li a:hover{border-bottom-style:solid}
 .card p a code,.card li a code{color:var(--brine); background:#58a6ff12; border-color:#58a6ff2e}
 
-/* deep-dive link — a body phrase that opens a mechanism page */
-.dive{color:var(--coral)!important; border-bottom:1px dashed color-mix(in srgb, var(--coral) 55%, transparent)!important}
-.dive::after{content:"↗"; font-size:.78em; vertical-align:super; margin-left:2px; color:var(--coral)}
+/* ── 본문 링크 두 종류를 뚜렷이 구분 ──────────────────────────
+   ① 단순 용어 → 홈 링크 (.card p a / .card li a): 가벼운 파란 점선 밑줄 (위 정의)
+   ② 세부·깊이보기 페이지 링크 (.dive): 코랄 인라인 칩 + ↗ — 전용 페이지로 '들어간다'는 뜻을 또렷이 */
+a.dive{
+  color:var(--coral)!important;
+  background:#bc8cff18;
+  border:1px solid #bc8cff45!important;
+  border-radius:7px;
+  padding:1px 7px 2px 8px;
+  margin:0 1px;
+  font-weight:650;
+  text-decoration:none!important;
+  -webkit-box-decoration-break:clone; box-decoration-break:clone; /* 줄바꿈돼도 칩 모양 유지 */
+  transition:background .15s ease, border-color .15s ease, box-shadow .15s ease;
+}
+a.dive b{color:var(--coral)!important; font-weight:650}
+a.dive::after{content:"↗"; font-size:.72em; vertical-align:super; margin-left:3px; color:var(--coral); opacity:.95; font-weight:800}
+a.dive:hover{background:#bc8cff30; border-color:var(--coral)!important; box-shadow:0 2px 12px #bc8cff26}
 
 /* evidence list (file:line) */
 .ev li code{color:var(--brine); background:#58a6ff12; border-color:#58a6ff2e; margin-right:4px}
