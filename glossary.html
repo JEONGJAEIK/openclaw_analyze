@@ -70,19 +70,19 @@
       <div class="gterm">
         <div class="gtop"><a class="gname" href="step-02-session-queue.html">세션 해석 + 2단 레인 큐</a> <span class="ghome">step-02-session-queue</span></div>
         <p class="gdef">요청이 <b>어느 대화 소속인지</b> 하나의 이름표(대화 주소)로 확정하고, <b>세션 레인</b>(같은 대화 직렬화)과 <b>글로벌 레인</b>(전체 동시성 제한) 2단으로 줄 세우는 단계.</p>
-        <p class="gappear"><b>등장</b> ← <a href="step-02-session-lane.html">세션 레인</a> · <a href="step-02-compaction.html">기록 압축</a> · <a href="step-17-exit.html">출구(17)</a></p>
+        <p class="gappear"><b>등장</b> ← <a href="step-02-session-lane.html">세션 레인</a> · <a href="step-02-global-lane.html">글로벌 레인</a> · <a href="step-02-compaction.html">기록 압축</a> · <a href="step-17-exit.html">출구(17)</a></p>
       </div>
 
       <div class="gterm">
         <div class="gtop"><a class="gname deep" href="step-02-session-lane.html">세션 레인</a> <span class="gbadge">심화</span> <span class="ghome">step-02-session-lane</span></div>
         <p class="gdef">같은 대화를 <b>정원 1</b>로 직렬화하는 대화별 FIFO 줄. '정원이 정해진 줄'이라는 공용 기본기(레인)를 <code>session:&lt;대화&gt;</code> 이름으로 쓴 한 사례.</p>
-        <p class="gappear"><b>등장</b> ← <a href="step-02-session-queue.html">세션·큐(B)</a> · <a href="step-02-session-address.html">대화 주소·기록 파일</a> · <a href="step-02-compaction.html">기록 압축</a> · <a href="step-17-exit.html">출구(17)</a></p>
+        <p class="gappear"><b>등장</b> ← <a href="step-02-session-queue.html">세션·큐(B)</a> · <a href="step-02-global-lane.html">글로벌 레인</a> · <a href="step-02-session-address.html">대화 주소·기록 파일</a> · <a href="step-02-compaction.html">기록 압축</a> · <a href="step-17-exit.html">출구(17)</a></p>
       </div>
 
       <div class="gterm">
-        <div class="gtop"><a class="gname" href="step-02-session-queue.html">글로벌 레인</a> <span class="ghome">step-02-session-queue</span></div>
-        <p class="gdef">모든 대화를 통틀어 동시에 도는 실행 수를 <b>N개(기본 4)</b>로 제한하는 공용 줄. 모델 제공사 속도 제한·자원 폭주를 막는 안전밸브.</p>
-        <p class="gappear"><b>등장</b> ← <a href="step-02-session-lane.html">세션 레인</a> · <a href="step-17-exit.html">출구(17)</a></p>
+        <div class="gtop"><a class="gname deep" href="step-02-global-lane.html">글로벌 레인</a> <span class="gbadge">심화</span> <span class="ghome">step-02-global-lane</span></div>
+        <p class="gdef">모든 대화가 함께 쓰는 공용 줄. <b>동시에 도는 '서로 다른 대화'의 수</b>를 N(기본 4, <code>agents.defaults.maxConcurrent</code>)으로 제한한다 — 한 대화 안의 병렬이 아니다. 제공사 속도 제한·자원 폭주를 막는 안전밸브.</p>
+        <p class="gappear"><b>등장</b> ← <a href="step-02-session-queue.html">세션·큐(B)</a> · <a href="step-02-session-lane.html">세션 레인</a></p>
       </div>
 
       <div class="gterm">
