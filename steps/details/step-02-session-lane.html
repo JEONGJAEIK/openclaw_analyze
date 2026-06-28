@@ -4,11 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>깊이 보기 · 세션 레인 — 한 대화를 한 줄로 직렬화하는 법</title>
-<link rel="stylesheet" href="steps.css">
+<link rel="stylesheet" href="../../assets/steps.css">
 </head>
 <body>
 <div class="wrap">
-  <nav class="crumb"><a href="step-02-session-queue.html">← STEP B · 세션·큐</a><span class="pos">깊이 보기 · 세션 레인</span></nav>
+  <nav class="crumb"><a href="../step-02-session-queue.html">← STEP B · 세션·큐</a><span class="pos">깊이 보기 · 세션 레인</span></nav>
 
   <header class="shead phase-sess">
     <div class="snum">②</div>
@@ -28,7 +28,7 @@
   <section class="card phase-sess">
     <h2>① 세션 레인 — 대화마다 이름이 다른 줄</h2>
     <p><b>세션 레인은 그저 이름이 <code>session:&lt;대화 주소&gt;</code>인 레인이다.</b> 같은 대화는 늘 같은 이름이 나오니 같은 줄에 모이고, 다른 대화는 다른 이름이라 다른 줄에 선다.</p>
-    <p>STEP B ①에서 대화의 정체를 <b>하나의 이름표(<a href="step-02-session-queue.html">대화 주소</a>)</b>로 못 박았다. 그 이름표 앞에 <code>session:</code>을 붙인 것이 이 대화의 <b>레인 이름</b>이다(<code>resolveSessionLane</code>). 같은 대화의 요청은 매번 같은 이름이 나오므로 장부에서 <b>같은 레인 한 칸</b>을 집어 그 줄에 선다. 다른 대화는 이름이 다르니 <b>장부의 다른 칸</b> — 즉 완전히 별개의 줄이다.</p>
+    <p>STEP B ①에서 대화의 정체를 <b>하나의 이름표(<a href="../step-02-session-queue.html">대화 주소</a>)</b>로 못 박았다. 그 이름표 앞에 <code>session:</code>을 붙인 것이 이 대화의 <b>레인 이름</b>이다(<code>resolveSessionLane</code>). 같은 대화의 요청은 매번 같은 이름이 나오므로 장부에서 <b>같은 레인 한 칸</b>을 집어 그 줄에 선다. 다른 대화는 이름이 다르니 <b>장부의 다른 칸</b> — 즉 완전히 별개의 줄이다.</p>
     <p>여기서 중요한 성질이 거저 나온다. 대화 사이의 <b>격리가 따로 만든 장치가 아니라 '이름이 다르다'는 사실에서 저절로</b> 생긴다. 한 대화의 줄이 아무리 길고 바빠도, 그건 그 이름의 레인 안에서 벌어지는 일일 뿐 — 다른 이름의 레인은 자기 정원만큼 자유롭게 돈다. 그래서 "서로 다른 대화는 서로를 막지 않는다".</p>
   </section>
 
@@ -74,11 +74,11 @@
   </section>
 
   <nav class="stepnav">
-    <a class="prev" href="step-02-session-queue.html"><span class="nl">← 돌아가기</span>B · 세션 해석 + 2단 레인 큐</a>
-    <a class="next" href="step-03-resolution.html"><span class="nl">다음 단계 →</span>C · 모델·하네스·인증 해석</a>
+    <a class="prev" href="../step-02-session-queue.html"><span class="nl">← 돌아가기</span>B · 세션 해석 + 2단 레인 큐</a>
+    <a class="next" href="../step-03-resolution.html"><span class="nl">다음 단계 →</span>C · 모델·하네스·인증 해석</a>
   </nav>
 
-  <footer class="foot">🦞 OpenClaw 런타임 사다리 · STEP B 깊이 보기 · 세션 레인 · <a href="index.html">전체 보기</a></footer>
+  <footer class="foot">🦞 OpenClaw 런타임 사다리 · STEP B 깊이 보기 · 세션 레인 · <a href="../../index.html">전체 보기</a></footer>
 </div>
 </body>
 </html>

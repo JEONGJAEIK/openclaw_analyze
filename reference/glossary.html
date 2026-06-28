@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>용어 사전 — OpenClaw 런타임 사다리</title>
-<link rel="stylesheet" href="steps.css">
+<link rel="stylesheet" href="../assets/steps.css">
 <style>
   /* glossary-specific layout — steps.css 변수 재사용 */
   .gloss{display:flex; flex-direction:column; gap:0}
@@ -27,7 +27,7 @@
 </head>
 <body>
 <div class="wrap">
-  <nav class="crumb"><a href="index.html">← 런타임 사다리</a><span class="pos">용어 사전 · Glossary</span></nav>
+  <nav class="crumb"><a href="../index.html">← 런타임 사다리</a><span class="pos">용어 사전 · Glossary</span></nav>
 
   <header class="shead phase-sess">
     <div class="snum" style="font-size:24px">가</div>
@@ -43,21 +43,21 @@
     <div class="gloss">
 
       <div class="gterm">
-        <div class="gtop"><a class="gname" href="step-01-entry.html">진입 &amp; 설정 해석 (문지기)</a> <span class="ghome">step-01-entry</span></div>
+        <div class="gtop"><a class="gname" href="../steps/step-01-entry.html">진입 &amp; 설정 해석 (문지기)</a> <span class="ghome">step-01-entry</span></div>
         <p class="gdef">모든 출처(채팅·예약 작업·명령·다른 에이전트)의 요청이 모이는 <b>단일 공개 진입점</b>. 요청을 정돈하고, 기본값을 채우고, 생애 도장을 찍은 뒤 안쪽 엔진에 위임하는 얇은 한 겹.</p>
-        <p class="gappear"><b>등장</b> ← <a href="step-01-config-snapshot.html">설정 스냅샷</a> · <a href="step-01-lifecycle-stamp.html">생애 도장</a></p>
+        <p class="gappear"><b>등장</b> ← <a href="../steps/details/step-01-config-snapshot.html">설정 스냅샷</a> · <a href="../steps/details/step-01-lifecycle-stamp.html">생애 도장</a></p>
       </div>
 
       <div class="gterm">
-        <div class="gtop"><a class="gname deep" href="step-01-config-snapshot.html">설정 스냅샷</a> <span class="gbadge">심화</span> <span class="ghome">step-01-config-snapshot</span></div>
+        <div class="gtop"><a class="gname deep" href="../steps/details/step-01-config-snapshot.html">설정 스냅샷</a> <span class="gbadge">심화</span> <span class="ghome">step-01-config-snapshot</span></div>
         <p class="gdef">켜질 때 한 번 읽어 프로세스 메모리에 박아 두고 모두가 빌려 쓰는, <b>해석이 끝난 설정 사본</b>. 비밀값이 풀린 상태로 갈무리되고, 바뀌면 통째로 교체되며 판 번호로 캐시를 자동 무효화한다.</p>
-        <p class="gappear"><b>등장</b> ← <a href="step-01-entry.html">진입(A)</a> · <a href="step-01-lifecycle-stamp.html">생애 도장</a> · <a href="step-02-session-lane.html">세션 레인</a></p>
+        <p class="gappear"><b>등장</b> ← <a href="../steps/step-01-entry.html">진입(A)</a> · <a href="../steps/details/step-01-lifecycle-stamp.html">생애 도장</a> · <a href="../steps/details/step-02-session-lane.html">세션 레인</a></p>
       </div>
 
       <div class="gterm">
-        <div class="gtop"><a class="gname deep" href="step-01-lifecycle-stamp.html">생애 도장</a> <span class="gbadge">심화</span> <span class="ghome">step-01-lifecycle-stamp</span></div>
+        <div class="gtop"><a class="gname deep" href="../steps/details/step-01-lifecycle-stamp.html">생애 도장</a> <span class="gbadge">심화</span> <span class="ghome">step-01-lifecycle-stamp</span></div>
         <p class="gdef">실행이 <b>서버의 몇 번째 생애에 속하는지</b> 찍는, 프로세스에 하나뿐인 세대 표식(UUID). 인-프로세스 재시작 때 새 UUID로 회전해, 옛 실행을 유령으로 솎아낸다.</p>
-        <p class="gappear"><b>등장</b> ← <a href="step-01-entry.html">진입(A)</a> · <a href="step-01-config-snapshot.html">설정 스냅샷</a> · <a href="step-02-session-lane.html">세션 레인</a></p>
+        <p class="gappear"><b>등장</b> ← <a href="../steps/step-01-entry.html">진입(A)</a> · <a href="../steps/details/step-01-config-snapshot.html">설정 스냅샷</a> · <a href="../steps/details/step-02-session-lane.html">세션 레인</a></p>
       </div>
 
     </div>
@@ -68,33 +68,33 @@
     <div class="gloss">
 
       <div class="gterm">
-        <div class="gtop"><a class="gname" href="step-02-session-queue.html">세션 해석 + 2단 레인 큐</a> <span class="ghome">step-02-session-queue</span></div>
+        <div class="gtop"><a class="gname" href="../steps/step-02-session-queue.html">세션 해석 + 2단 레인 큐</a> <span class="ghome">step-02-session-queue</span></div>
         <p class="gdef">요청이 <b>어느 대화 소속인지</b> 하나의 이름표(대화 주소)로 확정하고, <b>세션 레인</b>(같은 대화 직렬화)과 <b>글로벌 레인</b>(전체 동시성 제한) 2단으로 줄 세우는 단계.</p>
-        <p class="gappear"><b>등장</b> ← <a href="step-02-session-lane.html">세션 레인</a> · <a href="step-02-global-lane.html">글로벌 레인</a> · <a href="step-02-compaction.html">기록 압축</a> · <a href="step-17-exit.html">출구(17)</a></p>
+        <p class="gappear"><b>등장</b> ← <a href="../steps/details/step-02-session-lane.html">세션 레인</a> · <a href="../steps/details/step-02-global-lane.html">글로벌 레인</a> · <a href="../steps/details/step-02-compaction.html">기록 압축</a> · <a href="../steps/step-17-exit.html">출구(17)</a></p>
       </div>
 
       <div class="gterm">
-        <div class="gtop"><a class="gname deep" href="step-02-session-lane.html">세션 레인</a> <span class="gbadge">심화</span> <span class="ghome">step-02-session-lane</span></div>
+        <div class="gtop"><a class="gname deep" href="../steps/details/step-02-session-lane.html">세션 레인</a> <span class="gbadge">심화</span> <span class="ghome">step-02-session-lane</span></div>
         <p class="gdef">같은 대화를 <b>정원 1</b>로 직렬화하는 대화별 FIFO 줄. '정원이 정해진 줄'이라는 공용 기본기(레인)를 <code>session:&lt;대화&gt;</code> 이름으로 쓴 한 사례.</p>
-        <p class="gappear"><b>등장</b> ← <a href="step-02-session-queue.html">세션·큐(B)</a> · <a href="step-02-global-lane.html">글로벌 레인</a> · <a href="step-02-session-address.html">대화 주소·기록 파일</a> · <a href="step-02-compaction.html">기록 압축</a> · <a href="step-17-exit.html">출구(17)</a></p>
+        <p class="gappear"><b>등장</b> ← <a href="../steps/step-02-session-queue.html">세션·큐(B)</a> · <a href="../steps/details/step-02-global-lane.html">글로벌 레인</a> · <a href="../steps/details/step-02-session-address.html">대화 주소·기록 파일</a> · <a href="../steps/details/step-02-compaction.html">기록 압축</a> · <a href="../steps/step-17-exit.html">출구(17)</a></p>
       </div>
 
       <div class="gterm">
-        <div class="gtop"><a class="gname deep" href="step-02-global-lane.html">글로벌 레인</a> <span class="gbadge">심화</span> <span class="ghome">step-02-global-lane</span></div>
+        <div class="gtop"><a class="gname deep" href="../steps/details/step-02-global-lane.html">글로벌 레인</a> <span class="gbadge">심화</span> <span class="ghome">step-02-global-lane</span></div>
         <p class="gdef">모든 대화가 함께 쓰는 공용 줄. <b>동시에 도는 '서로 다른 대화'의 수</b>를 N(기본 4, <code>agents.defaults.maxConcurrent</code>)으로 제한한다 — 한 대화 안의 병렬이 아니다. 제공사 속도 제한·자원 폭주를 막는 안전밸브.</p>
-        <p class="gappear"><b>등장</b> ← <a href="step-02-session-queue.html">세션·큐(B)</a> · <a href="step-02-session-lane.html">세션 레인</a></p>
+        <p class="gappear"><b>등장</b> ← <a href="../steps/step-02-session-queue.html">세션·큐(B)</a> · <a href="../steps/details/step-02-session-lane.html">세션 레인</a></p>
       </div>
 
       <div class="gterm">
-        <div class="gtop"><a class="gname deep" href="step-02-session-address.html">대화 주소 · 기록 파일</a> <span class="gbadge">심화</span> <span class="ghome">step-02-session-address</span></div>
+        <div class="gtop"><a class="gname deep" href="../steps/details/step-02-session-address.html">대화 주소 · 기록 파일</a> <span class="gbadge">심화</span> <span class="ghome">step-02-session-address</span></div>
         <p class="gdef">한 대화를 가리키는 두 이름 — 논리 이름표 <b>대화 주소</b>(<code>agent:&lt;id&gt;:&lt;채널&gt;:&lt;상대&gt;</code>)와 실제 <b>기록 파일</b>(<code>&lt;id&gt;.jsonl</code>). 둘은 색인 <code>sessions.json</code>으로 이어지고, 본문은 내 기기 로컬의 덧붙이기 전용 JSONL로 산다(원격 DB 아님).</p>
-        <p class="gappear"><b>등장</b> ← <a href="step-02-session-queue.html">세션·큐(B)</a> · <a href="step-02-compaction.html">기록 압축</a></p>
+        <p class="gappear"><b>등장</b> ← <a href="../steps/step-02-session-queue.html">세션·큐(B)</a> · <a href="../steps/details/step-02-compaction.html">기록 압축</a></p>
       </div>
 
       <div class="gterm">
-        <div class="gtop"><a class="gname deep" href="step-02-compaction.html">기록 압축 · 컴팩션</a> <span class="gbadge">심화</span> <span class="ghome">step-02-compaction</span></div>
+        <div class="gtop"><a class="gname deep" href="../steps/details/step-02-compaction.html">기록 압축 · 컴팩션</a> <span class="gbadge">심화</span> <span class="ghome">step-02-compaction</span></div>
         <p class="gdef">대화가 길어져 모델 한도를 넘기 전에, OpenClaw가 옛 기록을 짧은 요약으로 줄이는 일. 줄일 <b>시점·경로·디스크 기록</b>은 OpenClaw가 조율하고 '요약' 한 토막만 모델에게 시킨다. 급하면 본선에서 즉시, 아니면 백그라운드로 미뤄 다음 턴 전 <b>배리어</b>로 마무리.</p>
-        <p class="gappear"><b>등장</b> ← <a href="step-02-session-queue.html">세션·큐(B)</a></p>
+        <p class="gappear"><b>등장</b> ← <a href="../steps/step-02-session-queue.html">세션·큐(B)</a></p>
       </div>
 
     </div>
@@ -105,21 +105,21 @@
     <div class="gloss">
 
       <div class="gterm">
-        <div class="gtop"><a class="gname" href="step-03-resolution.html">모델·하네스·인증 해석</a> <span class="ghome">step-03-resolution</span></div>
+        <div class="gtop"><a class="gname" href="../steps/step-03-resolution.html">모델·하네스·인증 해석</a> <span class="ghome">step-03-resolution</span></div>
         <p class="gdef">이번 턴을 <b>무엇으로 돌릴지</b>(추론 엔진·모델·계정) 확정하고, 막혔을 때 갈아끼울 채비까지 루프 전에 한 번 갖추는 단계.</p>
-        <p class="gappear"><b>등장</b> ← <a href="step-04-attempt-loop.html">어템프트 루프(E)</a> · <a href="step-11-system-prompt.html">시스템 프롬프트(11)</a> · <a href="step-13-agent-session.html">에이전트 세션(13)</a> · <a href="step-14-stream-setup.html">스트림(14)</a> · <a href="step-16-recovery.html">복구(16)</a> · <a href="step-17-exit.html">출구(17)</a></p>
+        <p class="gappear"><b>등장</b> ← <a href="../steps/step-04-attempt-loop.html">어템프트 루프(E)</a> · <a href="../steps/step-11-system-prompt.html">시스템 프롬프트(11)</a> · <a href="../steps/step-13-agent-session.html">에이전트 세션(13)</a> · <a href="../steps/step-14-stream-setup.html">스트림(14)</a> · <a href="../steps/step-16-recovery.html">복구(16)</a> · <a href="../steps/step-17-exit.html">출구(17)</a></p>
       </div>
 
       <div class="gterm">
-        <div class="gtop"><a class="gname" href="step-03-resolution.html">하네스</a> <span class="ghome">step-03-resolution</span></div>
+        <div class="gtop"><a class="gname" href="../steps/step-03-resolution.html">하네스</a> <span class="ghome">step-03-resolution</span></div>
         <p class="gdef">한 번의 시도를 실제로 굴리는 <b>교체 가능한 추론 엔진 어댑터</b>. OpenClaw 자체 엔진과 Codex·Copilot이 같은 슬롯에 꽂힌다. (계약은 출구에서 더 깊이 다룸.)</p>
-        <p class="gappear"><b>등장</b> ← <a href="step-11-system-prompt.html">시스템 프롬프트(11)</a> · <a href="step-13-agent-session.html">에이전트 세션(13)</a> · <a href="step-17-exit.html">출구(17)</a></p>
+        <p class="gappear"><b>등장</b> ← <a href="../steps/step-11-system-prompt.html">시스템 프롬프트(11)</a> · <a href="../steps/step-13-agent-session.html">에이전트 세션(13)</a> · <a href="../steps/step-17-exit.html">출구(17)</a></p>
       </div>
 
       <div class="gterm">
-        <div class="gtop"><a class="gname" href="step-03-resolution.html">인증 프로필</a> <span class="ghome">step-03-resolution</span></div>
+        <div class="gtop"><a class="gname" href="../steps/step-03-resolution.html">인증 프로필</a> <span class="ghome">step-03-resolution</span></div>
         <p class="gdef">한 프로바이더에 로그인하는 <b>계정/자격 하나</b>(API 키·토큰·OAuth). 여러 개를 순위 줄로 세워 두고, 막히면 다음 후보로 회전한다.</p>
-        <p class="gappear"><b>등장</b> ← <a href="step-04-attempt-loop.html">어템프트 루프(E)</a> · <a href="step-14-stream-setup.html">스트림(14)</a> · <a href="step-16-recovery.html">복구(16)</a></p>
+        <p class="gappear"><b>등장</b> ← <a href="../steps/step-04-attempt-loop.html">어템프트 루프(E)</a> · <a href="../steps/step-14-stream-setup.html">스트림(14)</a> · <a href="../steps/step-16-recovery.html">복구(16)</a></p>
       </div>
 
     </div>
@@ -130,69 +130,69 @@
     <div class="gloss">
 
       <div class="gterm">
-        <div class="gtop"><a class="gname" href="step-04-attempt-loop.html">어템프트 루프</a> <span class="ghome">step-04-attempt-loop</span></div>
+        <div class="gtop"><a class="gname" href="../steps/step-04-attempt-loop.html">어템프트 루프</a> <span class="ghome">step-04-attempt-loop</span></div>
         <p class="gdef">한 턴을 여러 번 시도할 수 있는 <b>재시도·페일오버 드라이버</b>. 매 반복마다 이너 어템프트 1회를 디스패치하고 결과를 분류해 재시도/회전/폴백/컴팩션/종료를 정한다.</p>
-        <p class="gappear"><b>등장</b> ← <a href="step-03-resolution.html">해석(C)</a></p>
+        <p class="gappear"><b>등장</b> ← <a href="../steps/step-03-resolution.html">해석(C)</a></p>
       </div>
 
       <div class="gterm">
-        <div class="gtop"><a class="gname" href="step-05-workspace-sandbox.html">워크스페이스 · 샌드박스</a> <span class="ghome">step-05-workspace-sandbox</span></div>
+        <div class="gtop"><a class="gname" href="../steps/step-05-workspace-sandbox.html">워크스페이스 · 샌드박스</a> <span class="ghome">step-05-workspace-sandbox</span></div>
         <p class="gdef">에이전트가 파일을 읽고 명령을 실행할 <b>작업 공간 경로</b>와, 격리 실행을 위한 샌드박스 컨텍스트를 해석한다.</p>
-        <p class="gappear"><b>등장</b> ← <a href="step-06-skills.html">스킬(6)</a> · <a href="step-07-core-plugin-tools.html">도구(7)</a> · <a href="step-09-code-mode-tool-search.html">코드 모드(9)</a> · <a href="step-11-system-prompt.html">시스템 프롬프트(11)</a></p>
+        <p class="gappear"><b>등장</b> ← <a href="../steps/step-06-skills.html">스킬(6)</a> · <a href="../steps/step-07-core-plugin-tools.html">도구(7)</a> · <a href="../steps/step-09-code-mode-tool-search.html">코드 모드(9)</a> · <a href="../steps/step-11-system-prompt.html">시스템 프롬프트(11)</a></p>
       </div>
 
       <div class="gterm">
-        <div class="gtop"><a class="gname" href="step-06-skills.html">스킬</a> <span class="ghome">step-06-skills</span></div>
+        <div class="gtop"><a class="gname" href="../steps/step-06-skills.html">스킬</a> <span class="ghome">step-06-skills</span></div>
         <p class="gdef">이 환경에서 이 에이전트가 실제로 쓸 수 있는 스킬만 추려, 목차를 스냅샷으로 갈무리해 매 턴 재사용한다.</p>
-        <p class="gappear"><b>등장</b> ← <a href="step-01-config-snapshot.html">설정 스냅샷</a> · <a href="step-05-workspace-sandbox.html">워크스페이스(5)</a> · <a href="step-07-core-plugin-tools.html">도구(7)</a> · <a href="step-11-system-prompt.html">시스템 프롬프트(11)</a> · <a href="step-12-session-resource-loader.html">리소스 로더(12)</a> · <a href="step-14-stream-setup.html">스트림(14)</a></p>
+        <p class="gappear"><b>등장</b> ← <a href="../steps/details/step-01-config-snapshot.html">설정 스냅샷</a> · <a href="../steps/step-05-workspace-sandbox.html">워크스페이스(5)</a> · <a href="../steps/step-07-core-plugin-tools.html">도구(7)</a> · <a href="../steps/step-11-system-prompt.html">시스템 프롬프트(11)</a> · <a href="../steps/step-12-session-resource-loader.html">리소스 로더(12)</a> · <a href="../steps/step-14-stream-setup.html">스트림(14)</a></p>
       </div>
 
       <div class="gterm">
-        <div class="gtop"><a class="gname" href="step-07-core-plugin-tools.html">코어 · 플러그인 도구</a> <span class="ghome">step-07-core-plugin-tools</span></div>
+        <div class="gtop"><a class="gname" href="../steps/step-07-core-plugin-tools.html">코어 · 플러그인 도구</a> <span class="ghome">step-07-core-plugin-tools</span></div>
         <p class="gdef">코어 도구와 플러그인 도구를 빌드해 합치고, <b>allow-list</b>로 이번 턴에 노출할 도구를 거른다.</p>
-        <p class="gappear"><b>등장</b> ← <a href="step-10-bundle-tools.html">번들 도구(10)</a></p>
+        <p class="gappear"><b>등장</b> ← <a href="../steps/step-10-bundle-tools.html">번들 도구(10)</a></p>
       </div>
 
       <div class="gterm">
-        <div class="gtop"><a class="gname" href="step-08-bootstrap-context.html">부트스트랩 컨텍스트</a> <span class="ghome">step-08-bootstrap-context</span></div>
+        <div class="gtop"><a class="gname" href="../steps/step-08-bootstrap-context.html">부트스트랩 컨텍스트</a> <span class="ghome">step-08-bootstrap-context</span></div>
         <p class="gdef">BOOTSTRAP·AGENTS 같은 <b>컨텍스트 파일</b>을 한 턴 조립에 주입해, 프로젝트 약속·지침을 모델 앞에 깔아 준다.</p>
         <p class="gappear"><b>등장</b> <span class="none">— 본문 역링크 없음</span></p>
       </div>
 
       <div class="gterm">
-        <div class="gtop"><a class="gname" href="step-09-code-mode-tool-search.html">코드 모드 · 도구 검색</a> <span class="ghome">step-09-code-mode-tool-search</span></div>
+        <div class="gtop"><a class="gname" href="../steps/step-09-code-mode-tool-search.html">코드 모드 · 도구 검색</a> <span class="ghome">step-09-code-mode-tool-search</span></div>
         <p class="gdef">도구를 한꺼번에 노출하는 대신 <b>검색해 불러오는</b> 카탈로그 방식을 (조건부로) 적용해, 거대한 도구 목록의 부담을 던다.</p>
         <p class="gappear"><b>등장</b> <span class="none">— 본문 역링크 없음</span></p>
       </div>
 
       <div class="gterm">
-        <div class="gtop"><a class="gname" href="step-10-bundle-tools.html">번들 도구</a> <span class="ghome">step-10-bundle-tools</span></div>
+        <div class="gtop"><a class="gname" href="../steps/step-10-bundle-tools.html">번들 도구</a> <span class="ghome">step-10-bundle-tools</span></div>
         <p class="gdef">외부 <b>MCP·LSP</b> 도구 서버를 이번 턴의 도구 목록에 묶어, 모델이 외부 능력을 도구로 부를 수 있게 한다.</p>
-        <p class="gappear"><b>등장</b> ← <a href="step-07-core-plugin-tools.html">도구(7)</a> · <a href="step-09-code-mode-tool-search.html">코드 모드(9)</a> · <a href="step-17-exit.html">출구(17)</a></p>
+        <p class="gappear"><b>등장</b> ← <a href="../steps/step-07-core-plugin-tools.html">도구(7)</a> · <a href="../steps/step-09-code-mode-tool-search.html">코드 모드(9)</a> · <a href="../steps/step-17-exit.html">출구(17)</a></p>
       </div>
 
       <div class="gterm">
-        <div class="gtop"><a class="gname" href="step-11-system-prompt.html">시스템 프롬프트</a> <span class="ghome">step-11-system-prompt</span></div>
+        <div class="gtop"><a class="gname" href="../steps/step-11-system-prompt.html">시스템 프롬프트</a> <span class="ghome">step-11-system-prompt</span></div>
         <p class="gdef">시스템 프롬프트 쌍(base + provider 변환)을 빌드한다. 공통 골격을 짓고 프로바이더에 맞게 한 번 더 변환해 모델을 존중한다.</p>
-        <p class="gappear"><b>등장</b> ← <a href="step-13-agent-session.html">에이전트 세션(13)</a> · <a href="step-15-dispatch.html">디스패치(15)</a></p>
+        <p class="gappear"><b>등장</b> ← <a href="../steps/step-13-agent-session.html">에이전트 세션(13)</a> · <a href="../steps/step-15-dispatch.html">디스패치(15)</a></p>
       </div>
 
       <div class="gterm">
-        <div class="gtop"><a class="gname" href="step-12-session-resource-loader.html">세션 리소스 로더</a> <span class="ghome">step-12-session-resource-loader</span></div>
+        <div class="gtop"><a class="gname" href="../steps/step-12-session-resource-loader.html">세션 리소스 로더</a> <span class="ghome">step-12-session-resource-loader</span></div>
         <p class="gdef">SessionManager와 컨텍스트 엔진을 부트스트랩해, 대화 기록·자원을 이번 턴이 쓸 수 있게 준비한다.</p>
         <p class="gappear"><b>등장</b> <span class="none">— 본문 역링크 없음</span></p>
       </div>
 
       <div class="gterm">
-        <div class="gtop"><a class="gname" href="step-13-agent-session.html">에이전트 세션</a> <span class="ghome">step-13-agent-session</span></div>
+        <div class="gtop"><a class="gname" href="../steps/step-13-agent-session.html">에이전트 세션</a> <span class="ghome">step-13-agent-session</span></div>
         <p class="gdef">agent-core 세션을 생성하고 프롬프트를 설치해, 실제 한 턴을 굴릴 정체를 세운다.</p>
-        <p class="gappear"><b>등장</b> ← <a href="step-12-session-resource-loader.html">리소스 로더(12)</a></p>
+        <p class="gappear"><b>등장</b> ← <a href="../steps/step-12-session-resource-loader.html">리소스 로더(12)</a></p>
       </div>
 
       <div class="gterm">
-        <div class="gtop"><a class="gname" href="step-14-stream-setup.html">스트림 셋업</a> <span class="ghome">step-14-stream-setup</span></div>
+        <div class="gtop"><a class="gname" href="../steps/step-14-stream-setup.html">스트림 셋업</a> <span class="ghome">step-14-stream-setup</span></div>
         <p class="gdef">실제 <code>streamFn</code>을 해석하고 transport를 적용해, 모델로 가는 실제 스트림 통로를 연다.</p>
-        <p class="gappear"><b>등장</b> ← <a href="step-15-dispatch.html">디스패치(15)</a></p>
+        <p class="gappear"><b>등장</b> ← <a href="../steps/step-15-dispatch.html">디스패치(15)</a></p>
       </div>
 
     </div>
@@ -203,32 +203,32 @@
     <div class="gloss">
 
       <div class="gterm">
-        <div class="gtop"><a class="gname" href="step-15-dispatch.html">디스패치</a> <span class="ghome">step-15-dispatch</span></div>
+        <div class="gtop"><a class="gname" href="../steps/step-15-dispatch.html">디스패치</a> <span class="ghome">step-15-dispatch</span></div>
         <p class="gdef">LLM 스트림을 여러 겹으로 감싼 뒤 <b>모델을 실제로 호출</b>하고, 내부 도구 루프를 돌려 stop-reason까지 받아 온다.</p>
-        <p class="gappear"><b>등장</b> ← <a href="step-04-attempt-loop.html">어템프트 루프(E)</a> · <a href="step-14-stream-setup.html">스트림(14)</a> · <a href="step-17-exit.html">출구(17)</a></p>
+        <p class="gappear"><b>등장</b> ← <a href="../steps/step-04-attempt-loop.html">어템프트 루프(E)</a> · <a href="../steps/step-14-stream-setup.html">스트림(14)</a> · <a href="../steps/step-17-exit.html">출구(17)</a></p>
       </div>
 
       <div class="gterm">
-        <div class="gtop"><a class="gname" href="step-16-recovery.html">복구 — 페일오버 · 컴팩션</a> <span class="ghome">step-16-recovery</span></div>
+        <div class="gtop"><a class="gname" href="../steps/step-16-recovery.html">복구 — 페일오버 · 컴팩션</a> <span class="ghome">step-16-recovery</span></div>
         <p class="gdef">결과를 분류해 <b>살아남기</b>: 실패별 페일오버 사다리, 선제 컴팩션(요약은 최후·요약마저 감사), 재생 안전성으로 긴 세션을 손실·중복 없이 잇는다.</p>
-        <p class="gappear"><b>등장</b> ← <a href="step-03-resolution.html">해석(C)</a> · <a href="step-04-attempt-loop.html">어템프트 루프(E)</a> · <a href="step-17-exit.html">출구(17)</a></p>
+        <p class="gappear"><b>등장</b> ← <a href="../steps/step-03-resolution.html">해석(C)</a> · <a href="../steps/step-04-attempt-loop.html">어템프트 루프(E)</a> · <a href="../steps/step-17-exit.html">출구(17)</a></p>
       </div>
 
       <div class="gterm">
-        <div class="gtop"><a class="gname" href="step-17-exit.html">출구 — 종료 판정</a> <span class="ghome">step-17-exit</span></div>
+        <div class="gtop"><a class="gname" href="../steps/step-17-exit.html">출구 — 종료 판정</a> <span class="ghome">step-17-exit</span></div>
         <p class="gdef">incomplete-turn을 분류해 terminal outcome을 정하고 결과를 반환한 뒤, finally 정리와 레인 unwind까지 마친다. 교체 가능한 <b>하네스 계약</b>도 여기서 더 깊이 다룬다.</p>
-        <p class="gappear"><b>등장</b> ← <a href="step-04-attempt-loop.html">어템프트 루프(E)</a></p>
+        <p class="gappear"><b>등장</b> ← <a href="../steps/step-04-attempt-loop.html">어템프트 루프(E)</a></p>
       </div>
 
     </div>
   </section>
 
   <nav class="stepnav">
-    <a class="prev" href="index.html"><span class="nl">← 목록</span>런타임 사다리</a>
-    <a class="next" href="step-01-entry.html"><span class="nl">처음부터 →</span>A · 진입 &amp; 설정 해석</a>
+    <a class="prev" href="../index.html"><span class="nl">← 목록</span>런타임 사다리</a>
+    <a class="next" href="../steps/step-01-entry.html"><span class="nl">처음부터 →</span>A · 진입 &amp; 설정 해석</a>
   </nav>
 
-  <footer class="foot">🦞 OpenClaw 런타임 사다리 · 용어 사전 · <a href="index.html">전체 보기</a></footer>
+  <footer class="foot">🦞 OpenClaw 런타임 사다리 · 용어 사전 · <a href="../index.html">전체 보기</a></footer>
 </div>
 </body>
 </html>

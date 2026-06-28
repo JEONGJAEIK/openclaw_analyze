@@ -309,9 +309,9 @@
       <span class="chip">참조 지도 <b>2</b></span>
       <span class="chip">다이어그램 <b>6</b> · Excalidraw</span>
       <span class="chip">방법 <b>코드 트레이싱</b></span>
-      <a class="chip" href="sequence-request-lifecycle.html" style="text-decoration:none">⇄ <b>시퀀스</b> 입구→출구 →</a>
-      <a class="chip" href="qna.html" style="text-decoration:none">🦞 <b>Q&amp;A</b> 4문 4답 →</a>
-      <a class="chip" href="glossary.html" style="text-decoration:none">📖 <b>용어 사전</b> 색인 →</a>
+      <a class="chip" href="diagrams/sequence-request-lifecycle.html" style="text-decoration:none">⇄ <b>시퀀스</b> 입구→출구 →</a>
+      <a class="chip" href="reference/qna.html" style="text-decoration:none">🦞 <b>Q&amp;A</b> 4문 4답 →</a>
+      <a class="chip" href="reference/glossary.html" style="text-decoration:none">📖 <b>용어 사전</b> 색인 →</a>
     </div>
 
     <div class="legend" aria-label="색상 범례">
@@ -337,7 +337,7 @@
     <div class="ladder">
 
       <!-- A 진입 -->
-      <a class="rung r-enter" href="step-01-entry.html">
+      <a class="rung r-enter" href="steps/step-01-entry.html">
         <span class="rung-k">A</span>
         <span class="rung-body">
           <span class="rung-t">진입 &amp; 설정 해석</span>
@@ -347,7 +347,7 @@
       </a>
 
       <!-- B 세션·큐 -->
-      <a class="rung r-sess" href="step-02-session-queue.html">
+      <a class="rung r-sess" href="steps/step-02-session-queue.html">
         <span class="rung-k">B</span>
         <span class="rung-body">
           <span class="rung-t">세션 해석 + 2단 레인 큐</span>
@@ -357,7 +357,7 @@
       </a>
 
       <!-- C 해석 -->
-      <a class="rung r-res" href="step-03-resolution.html">
+      <a class="rung r-res" href="steps/step-03-resolution.html">
         <span class="rung-k">C</span>
         <span class="rung-body">
           <span class="rung-t">모델·하네스·인증 해석</span>
@@ -368,7 +368,7 @@
 
       <!-- E 어템프트 루프 -->
       <div class="loop">
-        <a class="rung loop-head" href="step-04-attempt-loop.html">
+        <a class="rung loop-head" href="steps/step-04-attempt-loop.html">
           <span class="rung-k">E</span>
           <span class="rung-body">
             <span class="rung-t">어템프트 루프 <span class="tail">재시도·페일오버 드라이버</span></span>
@@ -381,21 +381,21 @@
         <details class="assembly" open>
           <summary><b>조립 10단계</b> <span class="muted">prepStages.mark() — 모델 호출 前 조립 · 5번째는 조건부(보통 9개 발화)</span></summary>
           <ol class="prep">
-            <li><a href="step-05-workspace-sandbox.html"><b><span class="n">1</span>workspace-sandbox</b><span>워크스페이스 경로 + 샌드박스 컨텍스트 해석</span><code>attempt.ts:955</code></a></li>
-            <li><a href="step-06-skills.html"><b><span class="n">2</span>skills</b><span>런용 스킬 엔트리 + 스킬 프롬프트 해석</span><code>attempt.ts:1130</code></a></li>
-            <li><a href="step-07-core-plugin-tools.html"><b><span class="n">3</span>core-plugin-tools</b><span>코어+플러그인 도구 빌드 + allow-list</span><code>attempt.ts:1362</code></a></li>
-            <li><a href="step-08-bootstrap-context.html"><b><span class="n">4</span>bootstrap-context</b><span>BOOTSTRAP·AGENTS 컨텍스트 파일 주입</span><code>attempt.ts:1453</code></a></li>
-            <li class="cond"><a href="step-09-code-mode-tool-search.html"><b><span class="n">5</span>code-mode · tool-search</b><span>도구 노출 카탈로그 적용 (조건부)</span><code>attempt.ts:1761</code></a></li>
-            <li><a href="step-10-bundle-tools.html"><b><span class="n">6</span>bundle-tools</b><span>외부 MCP/LSP 도구 서버를 도구 목록에 번들</span><code>attempt.ts:1775</code></a></li>
-            <li><a href="step-11-system-prompt.html"><b><span class="n">7</span>system-prompt</b><span>시스템 프롬프트 pair 빌드 (2단 변환)</span><code>attempt.ts:2089</code></a></li>
-            <li><a href="step-12-session-resource-loader.html"><b><span class="n">8</span>session-resource-loader</b><span>SessionManager + 컨텍스트엔진 부트스트랩</span><code>attempt.ts:2310</code></a></li>
-            <li><a href="step-13-agent-session.html"><b><span class="n">9</span>agent-session</b><span>agent-core 세션 생성 + 프롬프트 설치</span><code>attempt.ts:2537</code></a></li>
-            <li><a href="step-14-stream-setup.html"><b><span class="n">10</span>stream-setup</b><span>실제 streamFn 해석 + transport 적용</span><code>attempt.ts:2943</code></a></li>
+            <li><a href="steps/step-05-workspace-sandbox.html"><b><span class="n">1</span>workspace-sandbox</b><span>워크스페이스 경로 + 샌드박스 컨텍스트 해석</span><code>attempt.ts:955</code></a></li>
+            <li><a href="steps/step-06-skills.html"><b><span class="n">2</span>skills</b><span>런용 스킬 엔트리 + 스킬 프롬프트 해석</span><code>attempt.ts:1130</code></a></li>
+            <li><a href="steps/step-07-core-plugin-tools.html"><b><span class="n">3</span>core-plugin-tools</b><span>코어+플러그인 도구 빌드 + allow-list</span><code>attempt.ts:1362</code></a></li>
+            <li><a href="steps/step-08-bootstrap-context.html"><b><span class="n">4</span>bootstrap-context</b><span>BOOTSTRAP·AGENTS 컨텍스트 파일 주입</span><code>attempt.ts:1453</code></a></li>
+            <li class="cond"><a href="steps/step-09-code-mode-tool-search.html"><b><span class="n">5</span>code-mode · tool-search</b><span>도구 노출 카탈로그 적용 (조건부)</span><code>attempt.ts:1761</code></a></li>
+            <li><a href="steps/step-10-bundle-tools.html"><b><span class="n">6</span>bundle-tools</b><span>외부 MCP/LSP 도구 서버를 도구 목록에 번들</span><code>attempt.ts:1775</code></a></li>
+            <li><a href="steps/step-11-system-prompt.html"><b><span class="n">7</span>system-prompt</b><span>시스템 프롬프트 pair 빌드 (2단 변환)</span><code>attempt.ts:2089</code></a></li>
+            <li><a href="steps/step-12-session-resource-loader.html"><b><span class="n">8</span>session-resource-loader</b><span>SessionManager + 컨텍스트엔진 부트스트랩</span><code>attempt.ts:2310</code></a></li>
+            <li><a href="steps/step-13-agent-session.html"><b><span class="n">9</span>agent-session</b><span>agent-core 세션 생성 + 프롬프트 설치</span><code>attempt.ts:2537</code></a></li>
+            <li><a href="steps/step-14-stream-setup.html"><b><span class="n">10</span>stream-setup</b><span>실제 streamFn 해석 + transport 적용</span><code>attempt.ts:2943</code></a></li>
           </ol>
         </details>
 
         <!-- 디스패치 -->
-        <a class="rung r-disp" href="step-15-dispatch.html">
+        <a class="rung r-disp" href="steps/step-15-dispatch.html">
           <span class="rung-k">↯</span>
           <span class="rung-body">
             <span class="rung-t">디스패치 — 모델 호출 + 도구 루프</span>
@@ -405,7 +405,7 @@
         </a>
 
         <!-- 복구 -->
-        <a class="rung r-rec" href="step-16-recovery.html">
+        <a class="rung r-rec" href="steps/step-16-recovery.html">
           <span class="rung-k">⟳</span>
           <span class="rung-body">
             <span class="rung-t">복구 — 페일오버 · 컴팩션 · 재생안전</span>
@@ -416,7 +416,7 @@
       </div>
 
       <!-- G 출구 -->
-      <a class="rung r-exit" href="step-17-exit.html">
+      <a class="rung r-exit" href="steps/step-17-exit.html">
         <span class="rung-k">⤴</span>
         <span class="rung-body">
           <span class="rung-t">출구 — 종료 판정 → 결과 반환</span>
@@ -431,7 +431,7 @@
       <span><b>근거:</b> run.ts · attempt.ts · failover-policy.ts · preemptive-compaction.ts · harness/</span>
     </div>
 
-    <a class="seqlink" href="sequence-request-lifecycle.html">
+    <a class="seqlink" href="diagrams/sequence-request-lifecycle.html">
       <span>
         <span class="sl-t"><span class="glyph">⇄</span>이 흐름을 시퀀스 다이어그램으로 보기</span>
         <span class="sl-d">위 사다리를 <b>시간축 위 라이프라인</b>으로 눕혔다 — 사용자·게이트웨이·입구는 얇게, 런타임 본체(해석→루프→조립→디스패치→복구)는 세 겹의 되돌이로 자세히.</span>
@@ -449,7 +449,7 @@
     <p class="blk-note">움직이는 조사가 아니라, 언제든 펼쳐 보는 <b>정적 지형도</b>. "지금 어디를 보고 있나"를 잡아주는 두 장.</p>
 
     <div class="maps">
-      <a class="map" href="directory-structure.html">
+      <a class="map" href="reference/directory-structure.html">
         <div class="map-top"><span class="map-kind">디렉토리 지도</span><span class="map-file">directory-structure.html</span></div>
         <div class="map-title">프로젝트 전체 구조</div>
         <div class="map-desc">모노레포 최상위부터 <code style="font-family:var(--mono);color:var(--brine)">src/</code> 68개 모듈까지, 디렉토리별 역할을 한 장에.</div>
@@ -457,7 +457,7 @@
         <div class="map-go">펼치기 →</div>
       </a>
 
-      <a class="map runtime" href="agent-runtime-structure.html">
+      <a class="map runtime" href="reference/agent-runtime-structure.html">
         <div class="map-top"><span class="map-kind">런타임 지도</span><span class="map-file">agent-runtime-structure.html</span></div>
         <div class="map-title">에이전트 런타임 3영역</div>
         <div class="map-desc">"런타임"은 한 폴더가 아니다. 본체 + 모델 연결 + 공유 코어, 세 곳에 걸쳐 있다.</div>
@@ -473,16 +473,16 @@
       <span class="blk-mark views">Views</span>
       <h2 class="blk-title">다이어그램</h2>
     </div>
-    <p class="blk-note">에이전트 런타임 <b>내부</b>를 여섯 각도로 그린 Excalidraw 다이어그램 · 들어오는·나가는 곳은 가장자리에 작게. 클릭하면 갤러리에서 크게 볼 수 있다. 입구→출구 전체를 시간축으로 따라가는 <a href="sequence-request-lifecycle.html" style="color:var(--kelp); font-weight:600">시퀀스 다이어그램 ⇄</a>은 별도 페이지에 있다.</p>
+    <p class="blk-note">에이전트 런타임 <b>내부</b>를 여섯 각도로 그린 Excalidraw 다이어그램 · 들어오는·나가는 곳은 가장자리에 작게. 클릭하면 갤러리에서 크게 볼 수 있다. 입구→출구 전체를 시간축으로 따라가는 <a href="diagrams/sequence-request-lifecycle.html" style="color:var(--kelp); font-weight:600">시퀀스 다이어그램 ⇄</a>은 별도 페이지에 있다.</p>
 
-    <a class="gallery" href="agent-runtime-views.html">
+    <a class="gallery" href="diagrams/agent-runtime-views.html">
       <div class="gthumbs">
-        <img src="view-1-sequence.png" alt="각도 1 시간순" loading="lazy">
-        <img src="view-2-controlflow.png" alt="각도 2 제어 흐름" loading="lazy">
-        <img src="view-3-onion.png" alt="각도 3 방어막 동심원" loading="lazy">
-        <img src="view-4-modulemap.png" alt="각도 4 모듈 지도" loading="lazy">
-        <img src="view-5-loops.png" alt="각도 5 세 겹의 루프" loading="lazy">
-        <img src="agent-runtime-internals.png" alt="전체 종합" loading="lazy">
+        <img src="diagrams/view-1-sequence.png" alt="각도 1 시간순" loading="lazy">
+        <img src="diagrams/view-2-controlflow.png" alt="각도 2 제어 흐름" loading="lazy">
+        <img src="diagrams/view-3-onion.png" alt="각도 3 방어막 동심원" loading="lazy">
+        <img src="diagrams/view-4-modulemap.png" alt="각도 4 모듈 지도" loading="lazy">
+        <img src="diagrams/view-5-loops.png" alt="각도 5 세 겹의 루프" loading="lazy">
+        <img src="diagrams/agent-runtime-internals.png" alt="전체 종합" loading="lazy">
       </div>
       <div class="gmeta">
         <div class="gchips"><span>① 시간순</span><span>② 제어 흐름</span><span>③ 방어막 동심원</span><span>④ 모듈 지도</span><span>⑤ 세 겹의 루프</span><span>종합 상세</span></div>
@@ -500,19 +500,19 @@
     <p class="blk-note">위 17단계를 관통하는 하나의 답 — OpenClaw의 가치는 <b>더 똑똑한 프롬프트가 아니라 모델 바깥의 운영 껍데기</b>다. 네 겹 모두 모델의 사고를 건드리지 않는다. (각 카드 → 해당 단계로)</p>
 
     <div class="synth">
-      <a class="slayer s1" href="step-02-session-queue.html">
+      <a class="slayer s1" href="steps/step-02-session-queue.html">
         <div class="sh">🛰️ 멀티플렉싱 껍데기 <span class="ep">진입·세션</span></div>
         <div class="sd">게이트웨이가 모든 채널을 공통 메시지로 정규화 → 런타임은 채널을 모른 채 한 번만 작성. auto-reply가 큐잉·라우팅을 맡는다.</div>
       </a>
-      <a class="slayer s2" href="step-15-dispatch.html">
+      <a class="slayer s2" href="steps/step-15-dispatch.html">
         <div class="sh">🧩 경계 엔지니어링 <span class="ep">디스패치</span></div>
         <div class="sd">한 턴을 조립하고 모델 호출을 여러 겹으로 래핑 — 프로바이더 결함(thinking 재생 거부 등)을 흡수. 프롬프트는 base+provider 변환으로 모델을 존중한다.</div>
       </a>
-      <a class="slayer s3" href="step-16-recovery.html">
+      <a class="slayer s3" href="steps/step-16-recovery.html">
         <div class="sh">🗜️ 지속 가능성 껍데기 <span class="ep">복구</span></div>
         <div class="sd">선제 컴팩션(요약은 최후, 요약마저 감사) + 실패별 복구 사다리 + 재생 안전성(부수효과 있으면 재생 금지). 긴 세션을 손실·중복 없이 유지한다.</div>
       </a>
-      <a class="slayer s4" href="step-17-exit.html">
+      <a class="slayer s4" href="steps/step-17-exit.html">
         <div class="sh">🔌 교체 가능한 하네스 <span class="ep">출구</span></div>
         <div class="sd">openclaw·codex·copilot이 동일 계약으로 꽂히고 선택 계층이 매 시도 최적을 고른다. 추론은 최고의 하네스에, OpenClaw는 껍데기를 책임진다.</div>
       </a>

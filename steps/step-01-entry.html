@@ -4,11 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>STEP A · 진입 & 설정 해석 — OpenClaw 런타임 사다리</title>
-<link rel="stylesheet" href="steps.css">
+<link rel="stylesheet" href="../assets/steps.css">
 </head>
 <body>
 <div class="wrap">
-  <nav class="crumb"><a href="index.html">← 런타임 사다리</a><span class="pos">진입 · A / 17</span></nav>
+  <nav class="crumb"><a href="../index.html">← 런타임 사다리</a><span class="pos">진입 · A / 17</span></nav>
 
   <header class="shead phase-enter">
     <div class="snum">A</div>
@@ -40,14 +40,14 @@
     <h2>② 아무것도 안 정했으면, '지금 이 서버의 기본값'을 끼운다</h2>
     <p><b>빈손으로 온 요청에 기본값을 끼운다.</b> 설정도 모델도 없이 들어온 요청에는 "지금 이 서버가 쓰는 현재 설정"을 대신 채운다 — 단, 모델을 콕 집어 온 요청은 절대 건드리지 않는다.</p>
     <p>용어 하나 더. <b>설정(config)</b>은 OpenClaw가 어떻게 동작할지 적어둔 것이다 — 기본으로 쓸 모델, 어떤 에이전트들이 있는지, 인증은 무엇인지 등. 보통 <code>openclaw.json</code> 한 파일에 담긴다.</p>
-    <p>그런데 이 문으로 들어오는 요청 상당수, 특히 예약 작업이나 플러그인이 만든 요청은 <b>이 설정을 들고 오지 않는다</b>. "이 프롬프트 좀 돌려줘"가 전부다 — 모델도 안 정하고 설정도 없이 들어오는 셈이다. 이런 요청에게 문지기는 <a class="dive" href="step-01-config-snapshot.html"><b>OpenClaw가 켜질 때 한 번 읽어 기억해 둔 현재 설정</b></a>을 대신 끼워 준다. 매번 설정 파일을 다시 펴 보지 않고 이미 기억해 둔 걸 빌려 쓰기에 빠르고, 어느 길로 들어온 요청이든 <b>지금 이 서버가 실제로 쓰는 것과 똑같은 설정</b>으로 같은 기본 모델을 얻는다.</p>
+    <p>그런데 이 문으로 들어오는 요청 상당수, 특히 예약 작업이나 플러그인이 만든 요청은 <b>이 설정을 들고 오지 않는다</b>. "이 프롬프트 좀 돌려줘"가 전부다 — 모델도 안 정하고 설정도 없이 들어오는 셈이다. 이런 요청에게 문지기는 <a class="dive" href="details/step-01-config-snapshot.html"><b>OpenClaw가 켜질 때 한 번 읽어 기억해 둔 현재 설정</b></a>을 대신 끼워 준다. 매번 설정 파일을 다시 펴 보지 않고 이미 기억해 둔 걸 빌려 쓰기에 빠르고, 어느 길로 들어온 요청이든 <b>지금 이 서버가 실제로 쓰는 것과 똑같은 설정</b>으로 같은 기본 모델을 얻는다.</p>
     <p>한 가지 조건이 중요하다 — 이 기본값 채우기는 요청이 <b>설정도, 모델도, 그 무엇도 지정하지 않았을 때만</b> 일어난다. 만약 요청이 모델을 콕 집어 왔다면 그건 사용자가 <b>분명한 의도를 표명</b>한 것이다. 거기에 서버의 전역 기본값을 덮어씌우면 사용자가 고른 모델이 <b>조용히 다른 것으로 바뀌어</b> 버릴 수 있다. 그래서 문지기는 "아무 의견 없는" 요청에만 기본값을 채우고, 의견이 있는 요청은 글자 그대로 존중한다.</p>
     <p><b>얻는 것</b> — 설정 없이 들어온 예약 작업·명령·플러그인도 사용자가 정해둔 바로 그 모델로 돌고, 모델을 지정한 요청은 어긋남 없이 그대로 간다. (예전엔 이런 '맨몸' 요청이 사용자의 기본 모델을 무시하고 코드에 박힌 모델로 떨어지는 버그가 있었다. 이 문에서 기본값을 제대로 끼우게 하면서 바로잡혔다.)</p>
   </section>
 
   <section class="card verdict v-nuance">
     <h2>③ 이 실행이 '서버의 몇 번째 생애'에 속하는지 도장 찍는다</h2>
-    <p><span class="vtag">생애 표식</span> <b>실행에 <a class="dive" href="step-01-lifecycle-stamp.html">'생애 도장'</a>을 찍는다.</b> 이 실행이 서버의 몇 번째 생애에 속하는지 표식해 두어, 서버가 스스로 재시작해도 옛 실행이 유령처럼 끼어들지 못하게 한다.</p>
+    <p><span class="vtag">생애 표식</span> <b>실행에 <a class="dive" href="details/step-01-lifecycle-stamp.html">'생애 도장'</a>을 찍는다.</b> 이 실행이 서버의 몇 번째 생애에 속하는지 표식해 두어, 서버가 스스로 재시작해도 옛 실행이 유령처럼 끼어들지 못하게 한다.</p>
     <p>이건 조금 다른 종류의 정돈이다. OpenClaw는 한 번 켜지면 오래 떠 있는 서버이고, 새 코드나 바뀐 설정을 반영하려고 <b>프로세스를 완전히 끄지 않은 채 자기 자신을 재시작</b>하기도 한다. 문제는 그 재시작 순간, <b>아직 끝나지 않은 옛 요청들</b>이 처리되다 만 채 남아 있다는 것이다.</p>
     <p>이 옛 실행들을 그냥 두면 사고가 난다. 재시작 뒤에도 살아남아 계속 떠들면서 <b>이미 지나간 답을 사용자 채팅창에 유령처럼 흘리거나</b>, 막 새로 시작된 대화의 기록 위에 <b>옛 결과를 덮어써 망가뜨린다</b>.</p>
     <p>그래서 문지기는 모든 실행에 "<b>너는 서버의 이 생애 소속</b>"이라는 도장을 찍어 둔다. 서버가 재시작하면 새 생애로 번호가 넘어가고, <b>옛 도장을 단 실행은 그 즉시 유령으로 취급</b>된다 — 그 실행이 내보내려는 말은 화면에 닿기 전에 버려지고, 실행 자신도 다음 길목에서 조용히 멈춘다. 덕분에 사용자는 죽은 실행의 흔적을 <b>전혀 보지 못한다</b>.</p>
@@ -84,11 +84,11 @@
   </section>
 
   <nav class="stepnav">
-    <a class="prev" href="index.html"><span class="nl">← 목록</span>런타임 사다리</a>
+    <a class="prev" href="../index.html"><span class="nl">← 목록</span>런타임 사다리</a>
     <a class="next" href="step-02-session-queue.html"><span class="nl">다음 →</span>B · 세션 해석 + 2단 레인 큐</a>
   </nav>
 
-  <footer class="foot">🦞 OpenClaw 런타임 사다리 · STEP A · <a href="index.html">전체 보기</a></footer>
+  <footer class="foot">🦞 OpenClaw 런타임 사다리 · STEP A · <a href="../index.html">전체 보기</a></footer>
 </div>
 </body>
 </html>

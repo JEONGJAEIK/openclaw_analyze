@@ -4,11 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>깊이 보기 · 생애 도장 — 재시작을 가로지르는 유령 차단</title>
-<link rel="stylesheet" href="steps.css">
+<link rel="stylesheet" href="../../assets/steps.css">
 </head>
 <body>
 <div class="wrap">
-  <nav class="crumb"><a href="step-01-entry.html">← STEP A · 진입</a><span class="pos">깊이 보기 · 생애 도장</span></nav>
+  <nav class="crumb"><a href="../step-01-entry.html">← STEP A · 진입</a><span class="pos">깊이 보기 · 생애 도장</span></nav>
 
   <header class="shead phase-enter">
     <div class="snum">③</div>
@@ -34,7 +34,7 @@
   <section class="card phase-enter">
     <h2>② 어떻게 모든 이벤트에 따라붙나 — 실행을 통째로 감싼다</h2>
     <p><b>실행이 받아들여지는 순간 그때의 세대 표식을 떠서, 그 실행 전체를 그 표식으로 감싼다.</b> 그러면 실행이 토해내는 모든 이벤트가 같은 도장을 <b>저절로</b> 물려받는다.</p>
-    <p>한 실행이 입구를 통과하면, <a href="step-01-entry.html">문지기</a>는 <b>지금 세대 표식을 한 번 뜬다</b>(<code>captureAgentRunLifecycleGeneration</code>). 그리고 그 실행의 안쪽 전부를 그 표식을 두른 <b>실행 맥락</b>으로 감싼다(<code>withAgentRunLifecycleGeneration</code>). 이 맥락은 함수에서 함수로 인자를 손수 넘기지 않아도 <b>그 실행이 도는 동안 늘 곁에 따라다니는 보이지 않는 배경값</b>이다(비동기 로컬 저장소). 그래서 실행 깊숙한 곳에서 이벤트를 하나 토해낼 때마다, 코드가 표식을 일일이 챙기지 않아도 <b>배경에 깔린 그 도장이 자동으로 찍힌다</b>(<code>emitAgentEvent</code>). 한 번 떠서 감싸 두면, 그 실행의 말 한마디 한마디에 같은 소속이 박힌다.</p>
+    <p>한 실행이 입구를 통과하면, <a href="../step-01-entry.html">문지기</a>는 <b>지금 세대 표식을 한 번 뜬다</b>(<code>captureAgentRunLifecycleGeneration</code>). 그리고 그 실행의 안쪽 전부를 그 표식을 두른 <b>실행 맥락</b>으로 감싼다(<code>withAgentRunLifecycleGeneration</code>). 이 맥락은 함수에서 함수로 인자를 손수 넘기지 않아도 <b>그 실행이 도는 동안 늘 곁에 따라다니는 보이지 않는 배경값</b>이다(비동기 로컬 저장소). 그래서 실행 깊숙한 곳에서 이벤트를 하나 토해낼 때마다, 코드가 표식을 일일이 챙기지 않아도 <b>배경에 깔린 그 도장이 자동으로 찍힌다</b>(<code>emitAgentEvent</code>). 한 번 떠서 감싸 두면, 그 실행의 말 한마디 한마디에 같은 소속이 박힌다.</p>
     <p>요점은 도장이 <b>실행 단위로 한 번 정해지면 끝까지 안 바뀐다</b>는 것 — 실행이 받아들여진 그 세대에 영원히 묶인다. 세상이 바뀌는 건 실행이 아니라 ③의 '지금 세대' 쪽이다.</p>
   </section>
 
@@ -80,10 +80,10 @@
 
   <nav class="stepnav">
     <a class="prev" href="step-01-config-snapshot.html"><span class="nl">← 옆 깊이 보기</span>② 설정 스냅샷</a>
-    <a class="next" href="step-01-entry.html"><span class="nl">돌아가기 →</span>A · 진입 &amp; 설정 해석</a>
+    <a class="next" href="../step-01-entry.html"><span class="nl">돌아가기 →</span>A · 진입 &amp; 설정 해석</a>
   </nav>
 
-  <footer class="foot">🦞 OpenClaw 런타임 사다리 · STEP A 깊이 보기 · 생애 도장 · <a href="index.html">전체 보기</a></footer>
+  <footer class="foot">🦞 OpenClaw 런타임 사다리 · STEP A 깊이 보기 · 생애 도장 · <a href="../../index.html">전체 보기</a></footer>
 </div>
 </body>
 </html>

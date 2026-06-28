@@ -4,11 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>깊이 보기 · 설정 스냅샷 — 켜질 때 한 번 읽어 기억하는 법</title>
-<link rel="stylesheet" href="steps.css">
+<link rel="stylesheet" href="../../assets/steps.css">
 </head>
 <body>
 <div class="wrap">
-  <nav class="crumb"><a href="step-01-entry.html">← STEP A · 진입</a><span class="pos">깊이 보기 · 설정 스냅샷</span></nav>
+  <nav class="crumb"><a href="../step-01-entry.html">← STEP A · 진입</a><span class="pos">깊이 보기 · 설정 스냅샷</span></nav>
 
   <header class="shead phase-enter">
     <div class="snum">②</div>
@@ -42,7 +42,7 @@
 
   <section class="card phase-enter">
     <h2>③ 어떻게 끼워 주나 — 모든 입구가 같은 한 사본으로 모인다</h2>
-    <p><b>설정 없이 들어온 요청에 <a href="step-01-entry.html">문지기</a>가 끼워 주는 '현재 설정'이 바로 이 스냅샷이다.</b> 어느 길로 들어왔든 같은 사본을 받으므로, 모두가 서버가 실제로 쓰는 것과 똑같은 기본값을 얻는다.</p>
+    <p><b>설정 없이 들어온 요청에 <a href="../step-01-entry.html">문지기</a>가 끼워 주는 '현재 설정'이 바로 이 스냅샷이다.</b> 어느 길로 들어왔든 같은 사본을 받으므로, 모두가 서버가 실제로 쓰는 것과 똑같은 기본값을 얻는다.</p>
     <p>진입 단계에서 요청이 <b>설정도 모델도 들고 오지 않았을 때만</b>, 문지기는 금고에서 현재 스냅샷을 꺼내(<code>getRuntimeConfigSnapshot()</code>) 그 자리에 끼운다. 그래서 예약 작업이든, 슬래시 명령이든, 플러그인이 만든 '맨몸' 요청이든 — 전부 <b>지금 이 서버가 돌리는 바로 그 설정</b> 위에서 같은 기본 모델을 받는다. 입구가 하나이듯 기본 설정도 하나로 모인다.</p>
     <p>한 가지 더 — 요청이 설정을 들고 왔는데 그게 마침 <b>스냅샷의 원본과 똑같다면</b>, 시스템은 들고 온 (비밀값이 안 풀린) 설정 대신 이미 <b>해석이 끝난 스냅샷</b>을 골라 쓴다(<code>selectApplicableRuntimeConfig</code>). 굳이 같은 걸 다시 풀지 않으려는 것이다.</p>
   </section>
@@ -57,7 +57,7 @@
   <section class="card verdict v-nuance phase-enter">
     <h2>미묘함 하나 — 판 번호가 캐시의 열쇠가 된다</h2>
     <p><span class="vtag">revision</span> 스냅샷이 갱신될 때마다 오르는 <b>판 번호</b>와 <b>지문</b>은 단순한 기록이 아니라, 곳곳의 캐시가 쓰는 <b>열쇠</b>로 재활용된다.</p>
-    <p>설정에서 파생되는 무거운 계산들(예: 쓸 수 있는 <a href="step-06-skills.html">스킬</a> 목록, 모델 카탈로그)은 결과를 캐시해 둔다. 이때 캐시 열쇠를 "<code>runtime:판번호:지문</code>" 꼴로 잡으면(<code>resolveRuntimeConfigCacheKey</code>), 스냅샷이 새 사본으로 교체되는 순간 열쇠가 저절로 달라져 <b>낡은 캐시가 자동으로 무효화</b>된다. 따로 "캐시 비워" 신호를 돌릴 필요가 없다 — 판이 바뀌면 열쇠가 바뀌고, 열쇠가 바뀌면 캐시가 새로 찬다.</p>
+    <p>설정에서 파생되는 무거운 계산들(예: 쓸 수 있는 <a href="../step-06-skills.html">스킬</a> 목록, 모델 카탈로그)은 결과를 캐시해 둔다. 이때 캐시 열쇠를 "<code>runtime:판번호:지문</code>" 꼴로 잡으면(<code>resolveRuntimeConfigCacheKey</code>), 스냅샷이 새 사본으로 교체되는 순간 열쇠가 저절로 달라져 <b>낡은 캐시가 자동으로 무효화</b>된다. 따로 "캐시 비워" 신호를 돌릴 필요가 없다 — 판이 바뀌면 열쇠가 바뀌고, 열쇠가 바뀌면 캐시가 새로 찬다.</p>
   </section>
 
   <section class="card verdict phase-enter">
@@ -83,11 +83,11 @@
   </section>
 
   <nav class="stepnav">
-    <a class="prev" href="step-01-entry.html"><span class="nl">← 돌아가기</span>A · 진입 &amp; 설정 해석</a>
+    <a class="prev" href="../step-01-entry.html"><span class="nl">← 돌아가기</span>A · 진입 &amp; 설정 해석</a>
     <a class="next" href="step-01-lifecycle-stamp.html"><span class="nl">옆 깊이 보기 →</span>③ 생애 도장 — 유령 차단</a>
   </nav>
 
-  <footer class="foot">🦞 OpenClaw 런타임 사다리 · STEP A 깊이 보기 · 설정 스냅샷 · <a href="index.html">전체 보기</a></footer>
+  <footer class="foot">🦞 OpenClaw 런타임 사다리 · STEP A 깊이 보기 · 설정 스냅샷 · <a href="../../index.html">전체 보기</a></footer>
 </div>
 </body>
 </html>

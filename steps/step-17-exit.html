@@ -4,11 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>STEP G · 출구 · 종료 판정 → 결과 반환 — OpenClaw 런타임 사다리</title>
-<link rel="stylesheet" href="steps.css">
+<link rel="stylesheet" href="../assets/steps.css">
 </head>
 <body>
 <div class="wrap">
-  <nav class="crumb"><a href="index.html">← 런타임 사다리</a><span class="pos">출구 · G / 17</span></nav>
+  <nav class="crumb"><a href="../index.html">← 런타임 사다리</a><span class="pos">출구 · G / 17</span></nav>
 
   <header class="shead phase-exit">
     <div class="snum">⤴</div>
@@ -37,7 +37,7 @@
     <h2>② 하나의 출구, 그리고 뒷정리 — 결과 반환 + 자원 회수</h2>
     <p><b>판정이 끝나면, 한 턴의 모든 것을 단 하나의 결과 객체로 빚어 반환하고, 켜 두었던 자원을 빠짐없이 끈다.</b></p>
     <p>반환하는 건 <b><code>EmbeddedAgentRunResult</code> 하나</b>다 — 사용자에게 보낼 답글(payloads), 무슨 일이 있었는지(meta: 종료 이유·생존 상태 등), 그리고 배달 관련 플래그. 한 턴의 결말이 이 한 객체에 다 담긴다. 이것이 런타임의 <b>유일한 출구</b>다.</p>
-    <p>그다음 <b><code>finally</code></b>에서 뒷정리를 한다 — 빠른 모드 리셋, 프롬프트 빌드 캐시 비우기, 인증 갱신 타이머 끄기, 기억 엔진(컨텍스트 엔진) 닫기, 그리고 필요하면 세션 <a href="step-10-bundle-tools.html">MCP</a> 런타임 은퇴. 마지막으로, 들어올 때 섰던 <b>두 겹의 줄(<a class="dive" href="step-02-session-lane.html">세션 레인</a>·<a href="step-02-session-queue.html">글로벌 레인</a>)을 풀어</b> 기다리던 다음 일이 들어올 자리를 낸다. <b>얻는 것</b> — 성공이든 실패든 한 턴은 늘 <b>같은 모양의 결과</b>로 나가고, <b>자원을 흘리지 않는다</b>. 다음 턴은 깨끗한 자리에서 시작한다.</p>
+    <p>그다음 <b><code>finally</code></b>에서 뒷정리를 한다 — 빠른 모드 리셋, 프롬프트 빌드 캐시 비우기, 인증 갱신 타이머 끄기, 기억 엔진(컨텍스트 엔진) 닫기, 그리고 필요하면 세션 <a href="step-10-bundle-tools.html">MCP</a> 런타임 은퇴. 마지막으로, 들어올 때 섰던 <b>두 겹의 줄(<a class="dive" href="details/step-02-session-lane.html">세션 레인</a>·<a href="step-02-session-queue.html">글로벌 레인</a>)을 풀어</b> 기다리던 다음 일이 들어올 자리를 낸다. <b>얻는 것</b> — 성공이든 실패든 한 턴은 늘 <b>같은 모양의 결과</b>로 나가고, <b>자원을 흘리지 않는다</b>. 다음 턴은 깨끗한 자리에서 시작한다.</p>
   </section>
 
   <section class="card verdict v-nuance">
@@ -77,10 +77,10 @@
 
   <nav class="stepnav">
     <a class="prev" href="step-16-recovery.html"><span class="nl">← 이전</span>복구 · 페일오버·컴팩션</a>
-    <a class="next" href="index.html"><span class="nl">사다리 끝 →</span>전체 사다리로 돌아가기</a>
+    <a class="next" href="../index.html"><span class="nl">사다리 끝 →</span>전체 사다리로 돌아가기</a>
   </nav>
 
-  <footer class="foot">🦞 OpenClaw 런타임 사다리 · STEP G · <a href="index.html">전체 보기</a></footer>
+  <footer class="foot">🦞 OpenClaw 런타임 사다리 · STEP G · <a href="../index.html">전체 보기</a></footer>
 </div>
 </body>
 </html>
