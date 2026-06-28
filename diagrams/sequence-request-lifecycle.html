@@ -119,20 +119,18 @@ sequenceDiagram
     participant MD as 모델 프로바이더
   end
 
-  %% ---------- 입구 · 채널 계층 (런타임 바깥, 한 번) ----------
+  %% ---------- 입구 · 채널 계층 + 진입 셋업 (턴당 한 번) ----------
   U->>GW: 채널 메시지 (텔레그램·슬랙·웹…)
   GW->>GW: 공통 메시지로 정규화 · 큐잉 · 중복제거 · 라우팅
   GW->>EN: runEmbeddedAgent(params)
+  EN->>EN: 모델 지정값 정돈 (지정/비움 가리기)
+  EN->>EN: 기본값 채움 (설정 스냅샷)
+  EN->>EN: 생애 도장 (재시작 유령 차단)
 
-  Note over EN,RC: ▼ 여기부터 런타임 본체 — 폴백 드라이버가 후보 모델마다 runEmbeddedAgent를 통째로(입구·세션큐·해석·차단기 장전까지) 다시 돌린다
+  Note over EN,RC: ▼ 여기부터 런타임 본체 — 진입 셋업(정돈·스냅샷·생애도장)은 턴당 한 번. 아래 세션큐·해석·차단기 장전·어템프트 루프는 폴백 드라이버가 후보 모델마다 다시 돈다
 
-  %% ===== 바깥 겹 : 모델-폴백 드라이버 — 입구·큐·해석까지 통째로 감싼다 =====
-  loop 모델-폴백 드라이버 · 후보 모델마다 · 각 후보가 runEmbeddedAgent 통째로 다시 (model-fallback.ts)
-
-    %% ---- 입구 내부 (후보마다 다시) ----
-    EN->>EN: 모델 지정값 정돈 (이 후보 기준)
-    EN->>EN: 기본값 채움 (설정 스냅샷)
-    EN->>EN: 생애 도장 (재시작 유령 차단)
+  %% ===== 바깥 겹 : 모델-폴백 드라이버 — 세션큐·해석부터 통째로 (진입 셋업은 제외) =====
+  loop 모델-폴백 드라이버 · 후보 모델마다 · 각 후보가 runEmbeddedAgentInternal 통째로 다시 (model-fallback.ts)
     EN->>LQ: runEmbeddedAgentInternal()
 
     %% ---- 세션 · 큐 (후보마다 다시) ----
@@ -236,7 +234,7 @@ sequenceDiagram
       </div>
       <div class="lp l-out" data-ring="바깥 겹">
         <div class="lt">모델-폴백 드라이버</div>
-        <div class="ld">그 모델로는 도저히 안 될 때만 <code>FailoverError</code>를 받아 다음 모델 후보로 <b>입구·세션큐·해석 단계부터 통째로</b>(<code>runEmbeddedAgent</code> 전체) 다시 돈다. 그래서 차단기 장전도 후보마다 새로. 가장 비싼 마지막 수.</div>
+        <div class="ld">그 모델로는 도저히 안 될 때만 <code>FailoverError</code>를 받아 다음 모델 후보로 <b>세션큐·해석 단계부터 통째로</b>(<code>runEmbeddedAgentInternal</code>) 다시 돈다 — 진입 셋업(설정 스냅샷·생애 도장)은 턴당 한 번뿐. 그래서 차단기 장전은 후보마다 새로. 가장 비싼 마지막 수.</div>
       </div>
     </div>
   </section>
@@ -258,7 +256,7 @@ sequenceDiagram
       <li><b>조립 10단계</b> — <code>attempt.ts:955</code> workspace-sandbox … <code>:2089</code> system-prompt … <code>:2943</code> stream-setup (<code>prepStages.mark()</code>)</li>
       <li><b>디스패치</b> — <code>attempt.ts:2952–3173</code> 스트림 다겹 래핑 · <code>:3306</code> 컨텍스트 조립 · <code>:4594–4601</code> pre-prompt 예산 · <code>:3421</code> <code>promptActiveSession</code> (모델↔도구) · <code>:5530–5556</code> stop-reason 판정</li>
       <li><b>복구</b> — <code>failover-policy.ts:7–21</code> 5액션 · <code>run.ts:3379</code> 결정 · <code>:3394</code> <code>handleAssistantFailover</code> · <code>:3498</code> <code>FailoverError</code> 던짐 · <code>preemptive-compaction.ts:248</code> 선제 컴팩션 · <code>replay-state.ts:63</code> 재생 안전</li>
-      <li><b>모델 폴백(바깥 겹)</b> — <code>model-fallback.ts:1333</code> <code>runWithModelFallback</code> · <code>:1406</code> 후보 루프 (각 후보가 <code>run:</code> 콜백 <code>agent-runner-execution.ts:2159</code> → <code>runEmbeddedAgent</code>를 통째로 — 세션·큐 <code>run.ts:786</code> · 차단기 장전 <code>:1591</code> 포함 — 다시 실행)</li>
+      <li><b>모델 폴백(바깥 겹)</b> — <code>model-fallback.ts:1333</code> <code>runWithModelFallback</code> · <code>:1406</code> 후보 루프 (각 후보가 <code>run:</code> 콜백 <code>agent-runner-execution.ts:2159</code> → <code>runEmbeddedAgent</code> <code>:2506</code> → <code>runEmbeddedAgentInternal</code>: 세션·큐 <code>run.ts:786</code> · 차단기 장전 <code>:1591</code>을 후보마다 다시. 단 <code>config</code> 스냅샷·<code>lifecycleGeneration</code>은 넘겨받아 재사용 = 턴당 1회)</li>
       <li><b>출구</b> — <code>run.ts:3794–4099</code> 종료 판정 · <code>:4067</code> 정상 <code>return</code> · <code>:4146–4190</code> <code>finally</code>·레인 unwind · <code>types.ts</code> <code>EmbeddedAgentRunResult</code></li>
       <li><b>하네스 경계</b> — <code>harness/types.ts:121–125</code> <code>AgentHarness</code> · <code>builtin-openclaw.ts:12–20</code> (<code>priority 0</code>) · <code>extensions/codex·copilot</code> <code>api.registerAgentHarness</code></li>
     </ul>
