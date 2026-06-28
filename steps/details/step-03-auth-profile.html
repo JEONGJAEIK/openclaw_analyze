@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>깊이 보기 · 인증 프로필 — 계정을 줄 세우고, 막히면 갈아끼운다</title>
+<link rel="stylesheet" href="../../assets/steps.css">
+</head>
+<body>
+<div class="wrap">
+  <nav class="crumb"><a href="../step-03-resolution.html">← STEP C · 해석</a><span class="pos">깊이 보기 · 인증 프로필</span></nav>
+
+  <header class="shead phase-res">
+    <div class="snum">③</div>
+    <div>
+      <div class="sphase">STEP C · 깊이 보기</div>
+      <h1>인증 프로필 — 계정을 줄 세우고, 막히면 갈아끼운다</h1>
+    </div>
+  </header>
+  <p class="slead">한 프로바이더에 로그인하는 길은 보통 여럿이다 — API 키 하나, ChatGPT·Claude 구독 하나, 예비 키 하나. 해석 단계는 그중 하나로 못 박지 않고, 계정들을 <b>순위 매긴 후보 줄</b>로 세운다. 활성 계정이 막히면 <b>다음 계정으로 회전</b>하고, 막힌 계정은 잠시 <b>쿨다운</b>에 들어가 쉰다. 계정 하나가 막혀도 턴은 죽지 않는다.</p>
+
+  <section class="card phase-res">
+    <h2>인증 프로필 — 한 프로바이더에 로그인하는 계정 하나</h2>
+    <p><b>인증 프로필은 한 프로바이더에 로그인하는 계정/자격 하나다.</b> API 키, 토큰, 또는 ChatGPT·Claude 구독 같은 OAuth 로그인이 각각 하나의 프로필이 된다.</p>
+    <p>한 프로바이더에 프로필을 <b>여러 개</b> 둘 수 있다 — 회사 키와 개인 키, 구독 둘. 이 단계는 그것들을 하나로 정하는 대신 <b>순위 매긴 후보 줄</b>로 세운다. 그래야 맨 앞 계정이 막혔을 때 그 자리에서 다음 줄로 넘어갈 수 있다. '어느 계정으로'라는 물음의 답은 단수가 아니라 <b>줄</b>이다.</p>
+  </section>
+
+  <section class="card phase-res">
+    <h2>줄을 세우는 규칙 — 건강한 계정 먼저, 같은 종류는 돌아가며</h2>
+    <p><b>쓸 수 있는 계정을 앞에, 쿨다운 중인 계정을 뒤에 둔다. 쓸 수 있는 것끼리는 종류 선호(OAuth → 토큰 → API 키)로, 같은 종류끼리는 가장 오래 안 쓴 것부터 세운다.</b></p>
+    <p>줄을 세우기 직전, 먼저 <b>만료된 쿨다운을 비운다</b>. 벌 받던 시간이 지난 계정은 깨끗한 실패 카운트로 되돌려, 다음 한 번의 일시적 오류에 곧바로 다시 벌하지 않으려는 것이다. 그다음 <b>자격</b>을 거른다 — 계정이 실제로 있고, 프로바이더가 맞고, 로그인 방식(모드)이 맞고, 자격이 만료되지 않은 것만 후보로 남는다.</p>
+    <p>남은 후보를 둘로 가른다 — <b>쓸 수 있는 것</b>과 <b>쿨다운 중인 것</b>. 쓸 수 있는 것이 앞, 쉬는 중인 것이 뒤다. 앞쪽 묶음은 다시 <b>종류</b>로 정렬한다(OAuth가 가장 앞, 그다음 토큰, API 키). 그리고 같은 종류끼리는 <b>가장 오래 안 쓴 계정부터</b>. 왜 오래 안 쓴 것부터? — 여러 계정의 한도를 한쪽만 닳지 않게 <b>고루 나눠 쓰려는</b> 라운드로빈이다. 한편 세션이 특정 계정을 콕 집어 왔다면 그 계정만은 <b>맨 앞</b>으로 끌어올린다.</p>
+  </section>
+
+  <section class="card phase-res">
+    <h2>막히면 회전 — 다음 계정으로, 정해진 한도 안에서</h2>
+    <p><b>활성 계정이 벽에 부딪히면 실패를 분류해 기록하고, 줄의 다음 후보로 회전한다. 회전은 무한이 아니라 한도가 있다.</b></p>
+    <p>계정이 막히는 사유는 여럿이다 — 속도 제한, 과부하, 토큰 만료, 결제 중단. 컨트롤러는 사유를 분류해 그 계정에 <b>실패를 기록</b>하고(쿨다운을 매긴다), 줄에서 <b>다음 후보를 꺼내</b> 같은 턴을 이어 시도한다. 사용자는 한 계정이 죽은 것을 알아채지 못한 채 답을 받는다.</p>
+    <p>다만 회전은 끝없이 돌지 않는다. <b>과부하 회전 한도</b>와 <b>속도제한 회전 한도</b>가 따로 있고 기본값은 각 <b>1회</b>다(설정으로 조절). 한도를 넘으면 계정 회전을 멈추고, 더 바깥의 <a href="../step-16-recovery.html">페일오버</a>가 <b>모델 자체를 다음 후보로</b> 바꿔 해석 단계를 처음부터 다시 돈다. 한 가지 예외 — <b>단순 만료</b>처럼 갱신하면 되는 경우엔 계정을 버리지 않고, 갱신한 뒤 <b>같은 계정으로 한 번 더</b> 시도한다.</p>
+  </section>
+
+  <section class="card phase-res">
+    <h2>쿨다운 — 반복 실패일수록 더 길게, 사유마다 다른 시계</h2>
+    <p><b>막힌 계정은 정해진 시각까지 줄 뒤로 빠져 쉰다. 쉬는 길이는 연속 실패가 거듭될수록 곱절로 늘고, 사유마다 다른 시계를 쓴다.</b></p>
+    <p>쿨다운 길이는 <b>지수 백오프</b>다 — 바탕 시간에 <code>2^(연속 실패-1)</code>을 곱하되, 60초를 바닥으로, 사유별 상한을 천장으로 둔다. 같은 계정이 거듭 막힐수록 벌이 두 배씩 길어지다 천장에서 멈춘다. 사유별로 시계가 다르다 — <b>결제 중단</b>은 길게(기본 5시간, 최대 24시간), <b>인증 영구류</b>는 짧게(기본 10분, 최대 60분). 일시적 막힘과 구조적 막힘을 같은 길이로 벌하지 않으려는 것이다.</p>
+    <p>식히는 <b>범위</b>도 사유에 따라 갈린다. 속도 제한·타임아웃은 보통 특정 모델에만 걸리므로 <b>막힌 그 모델만</b> 식힌다 — 같은 계정의 다른 폴백 모델은 계속 시도할 수 있다. 반면 인증·결제·형식 오류·서버 오류처럼 계정 전체가 못 쓰는 사유는 <b>계정 전체</b>를 식힌다. 한편 일부 프로바이더(OpenRouter류)는 쿨다운을 자기 쪽에서 관리하므로 여기선 건너뛴다.</p>
+  </section>
+
+  <section class="card phase-res">
+    <h2>OAuth 자동 갱신 — 끊기기 전에 미리</h2>
+    <p><b>구독 로그인(OAuth)의 토큰은 만료된다. 긴 작업 중 인증이 끊기지 않도록, 만료되기 전에 미리 갱신한다.</b></p>
+    <p>ChatGPT·Claude 구독 같은 OAuth 로그인은 access 토큰에 수명이 있다. 컨트롤러는 토큰을 <b>유효·곧 만료·만료</b>로 분류하는데, 남은 시간이 <b>5분 이내</b>면 '곧 만료'로 보고 그 자리에서 <b>미리 갱신</b>한다. 만료 순간을 기다렸다 끊기는 대신, 한발 앞서 새 토큰으로 갈아 끼우는 것이다.</p>
+    <p>갱신은 <b>전역 락</b> 아래서 한다 — 같은 턴의 여러 시도가 동시에 같은 토큰을 갱신하려 다투면 새 토큰을 서로 덮어쓸 수 있으니, 한 번에 하나만 갱신하게 묶는다. 그리고 이미 만료된 토큰이라도 갱신만 되면 계정을 버리지 않고 <b>갱신 후 같은 계정으로</b> 잇는다.</p>
+  </section>
+
+  <section class="card verdict v-nuance phase-res">
+    <h2>미묘함 하나 — 쿨다운이 '계정'이 아니라 '모델 하나'만 식힐 때</h2>
+    <p><span class="vtag">모델 단위 쿨다운</span> <b>속도 제한은 대개 특정 모델에만 걸린다. 그 한 번의 막힘으로 계정 전체를 쉬게 하면, 같은 계정의 멀쩡한 다른 모델까지 함께 묶여 능력을 낭비한다.</b></p>
+    <p>그래서 사유를 둘로 나눈다. <b>속도 제한·타임아웃</b>은 막힌 그 모델만 식히고, 같은 계정의 다른 폴백 모델은 곧바로 시도하게 둔다. <b>인증·결제·서버 오류</b>처럼 계정 자체가 못 쓰는 사유는 계정 전체를 식힌다. 같은 '막힘'이라도 <b>무엇이 막힌 것인지</b>에 따라 식히는 범위가 달라진다 — 덕분에 한 모델의 속도 제한이 그 계정의 나머지 능력까지 잠그지 않는다.</p>
+  </section>
+
+  <section class="card verdict phase-res">
+    <h2>큰 그림 — 계정도 단일 실패점이 아니다</h2>
+    <p>해석 단계가 <a href="../step-03-resolution.html">하네스</a>도 모델도 하나로 못 박지 않듯, 계정도 하나로 못 박지 않는다. 계정들을 건강한 순서로 줄 세우고(부하는 라운드로빈으로 고루), 막히면 다음으로 회전하고, 막힌 계정엔 사유에 맞는 쿨다운을 매겨 잠시 물린다. 한 계정의 사고가 턴 전체를 무너뜨리지 못한다.</p>
+    <p>그리고 계정 회전으로도 끝내 안 되면 더 바깥의 <a href="../step-16-recovery.html">페일오버</a>가 모델 자체를 갈아 이 단계를 다시 돈다. 엔진도, 모델도, 계정도 단일 실패점이 아니라는 그 설계가, 가장 안쪽 계정 층에서도 이렇게 똑같이 선다. '어느 계정으로'의 답이 단수가 아니라 줄인 이유가 바로 이것이다.</p>
+  </section>
+
+  <section class="card phase-res ev">
+    <h2>코드 위치</h2>
+    <ul>
+      <li><b>후보 줄세우기</b> — <code>auth-profiles/order.ts:244</code> <code>resolveAuthProfileOrder</code> · <code>:424</code> <code>orderProfilesByMode</code>(종류 선호 + lastUsed 라운드로빈) · <code>:182</code> <code>resolveAuthProfileEligibility</code> · <code>:258</code> <code>clearExpiredCooldowns</code></li>
+      <li><b>회전 구동</b> — <code>embedded-agent-runner/run/assistant-failover.ts</code>(회전·한도) · 한도 <code>run/helpers.ts:53</code>/<code>:57</code> <code>resolveOverload/RateLimitProfileRotationLimit</code>(기본 각 1)</li>
+      <li><b>실패 기록·쿨다운</b> — <code>auth-profiles/usage.ts:703</code> <code>markAuthProfileFailure</code> · <code>:961</code> <code>markAuthProfileCooldown</code> · <code>:450</code> <code>resolveAuthCooldownConfig</code>(billing 5h→24h · auth 10m→60m) · <code>:509</code> <code>calculateDisabledLaneBackoffMs</code>(<code>base×2^(n-1)</code>)</li>
+      <li><b>쿨다운 상태</b> — <code>usage-state.ts:25</code> <code>resolveProfileUnusableUntil</code> · <code>:64</code> <code>isProfileInCooldown</code> · <code>:20</code> <code>isModelScopedCooldownReason</code>(rate_limit·timeout = 모델 단위) · <code>:11</code> <code>isAuthCooldownBypassedForProvider</code></li>
+      <li><b>OAuth 갱신</b> — <code>auth-profiles/credential-state.ts:19</code> <code>DEFAULT_OAUTH_REFRESH_MARGIN_MS</code>(5분) · <code>:25</code> <code>resolveTokenExpiryState</code> · <code>auth-profiles/oauth-manager.ts</code>(전역 락 갱신)</li>
+      <li><b>해석 단계 진입</b> — <code>run.ts:1339–1393</code> 인증 프로필 후보 줄 · <code>run.ts:1442–1526</code> 컨트롤러(회전·갱신)</li>
+    </ul>
+  </section>
+
+  <nav class="stepnav">
+    <a class="prev" href="../step-03-resolution.html"><span class="nl">← 돌아가기</span>C · 모델·하네스·인증 해석</a>
+    <a class="next" href="../step-16-recovery.html"><span class="nl">이어 보기 →</span>복구 — 페일오버·컴팩션</a>
+  </nav>
+
+  <footer class="foot">🦞 OpenClaw 런타임 사다리 · STEP C 깊이 보기 · 인증 프로필 · <a href="../../index.html">전체 보기</a></footer>
+</div>
+</body>
+</html>
