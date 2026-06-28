@@ -67,19 +67,19 @@
       <h1>요청 한 번의 시퀀스 — 입구에서 모델, 그리고 출구까지</h1>
     </div>
   </header>
-  <p class="slead">17단계 사다리를 <b>시간축 위의 한 그림</b>으로 눕힌 것이다. 한 번의 사용자 요청이 채널로 들어와 응답으로 나가기까지, <b>누가 누구에게 무엇을 건네는지</b>를 위에서 아래로 따라간다. 들어오고 나가는 가장자리(게이트웨이·입구·출구)는 <b>얇게</b> 두고, 가운데 <b>에이전트 런타임 본체</b> — 한 턴이 실제로 조립·실행·복구되는 곳 — 을 가장 촘촘히 그렸다.</p>
+  <p class="slead">17단계 사다리를 <b>시간축 위의 한 그림</b>으로 눕힌 것이다. 한 번의 사용자 요청이 채널로 들어와 응답으로 나가기까지, <b>누가 누구에게 무엇을 건네는지</b>를 위에서 아래로 따라간다. 바깥 <b>게이트웨이(채널 계층)</b>는 <b>얇게</b> 두고, 그 안쪽 <b>에이전트 런타임</b> — 진입·큐부터 해석·루프·조립·디스패치·복구·출구까지, 모두 <code>run.ts</code> — 을, 특히 한 턴이 실제로 조립·실행·복구되는 <b>가운데 본체(해석~복구)</b>를 가장 촘촘히 그렸다.</p>
 
   <section class="card phase-loop">
     <h2>읽는 법 — 세 영역, 그리고 화살표</h2>
-    <p>세로줄(라이프라인) 하나하나가 <b>한 역할</b>이고, 왼쪽에서 오른쪽으로 <b>입구 → 런타임 → 모델</b> 순서다. 가로 화살표는 호출(실선 <code>→</code>)과 반환(점선 <code>⇠</code>)이며, 번호는 시간 순서다.</p>
+    <p>세로줄(라이프라인) 하나하나가 <b>한 역할</b>이고, 왼쪽에서 오른쪽으로 <b>게이트웨이 → 런타임 → 모델</b> 순서다. 가로 화살표는 호출(실선 <code>→</code>)과 반환(점선 <code>⇠</code>)이며, 번호는 시간 순서다.</p>
     <div class="zones">
       <div class="zone z-gw">
-        <div class="zt"><span class="dot"></span>입구 · 게이트웨이</div>
-        <div class="zd">온갖 채널을 공통 메시지로 정규화하고, 단 하나의 문으로 모아 런타임에 들여보낸다. 요청마다 단 한 번, 얇게.</div>
+        <div class="zt"><span class="dot"></span>게이트웨이 · 채널</div>
+        <div class="zd">텔레그램·슬랙·웹 같은 온갖 채널을 공통 메시지로 정규화·큐잉·중복제거·라우팅해 런타임에 넘긴다. 런타임 바깥의 얇은 <b>채널 계층</b>이다(<code>run.ts</code> 아님).</div>
       </div>
       <div class="zone z-rt">
         <div class="zt"><span class="dot"></span>에이전트 런타임 <span style="font-family:var(--mono);font-size:10px;color:var(--shell)">조사 대상</span></div>
-        <div class="zd">해석 → 어템프트 루프 → 조립 10단계 → 디스패치 → 복구. 실패를 흡수하고 긴 대화를 지탱하는 <b>운영 껍데기</b>의 심장부.</div>
+        <div class="zd"><b>진입 → 2단 레인 큐 → 해석 → 어템프트 루프 → 조립 10단계 → 디스패치 → 복구 → 출구</b> — 모두 <code>run.ts</code> 런타임 코드다. 가운데(해석~복구)가 실패를 흡수하고 긴 대화를 지탱하는 <b>심장부</b>.</div>
       </div>
       <div class="zone z-md">
         <div class="zt"><span class="dot"></span>추론 · 모델</div>
@@ -100,13 +100,13 @@
 sequenceDiagram
   autonumber
 
-  box rgb(18,32,27) 입구 · 게이트웨이  〈control plane〉
+  box rgb(18,32,27) 게이트웨이 · 채널  〈control plane〉
     actor U as 🙂 사용자·채널
     participant GW as 게이트웨이 · auto-reply
+  end
+  box rgb(40,27,21) 에이전트 런타임 (run.ts) — 조사 대상  〈the subject〉
     participant EN as 진입 run.ts&lt;br/&gt;runEmbeddedAgent
     participant LQ as 2단 레인 큐&lt;br/&gt;세션 · 글로벌
-  end
-  box rgb(40,27,21) 에이전트 런타임 — 조사 대상  〈the subject〉
     participant RS as 해석&lt;br/&gt;하네스·모델·인증
     participant AL as 어템프트 루프&lt;br/&gt;while(true)
     participant AS as 조립 10단계&lt;br/&gt;prepStages
@@ -132,7 +132,7 @@ sequenceDiagram
   LQ->>LQ: 지난 턴 뒷정리(압축) 대기
   LQ->>LQ: 글로벌 레인 enqueue (정원4 · 전체 동시성 제한)
 
-  Note over RS,RC: ▼ 여기서부터 에이전트 런타임 본체 — 한 턴이 실제로 조립·실행되는 곳
+  Note over RS,RC: ▼ 여기부터 런타임 본체(심장부) — 한 턴이 실제로 조립·실행되는 곳
 
   %% ===== 바깥 겹 : 모델-폴백 드라이버 =====
   loop 모델-폴백 드라이버 · 후보 모델마다 (model-fallback.ts)
