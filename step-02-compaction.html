@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>깊이 보기 · 기록 압축(컴팩션) — 누가, 언제, 어떻게 대화를 줄이나</title>
+<link rel="stylesheet" href="steps.css">
+</head>
+<body>
+<div class="wrap">
+  <nav class="crumb"><a href="step-02-session-queue.html">← STEP B · 세션·큐</a><span class="pos">깊이 보기 · 기록 압축(컴팩션)</span></nav>
+
+  <header class="shead phase-sess">
+    <div class="snum">③</div>
+    <div>
+      <div class="sphase">STEP B · 깊이 보기</div>
+      <h1>기록 압축 — 모델이 줄이는 게 아니라, OpenClaw가 줄여서 모델에 건넨다</h1>
+    </div>
+  </header>
+  <p class="slead">세션·큐 단계는 지난 턴이 미뤄둔 <b>기록 압축</b>을 새 턴이 읽기 전에 마무리시킨다고 했다. 그러면 자연히 묻게 된다 — 이 압축은 <b>누가</b> 하나(모델인가 OpenClaw인가), <b>언제·어떤 방식으로</b> 하나, 그리고 기술적으로 <b>어떻게 백그라운드로 미루고 응답을 먼저 돌려주나</b>. 이 페이지가 그 답이다.</p>
+
+  <section class="card phase-sess">
+    <h2>누가 줄이나 — 모델이 아니라 OpenClaw가 조율한다</h2>
+    <p><b>압축의 주체는 모델이 아니다. OpenClaw가 '언제 줄일지'를 정하고 줄이는 일 전체를 조율하며, 그 가운데 '옛 대화를 짧은 요약으로 바꾸는' 한 토막만 모델에게 시킨다.</b></p>
+    <p>모델은 스스로 "맥락이 길어졌으니 줄이자"라고 판단하지 못한다 — 모델은 매번 <b>건네받은 입력에 답할 뿐</b>이다. 입력의 길이를 재고, 한도를 넘겠다 싶을 때 끼어들어 줄이는 건 모델 바깥의 껍데기, 즉 OpenClaw다. 그러니 "오픈클로가 인터셉트해서 압축하나?"의 답은 <b>그렇다</b> — OpenClaw가 매 호출 앞뒤에서 길이를 지켜보다가 직접 끼어든다.</p>
+    <p>그 일은 네 갈래로 나뉜다 — <b>①</b> 언제 줄일지 판단하고, <b>②</b> 무엇을 얼마나 줄일지 경로를 고르고, <b>③</b> 줄인 결과를 디스크에 안전하게 적고, <b>④</b> 급하지 않으면 백그라운드로 미뤄 사용자를 덜 기다리게 한다. 이 가운데 <b>모델이 맡는 건 ②의 한 조각</b> — 옛 대화를 짧게 간추리는 '요약'뿐이다.</p>
+    <p><b>생짜로 쓰는 도구도 마찬가지다.</b> 컨텍스트가 길어지면 압축하는 건 어느 어시스턴트 도구나 비슷한데, 그것도 '모델이 스스로'가 아니라 <b>그 도구(하네스)가 길이를 감지해 트리거</b>하고 모델에게 요약을 시키는 것이다. 즉 어느 쪽이든 패턴은 같다 — <b>하네스가 조율, 모델은 요약</b>. OpenClaw가 더하는 것은 그 조율을 더 촘촘히 한다는 점이다(여러 시점에 끼어들고, 백그라운드로 미루고, 디스크를 안전하게 지키고, 요약마저 검수한다 — 아래에서 하나씩 본다).</p>
+  </section>
+
+  <section class="card phase-sess">
+    <h2>언제 줄이나 — 터지기 직전 '즉시', 끝난 뒤 '미뤄서'</h2>
+    <p><b>압축은 두 자리에서 일어난다 — 맥락이 당장 한도를 넘을 것 같으면 본선에서 '즉시', 그리고 턴이 끝난 뒤 다음을 빠르게 하려고 '백그라운드로 미뤄서'.</b></p>
+    <p><b>즉시 압축</b>은 한도를 넘길 위험이 코앞일 때다. 모델을 부르기 직전 입력 크기를 어림해 넘치겠다 싶으면 <b>부르기 전에 먼저</b> 줄이고(선제), 도구를 여러 번 쓰는 동안 입력이 불어나면 <b>다음 호출 전에</b> 끼어들어 줄이고(턴 중간), 그래도 제공사가 "너무 길다"고 되돌려보내면 그걸 받아 <b>줄인 뒤 다시 부른다</b>(반응). 셋 다 그 자리에서 처리하므로 그 턴은 압축이 끝나길 잠깐 기다리지만, <b>모델은 그 소동을 전혀 모른 채</b> 이미 줄여진 깨끗한 입력만 받는다.</p>
+    <p><b>미뤄둔 압축</b>은 세션·큐 단계에서 본 그 자리다. 당장 급하지 않은 정리까지 응답 자리에서 곧바로 하면 사용자가 그만큼 더 기다린다. 그래서 그런 정리는 <b>응답을 먼저 돌려준 뒤 백그라운드로</b> 미룬다 — 다음 턴을 빠르게 시작할 수 있게. 이 미루기를 기술적으로 어떻게 하는지는 이 페이지 뒤에서 따로 본다.</p>
+  </section>
+
+  <section class="card phase-sess">
+    <h2>무엇을 얼마나 — 가장 싼 경로부터 고른다 (네 갈래)</h2>
+    <p><b>무작정 요약하지 않는다. 넘치는 양과 '줄일 거리'를 견줘 가장 값싼 길을 고른다 — 그대로 둠 / 도구 출력만 잘라냄 / 요약 / 요약+잘라냄.</b></p>
+    <ul>
+      <li><b>그대로 둠</b> — 한도 안에 들면 아무것도 하지 않는다.</li>
+      <li><b>도구 출력만 잘라냄</b> — 부피의 대부분이 긴 파일·로그 같은 <b>도구 결과</b>면, 그 출력만 잘라도 충분하다. 이 길은 <b>모델을 부르지 않아</b> 가장 싸다.</li>
+      <li><b>요약</b> — 잘라낼 도구 출력이 마땅찮으면, 옛 대화 자체를 <b>요약</b>해 줄인다.</li>
+      <li><b>요약 + 잘라냄</b> — 잘라내도 모자라면 둘을 함께 쓴다.</li>
+    </ul>
+    <p><b>왜 이렇게</b> — '요약'은 모델을 한 번 더 부르는 일이라 느리고 비싸다. 그래서 단순히 도구 출력만 깎아도 되는 경우엔 그 <b>값싼 길을 먼저</b> 택하고, 요약은 정말 필요할 때만 꺼낸다.</p>
+  </section>
+
+  <section class="card phase-sess">
+    <h2>요약은 어떻게, 망가지지 않게 — 별도 호출 + 검수</h2>
+    <p><b>요약은 본 대화와 분리된 '요약 전용 호출'로 만들고, 만든 요약을 곧바로 검수해 빠진 게 있으면 되돌린다 — 요약이 대화를 훼손하지 못하게.</b></p>
+    <p>요약은 본 대화 흐름에 끼지 않는 <b>별도의 깨끗한 호출</b>로 옛 대화를 짧게 간추린다. 여기 쓰는 모델은 <b>따로 지정</b>할 수 있고(요약 전용 모델), 안 정하면 그 대화가 쓰던 모델을 그대로 쓴다.</p>
+    <p><b>검수(요약마저 감사)</b> — 압축은 본질적으로 '버리는' 일이라, 잘못하면 중요한 맥락이 조용히 증발한다. 그래서 만든 요약이 꼭 담아야 할 <b>다섯 토막</b> — 내려진 결정 · 남은 할 일 · 지켜야 할 제약과 규칙 · 아직 답 못 한 사용자 요청 · 정확한 식별자(이름·경로·번호) — 을 빠짐없이 담았는지 본다. 모자라면 피드백을 주고 다시 시키고, 그래도 안 되면 <b>망가진 요약을 내보내는 대신</b> 안전한 대체본(이전의 멀쩡한 요약이나 빈 골격)으로 물러나거나 압축 자체를 취소해 원본을 지킨다. 요약조차 믿지 않고 한 번 더 보는 안전장치다.</p>
+  </section>
+
+  <section class="card phase-sess">
+    <h2>기술적으로 — 어떻게 미루고 응답을 먼저 돌려주나</h2>
+    <p><b>미루기의 비밀은 '기다리지 않고 줄에 걸어두기'다 — 정리 작업을 그 대화 전용 백그라운드 줄에 얹고, '끝나면 알려줄게'라는 약속 하나만 남긴 채 곧바로 응답을 반환한다.</b></p>
+    <p>턴이 끝나면 OpenClaw는 미룰 정리 작업을 그 대화만의 <a class="dive" href="step-02-session-lane.html">전용 줄(레인)</a> 한 칸에 올려놓는다. 그리고 "이 정리가 끝나면 알려줄게"라는 <b>약속(promise)</b> 하나를 그 대화 앞으로 적어 둔 뒤, 작업이 끝나기를 <b>기다리지 않고 바로 응답을 돌려준다</b>. 응답을 만든 코드 입장에서는 '정리를 줄에 걸어두는' 한 줄이 즉시 끝나 버리니, 사용자는 정리 시간을 한 톨도 기다리지 않는다. 정리는 그 사이 백그라운드 줄에서 따로 돈다.</p>
+    <p>그 약속은 <b>대화별 장부</b>에 보관된다(곧 다음 턴이 이걸 들춰 본다). 정리가 너무 길어지면(10초 넘으면) "아직 정리 중"이라는 <b>조용한 알림</b>만 띄워 사용자가 멈춘 줄 알지 않게 한다. 같은 대화에 정리가 또 필요해지면 새 작업을 또 만들지 않고 "한 번 더 돌려라" 표시만 남겨 <b>하나로 합친다</b> — 백그라운드 정리가 같은 대화에 겹쳐 도는 일은 없다.</p>
+  </section>
+
+  <section class="card verdict v-nuance phase-sess">
+    <h2>그래서 다음 턴은 기다린다 — 배리어</h2>
+    <p><span class="vtag">읽기 전 한 번</span> <b>미뤄둔 정리가 아직 안 끝났는데 같은 대화의 다음 턴이 시작되면, 그 약속이 풀릴 때까지 한 번 기다렸다가 기록을 읽는다.</b> 옛 기록을 먼저 읽어 정리를 헛수고로 만들지 않으려는 것이다.</p>
+    <p>다음 턴은 본 작업에 들어가기 전, <b>그 대화 앞으로 적힌 약속</b>을 확인한다. 정리가 도는 중이면 약속이 풀릴 때까지 기다렸다가 비로소 기록을 읽기 시작한다. 중요한 건 <b>기다리는 자리</b>다 — 모든 대화가 함께 쓰는 <a href="step-02-session-queue.html">공용 줄</a>에 들어가기 <b>전</b>, 값싼 자기 대화 줄에서만 기다린다. 그래야 자기 뒷정리를 기다리는 대화가 <b>무관한 다른 대화들의 발목을 잡지 않는다</b>.</p>
+    <p>이 기다림이 바로, 세션·큐 단계가 말한 "새 턴이 옛 기록을 읽어 압축이 통째로 날아가는" 사고를 막는 장치다. 미루기(빠른 응답)와 배리어(올바른 읽기)가 짝을 이뤄, 사용자는 안 기다리면서도 기록은 어긋나지 않는다.</p>
+  </section>
+
+  <section class="card phase-sess">
+    <h2>디스크에는 어떻게 — 덮어쓰지 않고, 가지치며 다시 잇는다</h2>
+    <p><b>압축은 기록 파일을 덮어쓰지 않는다. 줄일 자리에서 가지를 새로 쳐 짧은 요약으로 다시 이어 붙이고, 압축 직전 상태는 따로 표식해 되돌릴 수 있게 남긴다.</b></p>
+    <p>대화 기록은 줄을 <a class="dive" href="step-02-session-address.html">덧붙이기만 하는 JSONL</a> 파일이다. 압축도 옛 줄을 지우는 게 아니라, 요약으로 바꿀 자리에서 <b>가지를 새로 쳐 그 뒤를 다시 이어 붙인다</b>(가지치기-다시잇기). 압축 직전의 모습은 별도의 <b>체크포인트</b>로 표식해 둬서, 무언가 잘못되면 그 자리로 되돌릴 수 있다. 이 쓰기는 전부 그 대화의 <b>쓰기 자물쇠</b> 아래에서 한 번에 일어나, 도중에 멈춰도 기록이 엉키지 않는다.</p>
+    <p>여기서 앞의 <b>배리어가 왜 필요한지</b>가 분명해진다 — 백그라운드 정리가 이 '가지치기-다시잇기'를 디스크에 <b>다 적기 전에</b> 다음 턴이 읽으면 옛 가지를 보게 된다. 그래서 다 끝난 뒤에 읽도록 한 번 기다리는 것이다.</p>
+  </section>
+
+  <section class="card verdict phase-sess">
+    <h2>큰 그림 — 껍데기가 '길어짐'을 떠안고, 모델은 깨끗한 한 턴만 받는다</h2>
+    <p>길이를 재고 · 언제 줄일지 정하고 · 무엇을 얼마나 줄일지 고르고 · 요약을 검수하고 · 디스크에 안전하게 적고 · 백그라운드로 미뤄 사용자를 덜 기다리게 하는 — 이 지저분한 일을 전부 <b>껍데기가 떠안는다</b>. 모델에게 닿는 건 그 결과인 '줄여진 깨끗한 한 턴'뿐이고, 모델은 자기가 몇 번째로 줄여진 맥락을 받는지조차 모른다.</p>
+    <p>그래서 대화가 아무리 길어져도 <b>모델의 사고에는 손이 닿지 않은 채</b> 한도 안에 머문다. "감쌌는데도 품질이 안 깨지는" 또 하나의 자리가 여기다 — 압축은 <b>모델을 더 똑똑하게 만드는 일이 아니라, 모델이 늘 다루기 좋은 크기의 입력을 받도록 바깥에서 손보는 일</b>이다.</p>
+  </section>
+
+  <section class="card phase-sess ev">
+    <h2>코드 위치</h2>
+    <ul>
+      <li><b>언제(트리거)</b> — <code>run/preemptive-compaction.ts:248</code> <code>shouldPreemptivelyCompactBeforePrompt</code>(선제 판정) · 호출 <code>run/attempt.ts:4599</code>·합류 <code>:4697</code> · 턴 중간 <code>tool-result-context-guard.ts:530</code> · 반응 <code>run.ts:2626</code>(overflow)·<code>:2440</code>(timeout)</li>
+      <li><b>무엇을 얼마나(4-루트)</b> — <code>run/preemptive-compaction.types.ts:4</code> <code>PreemptiveCompactionRoute</code>(<code>fits</code>·<code>truncate_tool_results_only</code>·<code>compact_then_truncate</code>·<code>compact_only</code>)</li>
+      <li><b>요약(모델 호출)</b> — <code>compact.ts:1477</code> <code>activeSession.compact()</code> · 모델 해석 <code>compaction-runtime-context.ts:79</code>(<code>compaction.model</code> 오버라이드, 없으면 세션 모델 <code>:106</code>) · 요약 본체 <code>agent-hooks/compaction-safeguard.ts:880</code></li>
+      <li><b>검수(요약 감사)</b> — <code>agent-hooks/compaction-safeguard-quality.ts:234</code> <code>auditSummaryQuality</code> · <code>:14</code> <code>REQUIRED_SUMMARY_SECTIONS</code>(다섯 토막) · <code>:105</code> <code>buildStructuredFallbackSummary</code>(대체본)</li>
+      <li><b>미루기(백그라운드)</b> — <code>context-engine-maintenance.ts:695</code> 미룰지 판정 · <code>:543</code> <code>scheduleDeferredTurnMaintenance</code> · <code>:605</code> 세션 레인 큐(<code>context-engine-turn-maintenance:&lt;key&gt;</code> <code>:44</code>) · <code>:69</code> 대화별 약속 장부 · <code>:721</code> 즉시 반환</li>
+      <li><b>배리어</b> — <code>context-engine-maintenance.ts:211</code> <code>waitForDeferredTurnMaintenanceForSession</code> · 호출 <code>run.ts:791</code>(공용 줄 진입 전)</li>
+      <li><b>디스크 안전</b> — <code>transcript-rewrite.ts:270</code> 가지치기-다시잇기 · <code>:445</code> 쓰기 자물쇠 · 체크포인트 <code>compact.ts:1210</code>·<code>:1558</code> · 설정 <code>zod-schema.agent-defaults.ts:187</code> <code>compaction.model</code></li>
+    </ul>
+  </section>
+
+  <nav class="stepnav">
+    <a class="prev" href="step-02-session-queue.html"><span class="nl">← 돌아가기</span>B · 세션 해석 + 2단 레인 큐</a>
+    <a class="next" href="step-02-session-address.html"><span class="nl">자매 깊이 보기 →</span>대화 주소와 기록 파일</a>
+  </nav>
+
+  <footer class="foot">🦞 OpenClaw 런타임 사다리 · STEP B 깊이 보기 · 기록 압축(컴팩션) · <a href="index.html">전체 보기</a></footer>
+</div>
+</body>
+</html>

@@ -70,13 +70,13 @@
       <div class="gterm">
         <div class="gtop"><a class="gname" href="step-02-session-queue.html">세션 해석 + 2단 레인 큐</a> <span class="ghome">step-02-session-queue</span></div>
         <p class="gdef">요청이 <b>어느 대화 소속인지</b> 하나의 이름표(대화 주소)로 확정하고, <b>세션 레인</b>(같은 대화 직렬화)과 <b>글로벌 레인</b>(전체 동시성 제한) 2단으로 줄 세우는 단계.</p>
-        <p class="gappear"><b>등장</b> ← <a href="step-02-session-lane.html">세션 레인</a> · <a href="step-17-exit.html">출구(17)</a></p>
+        <p class="gappear"><b>등장</b> ← <a href="step-02-session-lane.html">세션 레인</a> · <a href="step-02-compaction.html">기록 압축</a> · <a href="step-17-exit.html">출구(17)</a></p>
       </div>
 
       <div class="gterm">
         <div class="gtop"><a class="gname deep" href="step-02-session-lane.html">세션 레인</a> <span class="gbadge">심화</span> <span class="ghome">step-02-session-lane</span></div>
         <p class="gdef">같은 대화를 <b>정원 1</b>로 직렬화하는 대화별 FIFO 줄. '정원이 정해진 줄'이라는 공용 기본기(레인)를 <code>session:&lt;대화&gt;</code> 이름으로 쓴 한 사례.</p>
-        <p class="gappear"><b>등장</b> ← <a href="step-02-session-queue.html">세션·큐(B)</a> · <a href="step-02-session-address.html">대화 주소·기록 파일</a> · <a href="step-17-exit.html">출구(17)</a></p>
+        <p class="gappear"><b>등장</b> ← <a href="step-02-session-queue.html">세션·큐(B)</a> · <a href="step-02-session-address.html">대화 주소·기록 파일</a> · <a href="step-02-compaction.html">기록 압축</a> · <a href="step-17-exit.html">출구(17)</a></p>
       </div>
 
       <div class="gterm">
@@ -88,6 +88,12 @@
       <div class="gterm">
         <div class="gtop"><a class="gname deep" href="step-02-session-address.html">대화 주소 · 기록 파일</a> <span class="gbadge">심화</span> <span class="ghome">step-02-session-address</span></div>
         <p class="gdef">한 대화를 가리키는 두 이름 — 논리 이름표 <b>대화 주소</b>(<code>agent:&lt;id&gt;:&lt;채널&gt;:&lt;상대&gt;</code>)와 실제 <b>기록 파일</b>(<code>&lt;id&gt;.jsonl</code>). 둘은 색인 <code>sessions.json</code>으로 이어지고, 본문은 내 기기 로컬의 덧붙이기 전용 JSONL로 산다(원격 DB 아님).</p>
+        <p class="gappear"><b>등장</b> ← <a href="step-02-session-queue.html">세션·큐(B)</a> · <a href="step-02-compaction.html">기록 압축</a></p>
+      </div>
+
+      <div class="gterm">
+        <div class="gtop"><a class="gname deep" href="step-02-compaction.html">기록 압축 · 컴팩션</a> <span class="gbadge">심화</span> <span class="ghome">step-02-compaction</span></div>
+        <p class="gdef">대화가 길어져 모델 한도를 넘기 전에, OpenClaw가 옛 기록을 짧은 요약으로 줄이는 일. 줄일 <b>시점·경로·디스크 기록</b>은 OpenClaw가 조율하고 '요약' 한 토막만 모델에게 시킨다. 급하면 본선에서 즉시, 아니면 백그라운드로 미뤄 다음 턴 전 <b>배리어</b>로 마무리.</p>
         <p class="gappear"><b>등장</b> ← <a href="step-02-session-queue.html">세션·큐(B)</a></p>
       </div>
 
