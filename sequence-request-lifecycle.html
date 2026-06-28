@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>요청 시퀀스 다이어그램 · 입구→출구 — OpenClaw 런타임 사다리</title>
+<link rel="stylesheet" href="steps.css">
+<style>
+  /* 시퀀스 다이어그램 전용 — 넓은 그림을 위한 브레이크아웃 + 범례 */
+  .breakout{
+    width:min(96vw,1520px); margin-left:50%; transform:translateX(-50%);
+    margin-top:18px;
+  }
+  .diagram-card{
+    border:1px solid var(--line); border-radius:16px;
+    background:linear-gradient(180deg,#12161d,#0d1116);
+    padding:18px 14px 10px; overflow-x:auto;
+  }
+  .diagram-card .mermaid{min-width:760px; text-align:center}
+  .dgm-cap{
+    display:flex; flex-wrap:wrap; gap:8px 14px; align-items:center; justify-content:center;
+    margin:2px 0 8px; font-family:var(--mono); font-size:11.5px; color:var(--tx-faint);
+  }
+  .dgm-cap b{color:var(--tx-dim); font-weight:600}
+
+  /* 3영역 범례 */
+  .zones{display:grid; grid-template-columns:repeat(3,1fr); gap:11px; margin-top:6px}
+  .zone{border:1px solid var(--line); border-left-width:3px; border-radius:11px; padding:12px 14px; background:#161b2255}
+  .zone.z-gw{border-left-color:var(--kelp)} .zone.z-rt{border-left-color:var(--shell)} .zone.z-md{border-left-color:var(--coral)}
+  .zone .zt{font-size:13.5px; font-weight:740; color:var(--tx)}
+  .zone .zt .dot{display:inline-block; width:9px; height:9px; border-radius:3px; margin-right:7px; vertical-align:middle}
+  .zone.z-gw .dot{background:var(--kelp)} .zone.z-rt .dot{background:var(--shell)} .zone.z-md .dot{background:var(--coral)}
+  .zone .zd{font-size:12px; color:var(--tx-dim); line-height:1.5; margin-top:5px}
+  @media (max-width:640px){ .zones{grid-template-columns:1fr} }
+
+  /* 세 겹 루프 카드 */
+  .loops{display:grid; grid-template-columns:1fr 1fr 1fr; gap:11px; margin-top:6px}
+  .lp{border:1px solid var(--line); border-radius:11px; padding:13px 15px; background:linear-gradient(180deg,#1a2029,#161b22); position:relative}
+  .lp::before{content:attr(data-ring); position:absolute; top:11px; right:13px; font-family:var(--mono); font-size:10px; color:var(--tx-faint); letter-spacing:1px}
+  .lp .lt{font-size:13.5px; font-weight:740; color:var(--tx)}
+  .lp .ld{font-size:12px; color:var(--tx-dim); line-height:1.5; margin-top:5px}
+  .lp.l-out{border-top:2px solid var(--brine)} .lp.l-mid{border-top:2px solid var(--shell)} .lp.l-in{border-top:2px solid var(--coral)}
+  @media (max-width:640px){ .loops{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav class="crumb"><a href="index.html">← 런타임 사다리</a><span class="pos">시퀀스 · 입구 → 출구</span></nav>
+
+  <header class="shead phase-loop">
+    <div class="snum">⇄</div>
+    <div>
+      <div class="sphase">Flow · 시퀀스 다이어그램</div>
+      <h1>요청 한 번의 시퀀스 — 입구에서 모델, 그리고 출구까지</h1>
+    </div>
+  </header>
+  <p class="slead">앞의 17단계 사다리를 <b>시간축 위의 한 그림</b>으로 눕힌 것이다. 한 번의 사용자 요청이 채널로 들어와 응답으로 나가기까지, <b>누가 누구에게 무엇을 건네는지</b>를 위에서 아래로 따라간다. 들어오고 나가는 가장자리(게이트웨이·입구·출구)는 <b>얇게</b> 두고, 가운데 <b>에이전트 런타임 본체</b> — 한 턴이 실제로 조립·실행·복구되는 곳 — 을 가장 촘촘히 그렸다.</p>
+
+  <section class="card phase-loop">
+    <h2>읽는 법 — 세 영역, 그리고 화살표</h2>
+    <p>세로줄(라이프라인) 하나하나가 <b>한 역할</b>이고, 왼쪽에서 오른쪽으로 <b>입구 → 런타임 → 모델</b> 순서다. 가로 화살표는 호출(실선 <code>→</code>)과 반환(점선 <code>⇠</code>)이며, 번호는 시간 순서다.</p>
+    <div class="zones">
+      <div class="zone z-gw">
+        <div class="zt"><span class="dot"></span>입구 · 게이트웨이</div>
+        <div class="zd">온갖 채널을 공통 메시지로 정규화하고, 단 하나의 문으로 모아 런타임에 들여보낸다. 요청마다 단 한 번, 얇게.</div>
+      </div>
+      <div class="zone z-rt">
+        <div class="zt"><span class="dot"></span>에이전트 런타임 <span style="font-family:var(--mono);font-size:10px;color:var(--shell)">조사 대상</span></div>
+        <div class="zd">해석 → 어템프트 루프 → 조립 10단계 → 디스패치 → 복구. 실패를 흡수하고 긴 대화를 지탱하는 <b>운영 껍데기</b>의 심장부.</div>
+      </div>
+      <div class="zone z-md">
+        <div class="zt"><span class="dot"></span>추론 · 모델</div>
+        <div class="zd">하네스(agent-core)가 모델과 도구를 오가며 답을 빚는다. 런타임은 이 호출을 여러 겹 방어막으로 감싼다.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────── 시퀀스 다이어그램 ─────────── -->
+  <div class="breakout">
+    <div class="diagram-card">
+      <div class="dgm-cap"><b>실선 →</b> 호출 · <b>점선 ⇠</b> 반환 · <b>번호</b> 시간순 · <b>겹친 상자</b> 되돌이/분기 · 넓은 그림은 좌우로 스크롤</div>
+<pre class="mermaid">
+sequenceDiagram
+  autonumber
+
+  box rgb(18,32,27) 입구 · 게이트웨이  〈control plane〉
+    actor U as 🙂 사용자·채널
+    participant GW as 게이트웨이 · auto-reply
+    participant EN as 진입 run.ts&lt;br/&gt;runEmbeddedAgent
+    participant LQ as 2단 레인 큐&lt;br/&gt;세션 · 글로벌
+  end
+  box rgb(40,27,21) 에이전트 런타임 — 조사 대상  〈the subject〉
+    participant RS as 해석&lt;br/&gt;하네스·모델·인증
+    participant AL as 어템프트 루프&lt;br/&gt;while(true)
+    participant AS as 조립 10단계&lt;br/&gt;prepStages
+    participant DP as 디스패치&lt;br/&gt;래핑·도구루프
+    participant RC as 복구&lt;br/&gt;페일오버·컴팩션
+  end
+  box rgb(31,26,43) 추론 · 모델  〈provider〉
+    participant HN as 하네스 / agent-core&lt;br/&gt;session.prompt()
+    participant TL as 도구
+    participant MD as 모델 프로바이더
+  end
+
+  %% ---------- 입구 (가장자리, 얇게) ----------
+  U->>GW: 채널 메시지 (텔레그램·슬랙·웹…)
+  GW->>GW: 공통 메시지로 정규화 · 큐잉 · 중복제거 · 라우팅
+  GW->>EN: runEmbeddedAgent(params)
+  EN->>EN: 모델지정 정돈 · 기본값 채움 · 생애 도장
+  EN->>LQ: runEmbeddedAgentInternal()
+
+  %% ---------- 세션 · 큐 (가장자리) ----------
+  LQ->>LQ: 세션키 백필 · 대화 정체 확정
+  LQ->>LQ: 세션 레인 enqueue (정원1 · 같은 대화 직렬화)
+  LQ->>LQ: 지난 턴 뒷정리(압축) 대기
+  LQ->>LQ: 글로벌 레인 enqueue (정원4 · 전체 동시성 제한)
+
+  Note over RS,RC: ▼ 여기서부터 에이전트 런타임 본체 — 한 턴이 실제로 조립·실행되는 곳
+
+  %% ===== 바깥 겹 : 모델-폴백 드라이버 =====
+  loop 모델-폴백 드라이버 · 후보 모델마다 (model-fallback.ts)
+    LQ->>RS: 차례 도착 → 이 모델로 해석 시작
+
+    %% ---- 해석 (STEP C) ----
+    RS->>RS: 작업공간 해석 · 플러그인 1회 로드
+    RS->>RS: 하네스 선택 (openclaw = priority 0 · 최후) · 모델·프로바이더 해석
+    RS->>RS: 인증 프로필 후보 줄세움 · 회전 컨트롤러
+    RS->>RS: 루프 상태·비용 차단기 장전 · 컨텍스트엔진 1회 해석
+    RS->>AL: 어템프트 루프 진입 (run.ts:1885)
+
+    %% ===== 가운데 겹 : 어템프트 루프 =====
+    loop 어템프트 루프 · while(true) — 매 반복 = 1 시도 (32~160회)
+      AL->>AL: ⓐ 한도·비용 차단기 가드 (idle 연속5 등)
+      AL->>AS: ⓑ 이번 시도 입력 새로 조립 (직전 결과 반영)
+
+      %% ---- 조립 10단계 ----
+      rect rgba(255,122,69,0.05)
+        AS->>AS: 1 workspace-sandbox · 2 skills · 3 core+plugin 도구·allow-list
+        AS->>AS: 4 bootstrap-context · 5 code-mode·tool-search(조건부) · 6 MCP/LSP 번들
+        AS->>AS: 7 system-prompt (base+provider 변환) · 8 session-resource-loader
+        AS->>AS: 9 agent-session 생성 · 10 stream-setup (streamFn 해석)
+      end
+      AS-->>AL: 조립된 한 턴 (프롬프트·도구·세션·streamFn)
+      AL->>DP: ⓒ 안쪽 시도 디스패치 (run.ts:2044)
+
+      %% ---- 디스패치 ----
+      DP->>DP: streamFn 다겹 래핑 (~17겹 · 6겹 무조건)
+      Note right of DP: 캐시관측 · thinking 제거 · 도구호출 정돈&lt;br/&gt;민감 stop 복구 · 유휴 타임아웃 · 진단
+      DP->>DP: 컨텍스트 조립 (보낼 메시지 창 확정)
+      DP->>RC: pre-prompt 예산 점검
+      alt 맥락 창 넘칠 듯 → 선제 컴팩션
+        RC-->>DP: 4-루트 (fits · 도구출력 절단 · 요약+절단 · 요약)
+        Note right of RC: 요약은 최후 · 요약마저 5섹션 감사&lt;br/&gt;부트스트랩 맥락은 절대 가지치지 않음
+      end
+      DP->>HN: promptActiveSession() — 모델↔도구 루프 시작
+
+      %% ===== 안쪽 겹 : 에이전트 루프 (모델 ↔ 도구) =====
+      loop 에이전트 루프 · 모델↔도구 (한 시도 안에서 여러 바퀴)
+        HN->>MD: 래핑된 streamFn 호출 (모델 스트림)
+        MD-->>HN: 응답 (텍스트 / 도구호출 / stop-reason)
+        alt 도구 호출 있음
+          HN->>TL: 도구 실행
+          TL-->>HN: 결과 → 모델에 되먹임
+        else 최종 답 도달
+          Note over HN,MD: 더 부를 도구 없음 → 루프 종료
+        end
+      end
+      HN-->>DP: 최종 응답 + stop-reason
+      DP->>DP: stop-reason 판정 (종결 vs 갈아탈 신호)
+      DP-->>AL: 시도 결과 정규화 (분류 입력)
+
+      %% ---- 결과 분류 · 복구 ----
+      AL->>RC: 결과 분류 — 페일오버 결정 (5액션)
+      Note right of RC: 재생 안전성 검사 — 부수효과 흔적 있으면 재생 금지
+      alt 가벼운 회복 (제자리·이어서·압축·계정 회전)
+        RC-->>AL: continue_normal / rotate_profile → 다음 반복
+      else 무거운 회복 — 모델 교체
+        RC-->>AL: FailoverError 던짐 ↑ 바깥 겹으로
+        Note over RC,RS: 바깥 드라이버가 받아 다음 모델로 해석부터 재시작
+      else 종결할 결과
+        Note over AL: 루프 탈출 → 출구
+      end
+    end
+  end
+
+  %% ---------- 출구 ----------
+  Note over EN,AL: ▲ 이 본체 전체 = 'openclaw' 하네스 하나 — Codex·Copilot도 같은 슬롯(runAttempt)에 꽂힌다
+  AL->>EN: 종료 판정 (incomplete_turn vs 정상)
+  EN->>EN: EmbeddedAgentRunResult 빚기 (payloads · meta)
+  EN->>EN: finally 정리 · 두 레인 unwind
+  EN-->>GW: EmbeddedAgentRunResult
+  GW-->>U: 채널로 응답 전송
+</pre>
+    </div>
+  </div>
+
+  <!-- ─────────── 런타임 본체 = 세 겹의 되돌이 ─────────── -->
+  <section class="card phase-loop">
+    <h2>런타임 본체의 골격 — 세 겹의 되돌이</h2>
+    <p>위 그림에서 가운데를 채운 <b>겹친 상자</b>들은 모두 되돌이(loop)다. 런타임 본체는 결국 <b>세 겹의 루프가 포개진 구조</b>이며, <b>가벼운 회복은 안에서, 무거운 회복은 밖에서</b> 일어난다. 안쪽이 풀면 바깥은 돌지 않는다.</p>
+    <div class="loops">
+      <div class="lp l-in" data-ring="안쪽 겹">
+        <div class="lt">에이전트 루프 · 모델↔도구</div>
+        <div class="ld">한 번의 시도 안에서 모델이 도구를 부르고 결과를 되먹이며 여러 바퀴 돈다. 챗봇과 에이전트를 가르는 지점 — 답하기 전에 여러 번 행동·관찰한다.</div>
+      </div>
+      <div class="lp l-mid" data-ring="가운데 겹">
+        <div class="lt">어템프트 루프 · 재시도/복구</div>
+        <div class="ld">한 턴을 '여러 번의 시도'로 풀어낸다. 매 반복마다 입력을 새로 조립해 1회 디스패치하고, 결과를 분류해 가장 싼 처방으로 살린다(32~160회).</div>
+      </div>
+      <div class="lp l-out" data-ring="바깥 겹">
+        <div class="lt">모델-폴백 드라이버</div>
+        <div class="ld">그 모델로는 도저히 안 될 때만 <code>FailoverError</code>를 받아 다음 모델 후보로 <b>해석 단계부터 통째로</b> 다시 돈다. 가장 비싼 마지막 수.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────── 코드 위치 ─────────── -->
+  <section class="card verdict phase-loop">
+    <h2>큰 그림 — 이 시퀀스가 말해 주는 한 가지</h2>
+    <p>그림을 멀리서 보면 한 가지가 또렷하다. <b>가장자리(게이트웨이·입구·출구)는 얇고, 가운데(런타임 본체)는 두껍다</b>. 그리고 그 두꺼운 가운데가 하는 일은 '더 똑똑하게 생각하기'가 아니라 <b>모델 호출을 감싸고, 실패를 흡수하고, 긴 대화를 지탱하는 것</b> — 모두 모델 바깥의 운영이다.</p>
+    <p>결정적으로, 이 모든 되돌이와 방어막을 <b>모델은 모른다</b>. 맥락이 압축됐는지, 계정이 회전했는지, 같은 턴을 세 번째 시도하는 중인지 — 모델은 그저 매 시도마다 깨끗하게 정돈된 한 턴을 받아 자기 일을 할 뿐이다. 그래서 "감쌌는데도 품질이 안 깨진다." 시퀀스의 세로줄 중 모델의 사고에 손대는 줄은 <b>하나도 없다</b>.</p>
+    <p>한 걸음 더 — 가운데의 그 정교한 본체조차 사실은 <code>openclaw</code>라는 <b>하네스 하나</b>일 뿐이다. Codex·Copilot도 똑같은 슬롯(<code>runAttempt</code>)에 꽂히고, 그 둘레의 큐잉·페일오버·컴팩션·재생안전·종료판정은 전부 껍데기의 몫이다. <b>비법은 추론을 이기는 게 아니라, 어떤 하네스든 끼울 수 있는 껍데기다.</b></p>
+  </section>
+
+  <section class="card phase-loop ev">
+    <h2>코드 위치 — 시퀀스의 각 화살표가 가리키는 자리</h2>
+    <ul>
+      <li><b>입구·세션</b> — <code>run.ts:602</code> <code>runEmbeddedAgent</code> · <code>:622</code> <code>runEmbeddedAgentInternal</code> · <code>:630–646</code> 세션 정체 확정 · <code>:786</code> <code>enqueueSession</code> · <code>:791</code> 뒷정리 대기 · <code>:793</code> <code>enqueueGlobal</code></li>
+      <li><b>해석</b> — <code>run.ts:948–969</code> 작업공간·플러그인 · <code>:1043</code> <code>selectAgentHarness</code> · <code>:1043–1164</code> 모델·프로바이더 · <code>:1339–1526</code> 인증 프로필·컨트롤러 · <code>:1560–1802</code> 차단기·컨텍스트엔진</li>
+      <li><b>어템프트 루프</b> — <code>run.ts:1885</code> <code>while(true)</code> · <code>:1886</code> 한도 가드 · <code>:1930·1953</code> 입력 조립 · <code>:2044</code> 안쪽 시도 디스패치 · <code>:2235</code> 결과 정규화</li>
+      <li><b>조립 10단계</b> — <code>attempt.ts:955</code> workspace-sandbox … <code>:2089</code> system-prompt … <code>:2943</code> stream-setup (<code>prepStages.mark()</code>)</li>
+      <li><b>디스패치</b> — <code>attempt.ts:2952–3173</code> 스트림 다겹 래핑 · <code>:3306</code> 컨텍스트 조립 · <code>:4594–4601</code> pre-prompt 예산 · <code>:3421</code> <code>promptActiveSession</code> (모델↔도구) · <code>:5530–5556</code> stop-reason 판정</li>
+      <li><b>복구</b> — <code>failover-policy.ts:7–21</code> 5액션 · <code>run.ts:3379</code> 결정 · <code>:3394</code> <code>handleAssistantFailover</code> · <code>:3498</code> <code>FailoverError</code> 던짐 · <code>preemptive-compaction.ts:248</code> 선제 컴팩션 · <code>replay-state.ts:63</code> 재생 안전</li>
+      <li><b>모델 폴백(바깥 겹)</b> — <code>model-fallback.ts:1333</code> <code>runWithModelFallback</code> · <code>:1406</code> 다음 모델 후보 (각 후보가 해석부터 다시)</li>
+      <li><b>출구</b> — <code>run.ts:3794–4099</code> 종료 판정 · <code>:4067</code> 정상 <code>return</code> · <code>:4146–4190</code> <code>finally</code>·레인 unwind · <code>types.ts</code> <code>EmbeddedAgentRunResult</code></li>
+      <li><b>하네스 경계</b> — <code>harness/types.ts:121–125</code> <code>AgentHarness</code> · <code>builtin-openclaw.ts:12–20</code> (<code>priority 0</code>) · <code>extensions/codex·copilot</code> <code>api.registerAgentHarness</code></li>
+    </ul>
+  </section>
+
+  <nav class="stepnav">
+    <a class="prev" href="index.html"><span class="nl">← 돌아가기</span>런타임 사다리 전체</a>
+    <a class="next" href="step-01-entry.html"><span class="nl">자세히 →</span>A · 진입부터 한 칸씩</a>
+  </nav>
+
+  <footer class="foot">🦞 OpenClaw 런타임 사다리 · 요청 시퀀스 다이어그램 · <a href="index.html">전체 보기</a> · <a href="agent-runtime-views.html">다이어그램 갤러리</a></footer>
+</div>
+
+<script src="mermaid.min.js"></script>
+<script>
+  mermaid.initialize({
+    startOnLoad: false,
+    securityLevel: 'loose',
+    theme: 'base',
+    themeVariables: {
+      fontFamily: '-apple-system,BlinkMacSystemFont,"Segoe UI","Pretendard","Malgun Gothic",sans-serif',
+      fontSize: '14px',
+      primaryColor: '#1a2029',
+      primaryTextColor: '#e9eef4',
+      primaryBorderColor: '#2a323d',
+      lineColor: '#677482',
+      textColor: '#e9eef4',
+      actorBkg: '#1a2029',
+      actorBorder: '#ff7a45',
+      actorTextColor: '#e9eef4',
+      actorLineColor: '#3a4756',
+      signalColor: '#9aa7b4',
+      signalTextColor: '#cdd6e0',
+      noteBkgColor: '#11151b',
+      noteBorderColor: '#ffb347',
+      noteTextColor: '#ffd9a8',
+      labelBoxBkgColor: '#161b22',
+      labelBoxBorderColor: '#58a6ff',
+      labelTextColor: '#cfe0ff',
+      loopTextColor: '#9aa7b4',
+      activationBorderColor: '#ff7a45',
+      activationBkgColor: '#221a18',
+      sequenceNumberColor: '#0e1116'
+    },
+    sequence: {
+      useMaxWidth: true,
+      mirrorActors: false,
+      actorMargin: 46,
+      boxMargin: 10,
+      noteMargin: 10,
+      messageMargin: 34,
+      wrap: false
+    }
+  });
+  mermaid.run({ querySelector: '.mermaid' });
+</script>
+</body>
+</html>

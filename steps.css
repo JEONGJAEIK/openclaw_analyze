@@ -45,6 +45,15 @@ a{color:inherit}
 .card li::before{content:"▸"; position:absolute; left:2px; color:var(--tone,var(--shell))}
 code{font-family:var(--mono); font-size:12.5px; color:var(--roe); background:#ffb34712; border:1px solid #ffb34722; border-radius:5px; padding:1px 6px}
 
+/* in-card cross links */
+.card p a,.card li a{color:var(--brine); text-decoration:none; border-bottom:1px dashed color-mix(in srgb, var(--brine) 45%, transparent)}
+.card p a:hover,.card li a:hover{border-bottom-style:solid}
+.card p a code,.card li a code{color:var(--brine); background:#58a6ff12; border-color:#58a6ff2e}
+
+/* deep-dive link — a body phrase that opens a mechanism page */
+.dive{color:var(--coral)!important; border-bottom:1px dashed color-mix(in srgb, var(--coral) 55%, transparent)!important}
+.dive::after{content:"↗"; font-size:.78em; vertical-align:super; margin-left:2px; color:var(--coral)}
+
 /* evidence list (file:line) */
 .ev li code{color:var(--brine); background:#58a6ff12; border-color:#58a6ff2e; margin-right:4px}
 

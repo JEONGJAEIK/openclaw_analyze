@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OpenClaw 런타임 Q&amp;A — 4문 4답</title>
+<style>
+  :root{
+    --ink:#0e1116; --abyss:#0a0d12; --panel:#161b22; --panel2:#1a2029; --code:#11151b;
+    --line:#2a323d; --line-soft:#222a34;
+    --shell:#ff7a45;   /* 런타임 */
+    --roe:#ffb347;     /* 코드·메타 */
+    --brine:#58a6ff;   /* 구조·참조 */
+    --kelp:#57c794;    /* 게이트웨이·저장 */
+    --coral:#bc8cff;   /* 코어 */
+    --tx:#e9eef4; --tx-dim:#9aa7b4; --tx-faint:#677482;
+    --mono:ui-monospace,"SF Mono","Cascadia Code","JetBrains Mono",Consolas,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI","Pretendard","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:var(--sans); background:var(--ink); color:var(--tx);
+    line-height:1.62; -webkit-font-smoothing:antialiased;
+    background-image:
+      radial-gradient(1200px 520px at 82% -8%, #ff7a4514, transparent),
+      radial-gradient(900px 480px at 4% 2%, #58a6ff10, transparent),
+      linear-gradient(var(--ink), var(--abyss));
+    background-attachment:fixed;
+  }
+  a{color:inherit}
+  .wrap{max-width:1000px;margin:0 auto;padding:0 26px}
+
+  /* ───────── TOPNAV ───────── */
+  .topnav{padding:26px 0 0; display:flex; align-items:center; justify-content:space-between; font-family:var(--mono); font-size:12px; color:var(--tx-faint)}
+  .topnav a{text-decoration:none; color:var(--tx-dim); border:1px solid var(--line); border-radius:999px; padding:6px 13px; transition:.15s}
+  .topnav a:hover{border-color:var(--shell); color:var(--tx)}
+  .topnav .br{letter-spacing:2px}
+
+  /* ───────── HERO ───────── */
+  .hero{padding:46px 0 12px}
+  .eyebrow{
+    font-family:var(--mono); font-size:12px; letter-spacing:3.5px; text-transform:uppercase;
+    color:var(--tx-faint); display:flex; align-items:center; gap:11px; margin-bottom:24px;
+  }
+  .eyebrow .claw{font-size:17px; filter:drop-shadow(0 3px 9px #ff7a4560); letter-spacing:0}
+  .eyebrow .rule{flex:1; height:1px; background:linear-gradient(90deg,var(--line),transparent)}
+  .hero-title{font-size:clamp(31px,5.2vw,54px); font-weight:850; letter-spacing:-1.6px; line-height:1.05}
+  .hero-title .peel{color:var(--shell); background:linear-gradient(transparent 78%, #ff7a4538 78%)}
+  .hero-sub{margin-top:20px; max-width:610px; font-size:16.5px; color:var(--tx-dim)}
+  .hero-sub b{color:var(--tx)}
+
+  /* 질문 인덱스 칩 */
+  .qindex{margin-top:30px; display:flex; flex-wrap:wrap; gap:9px}
+  .qjump{
+    text-decoration:none; display:flex; align-items:center; gap:9px;
+    border:1px solid var(--line); border-radius:11px; padding:10px 13px;
+    background:linear-gradient(180deg,#1a2029,#161b22); transition:.16s; min-width:0;
+  }
+  .qjump:hover{transform:translateY(-2px); border-color:var(--tone); box-shadow:0 10px 24px #0005}
+  .qjump .qn{font-family:var(--mono); font-weight:800; font-size:13px; color:#0e1116; background:var(--tone); border-radius:7px; width:26px; height:26px; display:flex; align-items:center; justify-content:center; flex:none}
+  .qjump .ql{font-size:13px; color:var(--tx-dim); line-height:1.3}
+  .qjump.t1{--tone:var(--shell)} .qjump.t2{--tone:var(--coral)} .qjump.t3{--tone:var(--kelp)} .qjump.t4{--tone:var(--brine)}
+
+  /* ───────── Q&A 카드 ───────── */
+  .qa{margin-top:30px; display:flex; flex-direction:column; gap:22px}
+  .qcard{
+    --tone:var(--shell);
+    border:1px solid var(--line); border-radius:16px; overflow:hidden; position:relative;
+    background:linear-gradient(180deg,#1a2029,#13181f);
+  }
+  .qcard::before{content:""; position:absolute; left:0; top:0; bottom:0; width:4px; background:var(--tone)}
+  .qcard.t1{--tone:var(--shell)} .qcard.t2{--tone:var(--coral)} .qcard.t3{--tone:var(--kelp)} .qcard.t4{--tone:var(--brine)}
+
+  .qhead{display:flex; align-items:flex-start; gap:14px; padding:20px 24px 0}
+  .qhead .qbadge{font-family:var(--mono); font-weight:800; font-size:15px; color:#0e1116; background:var(--tone); border-radius:9px; width:38px; height:38px; display:flex; align-items:center; justify-content:center; flex:none; box-shadow:0 4px 14px #0004}
+  .qhead .qtext{font-size:19px; font-weight:780; letter-spacing:-.4px; line-height:1.35; padding-top:5px}
+
+  /* 한 줄 답 (결론 먼저) */
+  .qlede{margin:15px 24px 0; padding:15px 17px; border-radius:12px; background:color-mix(in srgb, var(--tone) 9%, transparent); border:1px solid color-mix(in srgb, var(--tone) 38%, transparent)}
+  .qlede .tag{font-family:var(--mono); font-size:10.5px; letter-spacing:1.5px; text-transform:uppercase; color:var(--tone); font-weight:700; display:block; margin-bottom:6px}
+  .qlede .ans{font-size:15.5px; color:var(--tx); line-height:1.55}
+  .qlede .ans b{color:var(--tone)}
+  .qlede .ans code{font-family:var(--mono); font-size:13px; color:var(--roe); background:#0e1116; border:1px solid var(--line); border-radius:5px; padding:1px 6px}
+
+  /* 본문 */
+  .qbody{padding:18px 24px 22px}
+  .qbody h4{font-size:13.5px; font-weight:750; color:var(--tx); margin:16px 0 9px; display:flex; align-items:center; gap:8px}
+  .qbody h4:first-child{margin-top:2px}
+  .qbody h4 .dot{width:7px; height:7px; border-radius:50%; background:var(--tone); flex:none}
+  .qbody p{font-size:14px; color:var(--tx-dim); line-height:1.62; margin:0 0 6px}
+  .qbody p b{color:var(--tx); font-weight:650}
+  .qbody code{font-family:var(--mono); font-size:12.5px; color:var(--roe)}
+  .qbody ul{list-style:none; margin:4px 0 8px; padding:0; display:flex; flex-direction:column; gap:7px}
+  .qbody ul li{font-size:13.5px; color:var(--tx-dim); line-height:1.55; padding-left:17px; position:relative}
+  .qbody ul li::before{content:"▸"; position:absolute; left:0; color:var(--tone); font-size:11px; top:1px}
+  .qbody ul li b{color:var(--tx); font-weight:650}
+  .qbody ul li code{color:var(--roe)}
+
+  /* 파일 근거 칩 */
+  .refs{display:flex; flex-wrap:wrap; gap:6px; margin-top:12px}
+  .refs .rlabel{font-family:var(--mono); font-size:10px; letter-spacing:1px; text-transform:uppercase; color:var(--tx-faint); align-self:center; margin-right:2px}
+  .refs .fchip{font-family:var(--mono); font-size:11px; color:var(--brine); background:#58a6ff10; border:1px solid #58a6ff2e; border-radius:7px; padding:3px 8px}
+
+  /* 코드/경로 블록 */
+  .pathbox{font-family:var(--mono); font-size:12.5px; color:var(--tx); background:var(--code); border:1px solid var(--line); border-radius:10px; padding:13px 15px; margin:10px 0; line-height:1.7; overflow-x:auto}
+  .pathbox .c{color:var(--kelp)} .pathbox .b{color:var(--brine)} .pathbox .f{color:var(--tx-faint)} .pathbox .h{color:var(--roe)}
+
+  /* 두 갈래 비교 (Q1) */
+  .split{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:8px 0 4px}
+  .scol{border:1px solid var(--line); border-radius:12px; padding:15px 16px; background:#11151b80; position:relative}
+  .scol.in{border-color:#ff7a4540} .scol.ex{border-color:#58a6ff40}
+  .scol .sk{font-family:var(--mono); font-size:11px; letter-spacing:1px; text-transform:uppercase; margin-bottom:8px; font-weight:700}
+  .scol.in .sk{color:var(--shell)} .scol.ex .sk{color:var(--brine)}
+  .scol .st{font-size:14.5px; font-weight:720; color:var(--tx); margin-bottom:7px}
+  .scol p{font-size:13px; color:var(--tx-dim); line-height:1.55; margin:0}
+  .scol .ex-list{margin-top:9px; font-family:var(--mono); font-size:11.5px; color:var(--tx-faint)}
+  .scol .ex-list b{color:var(--tx-dim)}
+
+  /* 모델 그리드 (Q2) */
+  .mgrid{display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin:6px 0 4px}
+  .mcell{border:1px solid var(--line); border-radius:9px; padding:10px 11px; background:#1a2029}
+  .mcell .mr{font-size:12.5px; font-weight:700; color:var(--tx); margin-bottom:2px}
+  .mcell .mf{font-family:var(--mono); font-size:10.5px; color:var(--coral)}
+  .mcell.prim{border-color:#bc8cff55; background:#bc8cff0d}
+
+  /* 두 에이전트 레이어 (Q2) */
+  .layers{display:flex; flex-direction:column; gap:9px; margin:6px 0}
+  .layer{display:grid; grid-template-columns:30px 1fr; gap:13px; align-items:start; border:1px solid var(--line); border-radius:11px; padding:13px 15px; background:#11151b66}
+  .layer .ln{font-family:var(--mono); font-weight:800; font-size:13px; color:#0e1116; background:var(--coral); border-radius:7px; width:30px; height:30px; display:flex; align-items:center; justify-content:center}
+  .layer .ld .lt{font-size:14px; font-weight:720; color:var(--tx); margin-bottom:3px}
+  .layer .ld .ll{font-size:13px; color:var(--tx-dim); line-height:1.55}
+  .layer .ld .ll code{color:var(--roe)}
+
+  /* 저장 위치 합본 다이어그램 (Q3·Q4) */
+  .store{margin-top:42px}
+  .store-card{border:1px solid var(--line); border-radius:16px; padding:22px 24px; background:linear-gradient(180deg,#1a2029,#13181f); position:relative; overflow:hidden}
+  .store-card::after{content:""; position:absolute; inset:0 0 auto 0; height:3px; background:linear-gradient(90deg,var(--kelp),var(--brine))}
+  .store-card .sc-h{font-size:16px; font-weight:780; margin-bottom:4px}
+  .store-card .sc-s{font-size:13.5px; color:var(--tx-dim); margin-bottom:16px; max-width:640px}
+  .filetree{font-family:var(--mono); font-size:13px; line-height:1.85; color:var(--tx-dim); background:var(--code); border:1px solid var(--line); border-radius:11px; padding:16px 18px; overflow-x:auto}
+  .filetree .dir{color:var(--tx-faint)}
+  .filetree .meta{color:var(--brine)} .filetree .talk{color:var(--kelp)}
+  .filetree .anno{color:var(--tx-faint); font-style:normal}
+  .filetree .anno b.m{color:var(--brine); font-style:normal} .filetree .anno b.t{color:var(--kelp); font-style:normal}
+  .store-legend{display:flex; flex-wrap:wrap; gap:18px; margin-top:14px}
+  .store-legend .sl{display:flex; gap:9px; align-items:flex-start; font-size:13px; color:var(--tx-dim); line-height:1.5; flex:1; min-width:220px}
+  .store-legend .sl i{width:11px; height:11px; border-radius:3px; flex:none; margin-top:4px}
+  .store-legend .sl.m i{background:var(--brine)} .store-legend .sl.t i{background:var(--kelp)}
+  .store-legend .sl b{color:var(--tx)}
+  .store-legend .sl code{font-family:var(--mono); font-size:11.5px; color:var(--roe)}
+
+  /* ───────── FOOTER ───────── */
+  .foot{margin:62px 0 56px; padding-top:24px; border-top:1px solid var(--line); color:var(--tx-faint); font-size:13px; line-height:1.7}
+  .foot code{font-family:var(--mono); color:var(--tx-dim)}
+  .foot .ex{color:var(--shell); font-family:var(--mono); letter-spacing:2px; font-size:11px}
+
+  @media (prefers-reduced-motion: no-preference){
+    .qcard{opacity:0; animation:rise .5s ease forwards}
+    .qcard.t1{animation-delay:.04s} .qcard.t2{animation-delay:.12s}
+    .qcard.t3{animation-delay:.20s} .qcard.t4{animation-delay:.28s}
+    .hero-title{opacity:0; animation:rise .55s ease forwards}
+    .hero-sub{opacity:0; animation:rise .55s ease .1s forwards}
+    @keyframes rise{from{opacity:0; transform:translateY(10px)} to{opacity:1; transform:none}}
+  }
+  @media (max-width:680px){
+    .split{grid-template-columns:1fr}
+    .mgrid{grid-template-columns:1fr 1fr}
+    .hero{padding:34px 0 10px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ───────── TOPNAV ───────── -->
+  <nav class="topnav">
+    <a href="index.html">← 조사 홈</a>
+    <span class="br">🦞 OpenClaw · 런타임 Q&amp;A · main@f65aca64</span>
+  </nav>
+
+  <!-- ───────── HERO ───────── -->
+  <header class="hero">
+    <div class="eyebrow"><span class="claw">🦞</span> Questions &amp; Answers <span class="rule"></span> 코드 트레이싱 근거</div>
+    <h1 class="hero-title">에이전트 런타임,<br><span class="peel">네 가지 질문</span>에 답하다</h1>
+    <p class="hero-sub">
+      "embedded 에이전트는 뭔가", "몇 대인가", "대화·세션은 어디 저장되나" —
+      네 질문을 <b>코드 레벨로 추적</b>해 결론부터 적었다. 각 카드의 파일 칩이 근거다.
+    </p>
+
+    <div class="qindex">
+      <a class="qjump t1" href="#q1"><span class="qn">1</span><span class="ql">embedded 에이전트가<br>따로 있나?</span></a>
+      <a class="qjump t2" href="#q2"><span class="qn">2</span><span class="ql">에이전트는 몇 대?<br>한 대에 여러 모델?</span></a>
+      <a class="qjump t3" href="#q3"><span class="qn">3</span><span class="ql">대화 내용은<br>어디 저장되나?</span></a>
+      <a class="qjump t4" href="#q4"><span class="qn">4</span><span class="ql">세션 정보는<br>어디 저장되나?</span></a>
+    </div>
+  </header>
+
+  <!-- ───────── Q&A ───────── -->
+  <section class="qa">
+
+    <!-- ════ Q1 ════ -->
+    <article class="qcard t1" id="q1">
+      <div class="qhead">
+        <span class="qbadge">Q1</span>
+        <span class="qtext">에이전트 런타임에 "embedded 에이전트"가 따로 있어?</span>
+      </div>
+
+      <div class="qlede">
+        <span class="tag">한 줄 답</span>
+        <span class="ans">
+          별개의 "또 다른 에이전트"가 아니라, <b>에이전트를 돌리는 방식</b>이다.
+          "embedded"는 OpenClaw가 <b>자기 프로세스 안에서 직접 모델 루프를 구동</b>한다는 뜻 —
+          그 전용 런타임이 <code>src/agents/embedded-agent-runner/</code>이고 진입점은 <code>runEmbeddedAgent()</code>다.
+        </span>
+      </div>
+
+      <div class="qbody">
+        <h4><span class="dot"></span>핵심: "embedded vs CLI"는 모델 루프를 <i>누가 소유하느냐</i>의 차이</h4>
+        <p>런타임에는 두 갈래가 있다. 같은 에이전트라도 어느 갈래로 실행되느냐만 다르다.</p>
+
+        <div class="split">
+          <div class="scol in">
+            <div class="sk">Embedded harness · 내장</div>
+            <div class="st">OpenClaw가 직접 모델 루프를 돈다</div>
+            <p>OpenClaw가 준비한 에이전트 루프 <b>안(in-process)</b>에서 모델을 호출한다. 재시도·페일오버·컴팩션 같은 운영 껍데기를 OpenClaw가 입힌다.</p>
+            <div class="ex-list">기본 <b>openclaw</b> 런타임 + 플러그인 하네스 <b>codex</b> · <b>copilot</b></div>
+          </div>
+          <div class="scol ex">
+            <div class="sk">CLI backend · 외부</div>
+            <div class="st">별도 CLI 프로세스가 루프를 돈다</div>
+            <p>로컬 CLI 바이너리를 <b>별도 프로세스</b>로 띄워 그 프로세스가 모델 루프를 소유한다. OpenClaw는 model ref만 표준으로 유지한 채 위임한다.</p>
+            <div class="ex-list">예: <b>claude-cli</b> — "embedded harness가 아님"이라 문서에 명시</div>
+          </div>
+        </div>
+
+        <h4><span class="dot"></span>그래서 "따로 있냐"는 두 갈래로 답한다</h4>
+        <ul>
+          <li><b>또 다른 에이전트 인스턴스로 따로 있나?</b> → 아니다. embedded는 별개 에이전트가 아니라 실행 방식이며, 기본값이다.</li>
+          <li><b>전용 코드/런타임으로 구분되나?</b> → 그렇다. <code>embedded-agent-runner</code>라는 본체가 있고 외부 CLI 백엔드와 명확히 갈린다.</li>
+        </ul>
+
+        <h4><span class="dot"></span>헷갈리기 쉬운 동음이의 — 이건 다른 개념</h4>
+        <p><code>src/infra/embedded-mode.ts</code>의 "embedded <b>mode</b>"는 OpenClaw가 데스크탑/모바일 <b>호스트 앱 안에 내장되어</b> 도느냐의 플래그로, 에이전트 런타임과는 무관하다.</p>
+
+        <div class="refs">
+          <span class="rlabel">근거</span>
+          <span class="fchip">embedded-agent-runner/run.ts:602</span>
+          <span class="fchip">src/agents/embedded-agent.ts</span>
+          <span class="fchip">docs/concepts/agent-runtimes.md:32–42</span>
+          <span class="fchip">docs/agent-runtime-architecture.md:10,43</span>
+        </div>
+      </div>
+    </article>
+
+    <!-- ════ Q2 ════ -->
+    <article class="qcard t2" id="q2">
+      <div class="qhead">
+        <span class="qbadge">Q2</span>
+        <span class="qtext">에이전트는 몇 대야? 한 대에 여러 모델이 붙어?</span>
+      </div>
+
+      <div class="qlede">
+        <span class="tag">한 줄 답</span>
+        <span class="ans">
+          <b>고정 1대가 아니다.</b> 설정된 상위 에이전트(기본 <code>main</code> 1대) 위에, 실행 중 동적으로 늘어나는 <b>sub-agent 트리</b>가 얹힌다.
+          그리고 <b>한 에이전트에는 여러 모델이 붙는다</b> — primary+fallback 체인에 역할별 보조 모델까지.
+        </span>
+      </div>
+
+      <div class="qbody">
+        <h4><span class="dot"></span>A. 몇 대인가 — 두 층으로 본다</h4>
+        <div class="layers">
+          <div class="layer">
+            <span class="ln">1</span>
+            <div class="ld">
+              <div class="lt">설정 에이전트(페르소나) — 기본 <code>main</code> 1대</div>
+              <div class="ll">각자 고유한 workspace · agentDir · 인증 프로필 · 모델 레지스트리 · 세션 스토어를 <code>~/.openclaw/agents/&lt;id&gt;/</code>에 가진 완전한 인격. <code>openclaw agents add &lt;id&gt;</code>로 여러 대를 나란히 둘 수 있고, bindings로 라우팅한다.</div>
+            </div>
+          </div>
+          <div class="layer">
+            <span class="ln">2</span>
+            <div class="ld">
+              <div class="lt">Sub-agent — 실행 중 동적으로 fan-out</div>
+              <div class="ll">한 번의 실행에서 백그라운드 sub-agent를 <code>sessions_spawn</code>으로 띄운다. 개수는 <b>인메모리 레지스트리로 카운트</b>되며 고정값이 없다. 상한: <code>maxSpawnDepth</code> 1(1–5) · <code>maxChildrenPerAgent</code> 5 · <code>maxConcurrent</code> 8.</div>
+            </div>
+          </div>
+        </div>
+
+        <h4><span class="dot"></span>B. 한 대에 여러 모델 — 그렇다, 네 가지 방식으로</h4>
+        <ul>
+          <li><b>① primary + fallback 체인</b> — 모델 필드 자체가 <code>{ primary, fallbacks[] }</code>. primary 실패 시 순서대로 다음 모델로 넘어간다.</li>
+          <li><b>② 모델 allowlist / alias 카탈로그</b> — 한 에이전트가 여러 <code>provider/model</code>을 alias·params·runtime으로 매핑해 들고 있다.</li>
+          <li><b>③ 역할별 보조 모델</b> — 작업 종류마다 다른 모델을 붙인다(아래 그리드).</li>
+          <li><b>④ 런타임 스위칭 + 인증 로테이션</b> — <code>/model</code> 실시간 전환, provider 안에서 여러 auth 프로필을 쿨다운으로 돌린다.</li>
+        </ul>
+
+        <div class="mgrid">
+          <div class="mcell prim"><div class="mr">메인 대화</div><div class="mf">model · primary+fallbacks</div></div>
+          <div class="mcell"><div class="mr">컴팩션/요약</div><div class="mf">compaction.model</div></div>
+          <div class="mcell"><div class="mr">Sub-agent</div><div class="mf">subagents.model</div></div>
+          <div class="mcell"><div class="mr">하트비트</div><div class="mf">heartbeat.model</div></div>
+          <div class="mcell"><div class="mr">비전/이미지</div><div class="mf">imageModel · imageGenerationModel</div></div>
+          <div class="mcell"><div class="mr">PDF·영상·음악·음성</div><div class="mf">pdf · video · music · voiceModel</div></div>
+          <div class="mcell"><div class="mr">메모리 검색</div><div class="mf">memorySearch.model(임베딩)</div></div>
+          <div class="mcell"><div class="mr">Exec 리뷰어</div><div class="mf">tools.exec.reviewer.model</div></div>
+          <div class="mcell"><div class="mr">TTS 요약</div><div class="mf">tts summaryModel</div></div>
+        </div>
+        <p style="margin-top:8px"><b>참고:</b> "fast mode"는 별도의 작은 모델이 아니라 같은 모델에 속도 티어/변형을 입히는 <i>파라미터 셰이핑</i>이다.</p>
+
+        <div class="refs">
+          <span class="rlabel">근거</span>
+          <span class="fchip">zod-schema.agents.ts:10</span>
+          <span class="fchip">zod-schema.agent-model.ts:5</span>
+          <span class="fchip">zod-schema.agent-defaults.ts:56–263</span>
+          <span class="fchip">agents/model-fallback.ts:1333</span>
+          <span class="fchip">agents/subagent-list.ts:229</span>
+          <span class="fchip">docs/concepts/multi-agent.md</span>
+          <span class="fchip">docs/tools/subagents.md</span>
+        </div>
+      </div>
+    </article>
+
+    <!-- ════ Q3 ════ -->
+    <article class="qcard t3" id="q3">
+      <div class="qhead">
+        <span class="qbadge">Q3</span>
+        <span class="qtext">대화 내용은 어디에 저장돼?</span>
+      </div>
+
+      <div class="qlede">
+        <span class="tag">한 줄 답</span>
+        <span class="ans">
+          세션마다 <b>JSONL 파일 한 개</b>로 디스크에 쌓인다 —
+          <code>~/.openclaw/agents/&lt;agentId&gt;/sessions/&lt;sessionId&gt;.jsonl</code> (기본 에이전트 <code>main</code>).
+          한 줄이 곧 한 항목이며 append-only다.
+        </span>
+      </div>
+
+      <div class="qbody">
+        <h4><span class="dot"></span>한 줄 = 한 JSON 항목</h4>
+        <p>첫 줄은 세션 <b>헤더</b>(<code>type:"session"</code> · version 3 · cwd), 이후로는 전부 <code>type:"message"</code> 행이다. user / assistant / toolResult 메시지가 줄 단위로 쌓인다.</p>
+        <ul>
+          <li><b>도구 호출</b>은 assistant 메시지의 <code>content</code> 배열 안에, <b>그 결과</b>는 별도의 <code>toolResult</code> 메시지로 저장된다.</li>
+          <li>thinking·이미지(base64)·model_change·compaction 같은 항목도 같은 파일에 줄로 들어간다.</li>
+          <li>작성자는 <code>SessionManager.persistRecord</code> → append 헬퍼(<code>transcript-jsonl.ts</code>). 파일 권한은 <code>0600</code>.</li>
+        </ul>
+
+        <div class="pathbox">
+<span class="f"># 메시징 런타임(기본)</span>
+~/<span class="c">.openclaw</span>/agents/<span class="b">main</span>/sessions/<span class="h">&lt;sessionId&gt;.jsonl</span>
+
+<span class="f"># 독립 에이전트 하네스(단수 agent 폴더)</span>
+~/<span class="c">.openclaw</span>/<span class="b">agent</span>/sessions/<span class="h">&lt;timestamp&gt;_&lt;sessionId&gt;.jsonl</span>
+        </div>
+        <p><b>포맷:</b> JSONL — 일반 JSON도 SQLite도 아니다. 저장 루트는 <code>~/.openclaw</code>(<code>OPENCLAW_STATE_DIR</code>로 변경 가능).</p>
+
+        <div class="refs">
+          <span class="rlabel">근거</span>
+          <span class="fchip">sessions/session-manager.ts:2082</span>
+          <span class="fchip">config/sessions/transcript-jsonl.ts</span>
+          <span class="fchip">config/sessions/paths.ts:244,280</span>
+          <span class="fchip">config/sessions/version.ts:2</span>
+        </div>
+      </div>
+    </article>
+
+    <!-- ════ Q4 ════ -->
+    <article class="qcard t4" id="q4">
+      <div class="qhead">
+        <span class="qbadge">Q4</span>
+        <span class="qtext">세션 정보는 어디에 저장돼?</span>
+      </div>
+
+      <div class="qlede">
+        <span class="tag">한 줄 답</span>
+        <span class="ans">
+          에이전트마다 <b>JSON 파일 한 개</b>에 모인다 —
+          <code>~/.openclaw/agents/&lt;agentId&gt;/sessions/sessions.json</code>.
+          <code>sessionKey → 세션 메타</code> 맵으로, 대화 본문이 아니라 <b>메타데이터와 포인터</b>를 담는다.
+        </span>
+      </div>
+
+      <div class="qbody">
+        <h4><span class="dot"></span>대화 파일과 같은 폴더, 다른 역할</h4>
+        <p>한 에이전트의 <b>모든 세션</b>이 이 단일 JSON 객체 하나에 들어간다. 세션마다 메타 파일이 따로 있는 게 아니다. 각 항목의 <code>sessionFile</code> 필드가 짝이 되는 <code>.jsonl</code> 대화 파일을 가리킨다.</p>
+        <ul>
+          <li><b>담는 것:</b> sessionId · sessionFile 포인터 · 타임스탬프 · status · 모델/런타임 선택(override) · 작업 디렉토리 · 큐 상태(queueMode 등) · 제목/origin(채널·발신자) · resume 정보 · 토큰·컴팩션 통계.</li>
+          <li><b>작성자:</b> <code>store.ts</code>의 <code>saveSessionStore</code> / <code>updateSessionStore</code> — temp 파일 + rename으로 atomic 저장, 경로별 writer 락으로 직렬화.</li>
+          <li><b>"지금 보던 세션" 포인터</b>는 별도 파일: <code>~/.openclaw/tui/last-session.json</code> (TUI 레이어).</li>
+          <li>모든 세션 상태의 소유자는 <b>gateway</b>다. UI는 파일을 직접 읽지 않고 gateway에 질의한다.</li>
+        </ul>
+        <p><b>포맷:</b> 들여쓴 단일 JSON 객체 — JSONL이 아니다(대화는 JSONL, 메타는 JSON).</p>
+
+        <div class="refs">
+          <span class="rlabel">근거</span>
+          <span class="fchip">config/sessions/store.ts:996</span>
+          <span class="fchip">config/sessions/types.ts:213</span>
+          <span class="fchip">config/sessions/paths.ts:11,297</span>
+          <span class="fchip">tui/tui-last-session.ts:19</span>
+          <span class="fchip">docs/concepts/session.md:90–96</span>
+        </div>
+      </div>
+    </article>
+
+  </section>
+
+  <!-- ───────── 저장 합본 다이어그램 (Q3 + Q4) ───────── -->
+  <section class="store">
+    <div class="store-card">
+      <div class="sc-h">한눈에 — 대화(Q3)와 세션 정보(Q4)는 같은 폴더에 나란히 산다</div>
+      <p class="sc-s">메타(<code style="font-family:var(--mono);color:var(--brine)">sessions.json</code>)가 색인이라면, 대화 본문(<code style="font-family:var(--mono);color:var(--kelp)">&lt;id&gt;.jsonl</code>)은 그 색인이 가리키는 실제 기록이다.</p>
+      <div class="filetree">
+<span class="dir">~/.openclaw/agents/<b style="color:#e9eef4">main</b>/sessions/</span>
+├─ <span class="meta">sessions.json</span>          <span class="anno">← <b class="m">세션 정보(메타) · Q4</b> — sessionKey→메타 맵 (JSON)</span>
+├─ <span class="talk">&lt;sessionId-A&gt;.jsonl</span>    <span class="anno">← <b class="t">대화 내용 · Q3</b> — 한 줄 = 한 메시지 (JSONL)</span>
+├─ <span class="talk">&lt;sessionId-B&gt;.jsonl</span>    <span class="anno">← <b class="t">대화 내용 · Q3</b></span>
+└─ <span class="talk">&lt;sessionId-C&gt;.jsonl</span>    <span class="anno">← <b class="t">대화 내용 · Q3</b></span>
+      </div>
+      <div class="store-legend">
+        <div class="sl m"><i></i><span><b>sessions.json</b> — 한 에이전트의 모든 세션 메타를 담은 단일 <code>JSON</code> 맵. 각 항목의 <code>sessionFile</code>이 아래 대화 파일을 가리킨다.</span></div>
+        <div class="sl t"><i></i><span><b>&lt;sessionId&gt;.jsonl</b> — 세션 1개당 1파일. append-only <code>JSONL</code> 트랜스크립트로 실제 user/assistant/tool 메시지가 쌓인다.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────── FOOTER ───────── -->
+  <footer class="foot">
+    🦞 <strong>OpenClaw 런타임 Q&amp;A</strong> · 4문 4답 · 2026-06-28<br>
+    근거: 코드 트레이싱(<code>embedded-agent-runner/ · config/sessions/ · agents/model-fallback.ts · docs/concepts/</code>)<br>
+    <span class="ex">EXFOLIATE! EXFOLIATE!</span>
+  </footer>
+
+</div>
+</body>
+</html>

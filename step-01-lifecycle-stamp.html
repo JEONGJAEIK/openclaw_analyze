@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>깊이 보기 · 생애 도장 — 재시작을 가로지르는 유령 차단</title>
+<link rel="stylesheet" href="steps.css">
+</head>
+<body>
+<div class="wrap">
+  <nav class="crumb"><a href="step-01-entry.html">← STEP A · 진입</a><span class="pos">깊이 보기 · 생애 도장</span></nav>
+
+  <header class="shead phase-enter">
+    <div class="snum">③</div>
+    <div>
+      <div class="sphase">STEP A · 깊이 보기</div>
+      <h1>생애 도장 — 서버가 스스로 재시작해도 옛 실행이 유령으로 끼어들지 못하게</h1>
+    </div>
+  </header>
+  <p class="slead">진입 단계는 모든 실행에 "<b>너는 서버의 이 생애 소속</b>"이라는 도장을 찍는다고 했다. 그 도장의 정체는 <b>프로세스에 단 하나뿐인 세대 표식</b> — 무작위로 뽑은 한 줄짜리 식별자다. 이 페이지는 그 한 줄이 어떻게 모든 이벤트에 따라붙고, 재시작 때 어떻게 갈리며, 그래서 어떻게 옛 실행을 유령으로 솎아내는지를 본다.</p>
+
+  <section class="card phase-enter">
+    <h2>무엇을 막으려는 건가 — 재시작의 그 한순간</h2>
+    <p><b>OpenClaw는 오래 떠 있는 서버라, 프로세스를 끄지 않은 채 자기 자신을 재시작한다.</b> 그 순간 아직 안 끝난 옛 실행들이 처리되다 만 채 남는다 — 이들을 그냥 두면 사고가 난다.</p>
+    <p>새 코드나 바뀐 설정을 반영하려고 OpenClaw는 <b>인-프로세스 재시작</b>을 한다(신호 하나로 내부 상태만 새로 차린다). 문제는 그 찰나, 옛 실행들이 살아남아 <b>이미 지나간 답을 채팅창에 유령처럼 흘리거나</b>, 막 시작된 새 대화 기록 위에 <b>옛 결과를 덮어써</b> 망가뜨릴 수 있다는 것이다. 막을 방법은 하나 — <b>어느 실행이 '지금 세대'에 속하고 어느 게 '지나간 세대'인지</b> 한눈에 가려내는 것.</p>
+  </section>
+
+  <section class="card phase-enter">
+    <h2>① 도장이란 — 프로세스에 하나뿐인 '세대 표식'</h2>
+    <p><b>도장은 무작위로 뽑은 한 줄짜리 식별자(UUID)이고, 프로세스 전체에 단 하나만 존재한다.</b> 이것이 "지금 살아 있는 세대"를 가리키는 유일한 기준점이다.</p>
+    <p>서버가 켜지면 공용 상태 한 칸에 <b>세대 표식</b>이 무작위 UUID로 한 번 채워진다. 왜 1·2·3 같은 <b>번호가 아니라 UUID</b>인가 — 새로 뽑은 표식은 옛 표식과 <b>절대 우연히 겹치지 않기</b> 때문이다. "이게 지금 세대냐"는 판단이 글자 일치 한 번으로 깔끔히 끝난다. 그리고 이 칸은 <b>전역 고정키</b>(<code>Symbol.for</code>)로 잡혀 있어, 같은 프로세스 안에서 모듈이 여러 번 불려도 <b>똑같은 한 칸</b>을 가리킨다 — 세대가 사본마다 갈라지는 일이 없다.</p>
+  </section>
+
+  <section class="card phase-enter">
+    <h2>② 어떻게 모든 이벤트에 따라붙나 — 실행을 통째로 감싼다</h2>
+    <p><b>실행이 받아들여지는 순간 그때의 세대 표식을 떠서, 그 실행 전체를 그 표식으로 감싼다.</b> 그러면 실행이 토해내는 모든 이벤트가 같은 도장을 <b>저절로</b> 물려받는다.</p>
+    <p>한 실행이 입구를 통과하면, 문지기는 <b>지금 세대 표식을 한 번 뜬다</b>(<code>captureAgentRunLifecycleGeneration</code>). 그리고 그 실행의 안쪽 전부를 그 표식을 두른 <b>실행 맥락</b>으로 감싼다(<code>withAgentRunLifecycleGeneration</code>). 이 맥락은 함수에서 함수로 인자를 손수 넘기지 않아도 <b>그 실행이 도는 동안 늘 곁에 따라다니는 보이지 않는 배경값</b>이다(비동기 로컬 저장소). 그래서 실행 깊숙한 곳에서 이벤트를 하나 토해낼 때마다, 코드가 표식을 일일이 챙기지 않아도 <b>배경에 깔린 그 도장이 자동으로 찍힌다</b>(<code>emitAgentEvent</code>). 한 번 떠서 감싸 두면, 그 실행의 말 한마디 한마디에 같은 소속이 박힌다.</p>
+    <p>요점은 도장이 <b>실행 단위로 한 번 정해지면 끝까지 안 바뀐다</b>는 것 — 실행이 받아들여진 그 세대에 영원히 묶인다. 세상이 바뀌는 건 실행이 아니라 ③의 '지금 세대' 쪽이다.</p>
+  </section>
+
+  <section class="card phase-enter">
+    <h2>③ 재시작이 어떻게 세대를 갈아치우나 — 표식을 새로 뽑는다</h2>
+    <p><b>재시작 직전, 공용 '지금 세대' 표식을 새 UUID로 갈아치운다.</b> 그 한 줄이 바뀌는 순간, 옛 실행들이 단 표식은 전부 '지나간 세대'가 된다.</p>
+    <p>인-프로세스 재시작이 시작되면, 내부 상태를 새로 차리기 <b>전에</b> 먼저 세대 표식을 <b>새 UUID로 회전</b>시킨다(<code>rotateAgentEventLifecycleGeneration</code>). 옛 실행들의 도장은 그대로지만, 비교 기준인 '지금 세대'가 바뀌었으니 이제 그들의 도장은 <b>죄다 어긋난다</b>. 한 줄을 바꾸는 것만으로 "지금 살아 있는 세대"와 "방금 지나간 세대"가 <b>한칼에 갈린다</b> — 옛 실행을 하나씩 찾아다니며 멈출 필요가 없다. (바로 이 재시작 경계에서 <a href="step-01-config-snapshot.html">설정 스냅샷</a>도 함께 비워진다.)</p>
+  </section>
+
+  <section class="card phase-enter">
+    <h2>④ 유령을 어떻게 솎아내나 — 말은 버리고, 실행은 멈춘다</h2>
+    <p><b>도장이 어긋난 실행은 두 곳에서 동시에 막힌다 — 내보내려는 말은 화면에 닿기 전에 버려지고, 실행 자신은 다음 길목에서 멈춘다.</b></p>
+    <p><b>말을 버린다</b> — 실행이 토해내는 이벤트마다 그 실행의 도장이 찍혀 있다(②). 이 이벤트를 받아 화면에 그리거나 대화 기록에 적는 쪽은, 도장이 <b>지금 세대와 다르면</b> 그 출력을 <b>지나간 것으로 보고 흘려버린다</b>. 그래서 유령이 흘리려던 옛 답은 사용자 화면에 닿지 못하고, 새 기록을 덮어쓰지도 못한다.</p>
+    <p><b>실행을 멈춘다</b> — 실행은 중간중간 길목마다 "<b>나 아직 지금 세대 맞나?</b>"를 스스로 확인한다(<code>assertAgentRunLifecycleGenerationCurrent</code>). 어긋났으면 그 자리에서 <b>중단 신호</b>(AbortError)를 던지고 조용히 끝낸다. 덕분에 유령 실행이 재시작 뒤에도 <b>비싼 모델 호출을 계속 태우는</b> 일이 없다 — 다음 확인 지점에서 스스로 손을 뗀다. 사용자는 죽은 실행의 흔적을 <b>전혀 보지 못한다</b>.</p>
+  </section>
+
+  <section class="card verdict v-nuance phase-enter">
+    <h2>딱 한 가지 예외 — 사람이 보고 있는, 줄 서 있던 그 한 턴</h2>
+    <p><span class="vtag">재진입</span> <b>재시작 직전 이미 줄을 서서 차례를 기다리던 '사용자 대화 요청'만은, 유령으로 버리지 않고 새 세대 도장을 고쳐 받아 그대로 이어 간다.</b></p>
+    <p>사람이 지금 보고 있는, 진행 중인 한 턴까지 잃을 순 없다. 그래서 실행이 자기 차례가 됐을 때 도장이 어긋난 걸 발견하면, 무턱대고 멈추는 게 아니라 세 가지를 따진다 — <b>회전 전부터 줄 서 있었나</b>(갓 들어온 게 아니라), <b>사람이 기다리는 앞단(foreground) 요청인가</b>(뒤에서 도는 자동 작업이 아니라), 그리고 <b>같은 자리를 이미 더 새 실행이 차지하진 않았나</b>. 셋을 다 통과하면 — 유령이 아니라 '재시작에 휩쓸린 진행 중인 대화'로 보고 — <b>도장을 새 세대로 고쳐 달고 그대로 진행</b>한다. 그 외에는 모두 ④대로 멈춘다.</p>
+  </section>
+
+  <section class="card verdict phase-enter">
+    <h2>큰 그림 — 한 줄을 바꿔 '지금 살아 있는 한 무리'만 남긴다</h2>
+    <p>생애 도장은 작지만 영리한 장치다. 실행마다 무거운 추적표를 매다는 대신, <b>프로세스에 단 하나뿐인 세대 표식</b>을 두고, 모든 실행을 그 표식으로 감싸 둔다. 그러면 재시작 때 <b>그 한 줄만 새로 뽑으면</b>, 어느 실행이 지금 세대고 어느 게 지나갔는지가 즉시 갈린다 — 유령을 일일이 쫓을 필요 없이.</p>
+    <p>그래서 어느 순간에도 '지금 살아 있는 세대'는 정확히 한 무리뿐이고, 지나간 무리의 말은 화면에 닿기 전에 버려지며, 그들 자신도 다음 길목에서 손을 뗀다. 단 하나, <b>사람이 보고 있는 진행 중인 한 턴</b>만은 새 세대로 고쳐 달고 이어 간다. 진입 단계가 입구에서 한순간에 찍던 그 '생애 도장'이, 재시작이라는 가장 위험한 순간에 바로 이렇게 작동한다.</p>
+  </section>
+
+  <section class="card phase-enter ev">
+    <h2>코드 위치</h2>
+    <ul>
+      <li><code>infra/agent-events.ts</code> — 세대 표식·도장·회전 전체</li>
+      <li><code>agent-events.ts:167</code> 공용 상태(<code>Symbol.for</code> 전역 고정키) · <code>:172</code> 첫 세대 UUID</li>
+      <li><code>agent-events.ts:184</code> <code>withAgentRunLifecycleGeneration</code> — 실행을 도장으로 감싸기(비동기 로컬 저장소)</li>
+      <li><code>agent-events.ts:203</code> <code>captureAgentRunLifecycleGeneration</code> — 지금 세대 뜨기</li>
+      <li><code>agent-events.ts:212</code> <code>rotateAgentEventLifecycleGeneration</code> — 새 UUID로 회전</li>
+      <li><code>agent-events.ts:193</code> <code>assertAgentRunLifecycleGenerationCurrent</code> — 어긋나면 AbortError</li>
+      <li><code>agent-events.ts:453</code> 이벤트 emit 시 도장 찍기(<code>emitAgentEvent</code>)</li>
+      <li><code>run.ts:611–613</code> 진입에서 도장 떠서 안쪽 전체를 감쌈 · <code>run.ts:739</code> 차례 됐을 때 재확인/재진입</li>
+      <li><code>cli/gateway-cli/run-loop.ts:815</code> 재시작 경계 — 회전(그리고 <code>:828</code> 설정 스냅샷 비우기)</li>
+    </ul>
+  </section>
+
+  <nav class="stepnav">
+    <a class="prev" href="step-01-config-snapshot.html"><span class="nl">← 옆 깊이 보기</span>② 설정 스냅샷</a>
+    <a class="next" href="step-01-entry.html"><span class="nl">돌아가기 →</span>A · 진입 &amp; 설정 해석</a>
+  </nav>
+
+  <footer class="foot">🦞 OpenClaw 런타임 사다리 · STEP A 깊이 보기 · 생애 도장 · <a href="index.html">전체 보기</a></footer>
+</div>
+</body>
+</html>
