@@ -178,10 +178,10 @@
     <div class="tagline">EXFOLIATE! EXFOLIATE!</div>
     <h1>프로젝트 <span class="hl">디렉토리별 역할</span> 안내서</h1>
     <p class="lead">
-      OpenClaw는 자신의 기기에서 직접 실행하는 <strong>개인용 AI 어시스턴트</strong>입니다.
+      OpenClaw는 자신의 기기에서 직접 실행하는 <strong>개인용 AI 어시스턴트</strong>다.
       WhatsApp · Telegram · Slack · Discord · iMessage 등 이미 쓰는 채널에서 응답하고,
-      음성으로 말하고 들으며, 라이브 Canvas를 렌더링합니다. Gateway는 컨트롤 플레인일 뿐,
-      제품의 본질은 어시스턴트 그 자체입니다. 이 문서는 모노레포의 디렉토리 구조와 각 영역의 역할을 정리합니다.
+      음성으로 말하고 들으며, 라이브 Canvas를 렌더링한다. Gateway는 컨트롤 플레인일 뿐,
+      제품의 본질은 어시스턴트 그 자체다. 모노레포의 디렉토리 구조와 각 영역의 역할은 다음과 같다.
     </p>
     <div class="meta-row">
       <span class="pill">루트 디렉토리 <b>16+</b></span>
@@ -215,58 +215,58 @@
       <span class="count">root/</span>
     </div>
     <p class="section-desc">
-      모노레포 루트의 주요 디렉토리입니다. 코어 런타임(<code>src</code>)을 중심으로,
+      모노레포 루트의 주요 디렉토리다. 코어 런타임(<code>src</code>)을 중심으로,
       재사용 라이브러리(<code>packages</code>)·플러그인(<code>extensions</code>)·네이티브 앱(<code>apps</code>)이
-      위성처럼 배치되어 있습니다.
+      위성처럼 배치되어 있다.
     </p>
 
     <div class="grid">
       <div class="card t-core">
         <div class="path"><span class="ic">⚙️</span>src/</div>
         <div class="role">코어 TypeScript 런타임 — 프로젝트의 심장</div>
-        <div class="detail">Gateway·에이전트·채널·CLL·플러그인 로더·세션·도구 등 OpenClaw의 핵심 로직 전부. 플러그인에 비의존적(plugin-agnostic)이며, 플러그인은 SDK 시암(seam)을 통해서만 코어로 진입합니다.</div>
+        <div class="detail">Gateway·에이전트·채널·CLL·플러그인 로더·세션·도구 등 OpenClaw의 핵심 로직 전부. 플러그인에 비의존적(plugin-agnostic)이며, 플러그인은 SDK 시암(seam)을 통해서만 코어로 진입한다.</div>
         <span class="tag">68개 모듈</span><span class="tag">핵심</span>
       </div>
 
       <div class="card t-pkg">
         <div class="path"><span class="ic">📦</span>packages/</div>
         <div class="role">재사용 가능한 내부 라이브러리 패키지</div>
-        <div class="detail">코어와 플러그인이 공유하는 독립 패키지. <code>gateway-protocol</code>(통신 규약), <code>llm-core</code>·<code>llm-runtime</code>(LLM), <code>agent-core</code>, <code>plugin-sdk</code> 등으로 구성됩니다.</div>
+        <div class="detail">코어와 플러그인이 공유하는 독립 패키지. <code>gateway-protocol</code>(통신 규약), <code>llm-core</code>·<code>llm-runtime</code>(LLM), <code>agent-core</code>, <code>plugin-sdk</code> 등으로 구성된다.</div>
         <span class="tag">21개 패키지</span>
       </div>
 
       <div class="card t-ext">
         <div class="path"><span class="ic">🧩</span>extensions/</div>
         <div class="role">플러그인 — 프로바이더 · 채널 · 도구</div>
-        <div class="detail">anthropic·openai·amazon-bedrock 등 모델 프로바이더, discord·brave 등 통합 기능. 코어 dist에 번들되는 내부 플러그인과 자체 패키지/의존성을 소유하는 외부 공식 플러그인으로 나뉩니다.</div>
+        <div class="detail">anthropic·openai·amazon-bedrock 등 모델 프로바이더, discord·brave 등 통합 기능. 코어 dist에 번들되는 내부 플러그인과 자체 패키지/의존성을 소유하는 외부 공식 플러그인으로 나뉜다.</div>
         <span class="tag">139개 플러그인</span>
       </div>
 
       <div class="card t-ext">
         <div class="path"><span class="ic">🛠️</span>skills/</div>
         <div class="role">외부 도구 · 서비스 연동 스킬</div>
-        <div class="detail">1password·notion·github·obsidian·peekaboo 등 외부 앱/서비스를 어시스턴트가 다루게 해주는 스킬 모음. 각 스킬은 독립 폴더로 캡슐화됩니다.</div>
+        <div class="detail">1password·notion·github·obsidian·peekaboo 등 외부 앱/서비스를 어시스턴트가 다루게 해주는 스킬 모음. 각 스킬은 독립 폴더로 캡슐화된다.</div>
         <span class="tag">52개 스킬</span>
       </div>
 
       <div class="card t-app">
         <div class="path"><span class="ic">📱</span>apps/</div>
         <div class="role">네이티브 클라이언트 앱</div>
-        <div class="detail"><code>android</code>(Kotlin)·<code>ios</code>·<code>macos</code>(Swift)·<code>macos-mlx-tts</code>(로컬 TTS)·<code>swabble</code> 앱과, 이들이 공유하는 <code>shared/OpenClawKit</code>. 음성·트레이·노드 모드 등 기기별 경험을 담당합니다.</div>
+        <div class="detail"><code>android</code>(Kotlin)·<code>ios</code>·<code>macos</code>(Swift)·<code>macos-mlx-tts</code>(로컬 TTS)·<code>swabble</code> 앱과, 이들이 공유하는 <code>shared/OpenClawKit</code>. 음성·트레이·노드 모드 등 기기별 경험을 담당한다.</div>
         <span class="tag">Swift · Kotlin</span>
       </div>
 
       <div class="card t-app">
         <div class="path"><span class="ic">🖥️</span>ui/</div>
         <div class="role">웹 기반 컨트롤 UI (Vite)</div>
-        <div class="detail">게이트웨이를 제어하는 웹 프론트엔드. 라이브 Canvas·설정·채팅 화면을 렌더링합니다. <code>src</code>·<code>public</code>·<code>vite.config.ts</code>로 구성된 독립 Vite 앱입니다.</div>
+        <div class="detail">게이트웨이를 제어하는 웹 프론트엔드. 라이브 Canvas·설정·채팅 화면을 렌더링한다. <code>src</code>·<code>public</code>·<code>vite.config.ts</code>로 구성된 독립 Vite 앱이다.</div>
         <span class="tag">Vite · TS</span>
       </div>
 
       <div class="card t-doc">
         <div class="path"><span class="ic">📚</span>docs/</div>
         <div class="role">문서 소스 → docs.openclaw.ai</div>
-        <div class="detail">설치·채널·플러그인·아키텍처·레퍼런스 문서의 원본. <code>docs-sync-publish.yml</code>을 통해 미러 빌드 후 R2 + Worker 라우터로 발행됩니다.</div>
+        <div class="detail">설치·채널·플러그인·아키텍처·레퍼런스 문서의 원본. <code>docs-sync-publish.yml</code>을 통해 미러 빌드 후 R2 + Worker 라우터로 발행된다.</div>
         <span class="tag">발행 소스</span>
       </div>
 
@@ -279,7 +279,7 @@
       <div class="card t-ops">
         <div class="path"><span class="ic">🧪</span>test/</div>
         <div class="role">통합 · E2E 테스트 하네스</div>
-        <div class="detail">패키지 경계·릴리스·런처·플러그인 import 경계 등을 검증하는 통합/E2E 테스트와 <code>fixtures</code>·<code>helpers</code>·<code>mocks</code>. 단위 테스트는 각 소스 옆 <code>*.test.ts</code>에 위치합니다.</div>
+        <div class="detail">패키지 경계·릴리스·런처·플러그인 import 경계 등을 검증하는 통합/E2E 테스트와 <code>fixtures</code>·<code>helpers</code>·<code>mocks</code>. 단위 테스트는 각 소스 옆 <code>*.test.ts</code>에 위치한다.</div>
       </div>
 
       <div class="card t-ops">
@@ -297,13 +297,13 @@
       <div class="card t-ops">
         <div class="path"><span class="ic">🚀</span>deploy/</div>
         <div class="role">배포 환경 설정</div>
-        <div class="detail">프라이빗 배포용 <code>fly.private.toml</code>. 루트의 <code>fly.toml</code>·<code>render.yaml</code>·<code>docker-compose.yml</code>과 함께 호스팅 구성을 이룹니다.</div>
+        <div class="detail">프라이빗 배포용 <code>fly.private.toml</code>. 루트의 <code>fly.toml</code>·<code>render.yaml</code>·<code>docker-compose.yml</code>과 함께 호스팅 구성을 이룬다.</div>
       </div>
 
       <div class="card t-ops">
         <div class="path"><span class="ic">🔐</span>security/</div>
         <div class="role">보안 스캔 규칙</div>
-        <div class="detail"><code>opengrep</code> 정적 분석 규칙 등 보안 검사 자산. 루트 <code>SECURITY.md</code>·<code>.semgrepignore</code>와 연계됩니다.</div>
+        <div class="detail"><code>opengrep</code> 정적 분석 규칙 등 보안 검사 자산. 루트 <code>SECURITY.md</code>·<code>.semgrepignore</code>와 연계된다.</div>
       </div>
 
       <div class="card t-ops">
@@ -333,8 +333,8 @@
       <span class="count">68 modules</span>
     </div>
     <p class="section-desc">
-      코어는 플러그인에 의존하지 않는 일반 런타임입니다. 기능별로 묶어 정리했습니다.
-      각 모듈은 같은 폴더의 <code>*.test.ts</code>로 단위 테스트를 동반합니다.
+      코어는 플러그인에 의존하지 않는 일반 런타임이다. 기능별로 묶어 정리했다.
+      각 모듈은 같은 폴더의 <code>*.test.ts</code>로 단위 테스트를 동반한다.
     </p>
 
     <div class="group-label">🚪 진입 · 부팅 · 프로세스</div>
@@ -435,7 +435,7 @@
       <h2>packages/ — 내부 라이브러리</h2>
       <span class="count">21 packages</span>
     </div>
-    <p class="section-desc">코어와 플러그인이 공유하는 독립 패키지. 워크스페이스로 관리되며 각자 빌드 경계를 가집니다.</p>
+    <p class="section-desc">코어와 플러그인이 공유하는 독립 패키지. 워크스페이스로 관리되며 각자 빌드 경계를 가진다.</p>
 
     <div class="grid-compact">
       <div class="mini t-pkg"><div class="p">gateway-protocol/</div><div class="d">게이트웨이↔클라이언트 통신 규약(버전 관리 대상)</div></div>
@@ -470,19 +470,19 @@
     </div>
     <p class="section-desc">
       코어의 일반 루프 위에 기능을 얹는 플러그인. 모델 프로바이더가 auth/카탈로그/런타임 훅을 소유하고,
-      메시지 채널은 전송 전용으로 유지됩니다. 코어 <code>src/**</code>에 직접 의존할 수 없고 공개 배럴만 사용합니다.
+      메시지 채널은 전송 전용으로 유지된다. 코어 <code>src/**</code>에 직접 의존할 수 없고 공개 배럴만 사용한다.
     </p>
 
     <div class="grid">
       <div class="card t-ext">
         <div class="path"><span class="ic">🤝</span>모델 프로바이더</div>
         <div class="role">LLM/AI 백엔드 통합</div>
-        <div class="detail"><code>anthropic</code>·<code>anthropic-vertex</code>·<code>amazon-bedrock</code>·<code>azure-speech</code>·<code>cerebras</code>·<code>cohere</code>·<code>copilot</code>·<code>deepseek</code>·<code>codex</code> 등. 각자 인증·모델 카탈로그·런타임 훅을 소유합니다.</div>
+        <div class="detail"><code>anthropic</code>·<code>anthropic-vertex</code>·<code>amazon-bedrock</code>·<code>azure-speech</code>·<code>cerebras</code>·<code>cohere</code>·<code>copilot</code>·<code>deepseek</code>·<code>codex</code> 등. 각자 인증·모델 카탈로그·런타임 훅을 소유한다.</div>
       </div>
       <div class="card t-ext">
         <div class="path"><span class="ic">💬</span>채널 어댑터</div>
         <div class="role">메시징 플랫폼 전송 계층</div>
-        <div class="detail"><code>discord</code> 등 채널 플러그인은 전송 전용 — 이식 가능한 표현/액션을 렌더링하고 전송 한계를 강제하며 콜백 봉투를 매핑합니다. 제품 명령 트리나 정책은 소유하지 않습니다.</div>
+        <div class="detail"><code>discord</code> 등 채널 플러그인은 전송 전용 — 이식 가능한 표현/액션을 렌더링하고 전송 한계를 강제하며 콜백 봉투를 매핑한다. 제품 명령 트리나 정책은 소유하지 않는다.</div>
       </div>
       <div class="card t-ext">
         <div class="path"><span class="ic">🧰</span>도구 · 통합</div>
@@ -492,7 +492,7 @@
       <div class="card t-ext">
         <div class="path"><span class="ic">📖</span>스코프 가이드</div>
         <div class="role">AGENTS.md · CLAUDE.md</div>
-        <div class="detail"><code>extensions/</code> 루트에는 플러그인 작성 규칙을 담은 <code>AGENTS.md</code>·<code>CLAUDE.md</code> 가이드가 있어, 코어 경계와 SDK 시암 사용 규칙을 안내합니다.</div>
+        <div class="detail"><code>extensions/</code> 루트에는 플러그인 작성 규칙을 담은 <code>AGENTS.md</code>·<code>CLAUDE.md</code> 가이드가 있어, 코어 경계와 SDK 시암 사용 규칙을 안내한다.</div>
       </div>
     </div>
   </section>
@@ -503,7 +503,7 @@
       <h2>apps/ · ui/ — 클라이언트</h2>
       <span class="count">native + web</span>
     </div>
-    <p class="section-desc">사용자가 직접 마주하는 네이티브 앱과 웹 컨트롤 UI. 음성·트레이·Canvas 등 기기별 경험을 담당합니다.</p>
+    <p class="section-desc">사용자가 직접 마주하는 네이티브 앱과 웹 컨트롤 UI. 음성·트레이·Canvas 등 기기별 경험을 담당한다.</p>
 
     <div class="grid-compact">
       <div class="mini t-app"><div class="p">apps/android/</div><div class="d">안드로이드 앱(Kotlin) — 노드 모드·로컬 MCP</div></div>

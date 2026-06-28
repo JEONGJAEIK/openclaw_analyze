@@ -434,7 +434,7 @@
     <a class="seqlink" href="diagrams/sequence-request-lifecycle.html">
       <span>
         <span class="sl-t"><span class="glyph">⇄</span>이 흐름을 시퀀스 다이어그램으로 보기</span>
-        <span class="sl-d">위 사다리를 <b>시간축 위 라이프라인</b>으로 눕혔다 — 사용자·게이트웨이·입구는 얇게, 런타임 본체(해석→루프→조립→디스패치→복구)는 세 겹의 되돌이로 자세히.</span>
+        <span class="sl-d">런타임 사다리를 <b>시간축 위 라이프라인</b>으로 눕혔다 — 사용자·게이트웨이·입구는 얇게, 런타임 본체(해석→루프→조립→디스패치→복구)는 세 겹의 되돌이로 자세히.</span>
       </span>
       <span class="sl-go">열기 →</span>
     </a>
@@ -446,13 +446,13 @@
       <span class="blk-mark alt">Ref</span>
       <h2 class="blk-title">참조 지도</h2>
     </div>
-    <p class="blk-note">움직이는 조사가 아니라, 언제든 펼쳐 보는 <b>정적 지형도</b>. "지금 어디를 보고 있나"를 잡아주는 두 장.</p>
+    <p class="blk-note">움직이는 조사가 아니라, 언제든 펼쳐 보는 <b>정적 지형도</b>. 현재 어느 부분을 보고 있는지 짚어 주는 두 장.</p>
 
     <div class="maps">
       <a class="map" href="reference/directory-structure.html">
         <div class="map-top"><span class="map-kind">디렉토리 지도</span><span class="map-file">directory-structure.html</span></div>
         <div class="map-title">프로젝트 전체 구조</div>
-        <div class="map-desc">모노레포 최상위부터 <code style="font-family:var(--mono);color:var(--brine)">src/</code> 68개 모듈까지, 디렉토리별 역할을 한 장에.</div>
+        <div class="map-desc">모노레포 최상위부터 <code style="font-family:var(--mono);color:var(--brine)">src/</code> 68개 모듈까지, 디렉토리별 역할을 한눈에 담았다.</div>
         <div class="tree">openclaw/<br>├─ <b>src/</b> · 코어 런타임 (68)<br>├─ <b>packages/</b> · 라이브러리 (21)<br>├─ <b>extensions/</b> · 플러그인 (139)<br>└─ <b>apps · ui · docs · skills</b></div>
         <div class="map-go">펼치기 →</div>
       </a>
@@ -460,7 +460,7 @@
       <a class="map runtime" href="reference/agent-runtime-structure.html">
         <div class="map-top"><span class="map-kind">런타임 지도</span><span class="map-file">agent-runtime-structure.html</span></div>
         <div class="map-title">에이전트 런타임 3영역</div>
-        <div class="map-desc">"런타임"은 한 폴더가 아니다. 본체 + 모델 연결 + 공유 코어, 세 곳에 걸쳐 있다.</div>
+        <div class="map-desc">런타임은 한 폴더가 아니라 본체 + 모델 연결 + 공유 코어, 세 곳에 걸쳐 있다.</div>
         <div class="segbar"><span class="a">src/agents</span><span class="l">src/llm</span><span class="c">agent-core</span></div>
         <div class="map-go">펼치기 →</div>
       </a>

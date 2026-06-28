@@ -127,10 +127,10 @@
     <div class="crumb">OpenClaw 🦞 / 큰 그림: <b>Gateway</b> ↔ <b>Agent Runtime</b></div>
     <h1><span class="hl">에이전트 런타임</span> 디렉토리 구조</h1>
     <p class="lead">
-      OpenClaw를 크게 나누면 <strong>게이트웨이(컨트롤 플레인)</strong>와 <strong>에이전트 런타임</strong>입니다.
-      이 문서는 그중 에이전트 런타임을 구성하는 <strong>세 영역</strong>의 하위 디렉토리를 정리합니다.
+      OpenClaw를 크게 나누면 <strong>게이트웨이(컨트롤 플레인)</strong>와 <strong>에이전트 런타임</strong>이다.
+      그중 에이전트 런타임을 구성하는 <strong>세 영역</strong>의 하위 디렉토리는 다음과 같다.
       런타임 본체는 <code style="font-family:var(--mono);color:var(--accent-2)">src/agents/</code>에 있지만,
-      모델 연결과 공유 코어가 두 곳에 더 걸쳐 있습니다.
+      모델 연결과 공유 코어가 두 곳에 더 걸쳐 있다.
     </p>
     <div class="quote">
       “OpenClaw owns the built-in agent runtime directly. The runtime code lives under <code>src/agents/</code>,
@@ -145,7 +145,7 @@
   <div class="arch">
     <div class="box gw">
       <h3>🛰️ Gateway</h3>
-      <p>컨트롤 플레인. 채널·세션·요청을 받아 에이전트 런타임으로 라우팅합니다. (이 문서 범위 밖)</p>
+      <p>컨트롤 플레인. 채널·세션·요청을 받아 에이전트 런타임으로 라우팅한다. (이 문서 범위 밖)</p>
     </div>
     <div class="conn">
       <div class="arrow">→</div>
@@ -153,7 +153,7 @@
     </div>
     <div class="box rt">
       <h3>🧠 Agent Runtime</h3>
-      <p>요청을 받아 LLM과 대화하고 도구를 실행하는 런타임. 아래 3개 영역으로 구성됩니다.</p>
+      <p>요청을 받아 LLM과 대화하고 도구를 실행하는 런타임. 아래 3개 영역으로 구성된다.</p>
       <div class="pill3">
         <span class="pa">src/agents/</span>
         <span class="pl">src/llm/</span>
@@ -181,11 +181,11 @@
       <span class="where">~1,007 files · 17 subdirs</span>
     </div>
     <p class="pillar-desc">
-      에이전트 런타임의 <b>심장</b>. 실행 루프·세션·도구·훅·샌드박스가 모두 여기 있습니다.
+      에이전트 런타임의 <b>심장</b>. 실행 루프·세션·도구·훅·샌드박스가 모두 여기 있다.
       최상위에는 도구 정의(<code style="font-family:var(--mono)">agent-tools*.ts</code>),
       설정(<code style="font-family:var(--mono)">agent-settings.ts</code>),
       종료 상태 정규화(<code style="font-family:var(--mono)">agent-run-terminal-outcome.ts</code>) 같은
-      OpenClaw 소유 파일들이 있고, 아래 하위 폴더로 영역이 나뉩니다.
+      OpenClaw 소유 파일들이 있고, 아래 하위 폴더로 영역이 나뉜다.
     </p>
 
     <div class="grid">
@@ -270,7 +270,7 @@
     </div>
     <p class="pillar-desc">
       런타임이 실제 <b>LLM과 통신</b>하기 위한 모델/프로바이더 레지스트리, 전송 헬퍼, 프로바이더별 스트림 구현.
-      에이전트 본체는 여기를 통해 Anthropic·OpenAI·Google 등으로 요청을 흘려보냅니다.
+      에이전트 본체는 여기를 통해 Anthropic·OpenAI·Google 등으로 요청을 흘려보낸다.
     </p>
 
     <div class="grid">
@@ -322,8 +322,8 @@
     </div>
     <p class="pillar-desc">
       코어와 (잠재적으로) 다른 호스트가 공유하는 <b>하위 수준 에이전트 코어</b>.
-      하네스 타입·메시지·컴팩션 헬퍼·프롬프트 템플릿·도구/세션 계약을 담습니다.
-      <code style="font-family:var(--mono)">src/agents/runtime/</code>가 이 패키지를 파사드로 감싸 사용합니다.
+      하네스 타입·메시지·컴팩션 헬퍼·프롬프트 템플릿·도구/세션 계약을 담는다.
+      <code style="font-family:var(--mono)">src/agents/runtime/</code>가 이 패키지를 파사드로 감싸 사용한다.
     </p>
 
     <div class="grid">
@@ -371,7 +371,7 @@
 <footer>
   🦞 <strong>OpenClaw</strong> 에이전트 런타임 구조 · 생성일 2026-06-24 ·
   근거: <code>docs/agent-runtime-architecture.md</code> + 실제 디렉토리 트리<br>
-  <em>경계 원칙: 코어는 OpenClaw 모듈·SDK 배럴로 런타임을 호출하고, 플러그인은 <code>src/**</code> 내부를 직접 import하지 않습니다.</em>
+  <em>경계 원칙: 코어는 OpenClaw 모듈·SDK 배럴로 런타임을 호출하고, 플러그인은 <code>src/**</code> 내부를 직접 import하지 않는다.</em>
 </footer>
 
 </body>
