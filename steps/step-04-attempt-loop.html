@@ -3,15 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>STEP E · 어템프트 루프 — OpenClaw 런타임 사다리</title>
+<title>STEP D · 어템프트 루프 — OpenClaw 런타임 사다리</title>
 <link rel="stylesheet" href="../assets/steps.css">
 </head>
 <body>
 <div class="wrap">
-  <nav class="crumb"><a href="../index.html">← 런타임 사다리</a><span class="pos">어템프트 루프 · E / 17</span></nav>
+  <nav class="crumb"><a href="../index.html">← 런타임 사다리</a><span class="pos">어템프트 루프 · D / 17</span></nav>
 
   <header class="shead phase-loop">
-    <div class="snum">E</div>
+    <div class="snum">D</div>
     <div>
       <div class="sphase">Phase · 어템프트 루프</div>
       <h1>어템프트 루프 · while (true)</h1>
@@ -75,7 +75,7 @@
     <p>한 걸음 물러나 보면, 이 루프야말로 OpenClaw가 "<b>감쌌는데 품질이 안 깨진다</b>"고 말할 수 있는 자리다. 경계 엔지니어링(<a href="step-15-dispatch.html">디스패치</a>)도, 지속 가능성(<a href="step-16-recovery.html">복구</a>)도, 교체 가능한 하네스(<a href="step-17-exit.html">출구</a>)도 — 앞뒤 단계가 자랑하는 그 모든 방어막이 실제로 '돌아가는' 무대가 바로 이 되돌이다.</p>
     <p>그리고 결정적으로, <b>모델은 이 되돌이를 전혀 모른다</b>. 맥락이 압축됐는지, 계정이 회전했는지, 같은 턴을 세 번째 시도하는 중인지 — 모델은 그저 매 시도마다 깨끗하게 정돈된 한 턴을 받아 자기 일을 할 뿐이다. 실패를 흡수하고 비용을 가두는 지저분한 조율은 전부 껍데기의 몫이고, 그 조율이 모델의 사고에는 <b>단 한 줌도 닿지 않는다</b>.</p>
     <p>그래서 이 한 겹이 더해 주는 것은 '더 똑똑한 답'이 아니라 <b>'끝내 도착하는 답'</b>이다 — 제공사가 잠깐 막혀도, 대화가 길어 넘쳐도, 계정 하나가 죽어도. 좋은 하네스를 <b>어디서나·끈질기게·그러나 비용 한계 안에서</b> 돌게 만드는 것, 그것이 이 심장부의 일이다.</p>
-    <p><b>이 단계의 끝</b> — 한 시도가 끝내 '종결할 만한 결과'를 내면, 루프는 그 결과를 들고 마지막 <a href="step-17-exit.html">출구(STEP G)</a>로 빠져나간다. 거기서 종료의 종류를 판정하고 결과를 반환하며, 줄(레인)을 풀고 뒷정리를 마친다.</p>
+    <p><b>이 단계의 끝</b> — 한 시도가 끝내 '종결할 만한 결과'를 내면, 루프는 그 결과를 들고 마지막 <a href="step-17-exit.html">출구(STEP F)</a>로 빠져나간다. 거기서 종료의 종류를 판정하고 결과를 반환하며, 줄(레인)을 풀고 뒷정리를 마친다.</p>
   </section>
 
   <section class="card phase-loop ev">
@@ -88,7 +88,7 @@
       <li>제자리 회복(continue): <code>run.ts:2555</code> 타임아웃 압축(≤2) · <code>2817</code> 넘침 압축(≤3) · <code>2860</code> 도구출력 절단 · <code>3178</code> 프로필 회전(prompt 단계) · <code>3466</code> 같은 모델 재시도/프로필 회전(<code>handleAssistantFailover</code> 'retry') · <code>3358</code> 인증 갱신 · <code>3757</code> 추론만→이어서(≤2) · <code>3792</code> 빈 응답→이어서(≤1) · <code>4025</code> 마무리 1회 더(≤3)</li>
       <li>처방 결정: <code>run.ts:3379</code> <code>resolveRunFailoverDecision</code> (<code>failover-policy.ts:7–21</code> 5액션 union — <code>continue_normal·rotate_profile·surface_error·fallback_model·return_error_payload</code>, 단계별 부분집합) · <code>3394</code> <code>handleAssistantFailover</code>(실행) · 던짐 <code>run.ts:3498</code></li>
       <li>모델 교체(바깥 겹): <code>FailoverError</code> → <code>model-fallback.ts:1333</code> <code>runWithModelFallback</code> · <code>:1406</code> 다음 모델 후보로 (각 후보가 <a href="step-03-resolution.html">해석(STEP C)</a>부터 다시 돈다)</li>
-      <li>종료: <code>run.ts:1900</code> 재시도 한도 · <code>2307</code> 비용폭주 차단기(blocked) · <code>4067</code> 정상 종료 → 이후 처리는 <a href="step-17-exit.html">출구(STEP G)</a></li>
+      <li>종료: <code>run.ts:1900</code> 재시도 한도 · <code>2307</code> 비용폭주 차단기(blocked) · <code>4067</code> 정상 종료 → 이후 처리는 <a href="step-17-exit.html">출구(STEP F)</a></li>
       <li>한도 정의: <code>helpers.ts:106–127</code> (24 + 8×프로필 후보, 32~160 — <code>runRetries</code> 설정으로 조정 가능) · <code>idle-timeout-breaker.ts:16</code> (연속 5, <code>#76293</code>) · <code>run.ts:1560–1561</code> (압축 2/3) · same-model 재시도 <code>run.ts:250</code> idle 1 · <code>helpers.ts:43</code> rate-limit 3 · <code>incomplete-turn.ts:133–134</code> (추론 2·빈 1)</li>
     </ul>
   </section>
@@ -98,7 +98,7 @@
     <a class="next" href="step-05-workspace-sandbox.html"><span class="nl">다음 → 조립 1</span>workspace-sandbox</a>
   </nav>
 
-  <footer class="foot">🦞 OpenClaw 런타임 사다리 · STEP E · <a href="../index.html">전체 보기</a></footer>
+  <footer class="foot">🦞 OpenClaw 런타임 사다리 · STEP D · <a href="../index.html">전체 보기</a></footer>
 </div>
 </body>
 </html>

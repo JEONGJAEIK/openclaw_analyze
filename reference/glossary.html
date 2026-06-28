@@ -107,7 +107,7 @@
       <div class="gterm">
         <div class="gtop"><a class="gname" href="../steps/step-03-resolution.html">모델·하네스·인증 해석</a> <span class="ghome">step-03-resolution</span></div>
         <p class="gdef">이번 턴을 <b>무엇으로 돌릴지</b>(추론 엔진·모델·계정) 확정하고, 막혔을 때 갈아끼울 채비까지 루프 전에 한 번 갖추는 단계.</p>
-        <p class="gappear"><b>등장</b> ← <a href="../steps/step-04-attempt-loop.html">어템프트 루프(E)</a> · <a href="../steps/step-11-system-prompt.html">시스템 프롬프트(11)</a> · <a href="../steps/step-13-agent-session.html">에이전트 세션(13)</a> · <a href="../steps/step-14-stream-setup.html">스트림(14)</a> · <a href="../steps/step-16-recovery.html">복구(16)</a> · <a href="../steps/step-17-exit.html">출구(17)</a></p>
+        <p class="gappear"><b>등장</b> ← <a href="../steps/step-04-attempt-loop.html">어템프트 루프(D)</a> · <a href="../steps/step-11-system-prompt.html">시스템 프롬프트(11)</a> · <a href="../steps/step-13-agent-session.html">에이전트 세션(13)</a> · <a href="../steps/step-14-stream-setup.html">스트림(14)</a> · <a href="../steps/step-16-recovery.html">복구(16)</a> · <a href="../steps/step-17-exit.html">출구(17)</a></p>
       </div>
 
       <div class="gterm">
@@ -119,14 +119,14 @@
       <div class="gterm">
         <div class="gtop"><a class="gname deep" href="../steps/details/step-03-auth-profile.html">인증 프로필</a> <span class="gbadge">심화</span> <span class="ghome">step-03-auth-profile</span></div>
         <p class="gdef">한 프로바이더에 로그인하는 <b>계정/자격 하나</b>(API 키·토큰·OAuth). 계정들을 건강한 순서로 줄 세우고(같은 종류는 라운드로빈), 막히면 다음으로 회전하며, 막힌 계정엔 사유별 지수 백오프 쿨다운을 매긴다. OAuth는 만료 전 자동 갱신.</p>
-        <p class="gappear"><b>등장</b> ← <a href="../steps/step-03-resolution.html">해석(C)</a> · <a href="../steps/step-04-attempt-loop.html">어템프트 루프(E)</a> · <a href="../steps/step-14-stream-setup.html">스트림(14)</a> · <a href="../steps/step-16-recovery.html">복구(16)</a></p>
+        <p class="gappear"><b>등장</b> ← <a href="../steps/step-03-resolution.html">해석(C)</a> · <a href="../steps/step-04-attempt-loop.html">어템프트 루프(D)</a> · <a href="../steps/step-14-stream-setup.html">스트림(14)</a> · <a href="../steps/step-16-recovery.html">복구(16)</a></p>
       </div>
 
     </div>
   </section>
 
   <section class="card phase-loop">
-    <h2 class="gsec" style="color:var(--shell)">E · 어템프트 루프 · 조립 10단계</h2>
+    <h2 class="gsec" style="color:var(--shell)">D · 어템프트 루프 · 조립 10단계</h2>
     <div class="gloss">
 
       <div class="gterm">
@@ -205,19 +205,19 @@
       <div class="gterm">
         <div class="gtop"><a class="gname" href="../steps/step-15-dispatch.html">디스패치</a> <span class="ghome">step-15-dispatch</span></div>
         <p class="gdef">LLM 스트림을 여러 겹으로 감싼 뒤 <b>모델을 실제로 호출</b>하고, 내부 도구 루프를 돌려 stop-reason까지 받아 온다.</p>
-        <p class="gappear"><b>등장</b> ← <a href="../steps/step-04-attempt-loop.html">어템프트 루프(E)</a> · <a href="../steps/step-14-stream-setup.html">스트림(14)</a> · <a href="../steps/step-17-exit.html">출구(17)</a></p>
+        <p class="gappear"><b>등장</b> ← <a href="../steps/step-04-attempt-loop.html">어템프트 루프(D)</a> · <a href="../steps/step-14-stream-setup.html">스트림(14)</a> · <a href="../steps/step-17-exit.html">출구(17)</a></p>
       </div>
 
       <div class="gterm">
         <div class="gtop"><a class="gname" href="../steps/step-16-recovery.html">복구 — 페일오버 · 컴팩션</a> <span class="ghome">step-16-recovery</span></div>
         <p class="gdef">결과를 분류해 <b>살아남기</b>: 실패별 페일오버 사다리, 선제 컴팩션(요약은 최후·요약마저 감사), 재생 안전성으로 긴 세션을 손실·중복 없이 잇는다.</p>
-        <p class="gappear"><b>등장</b> ← <a href="../steps/step-03-resolution.html">해석(C)</a> · <a href="../steps/step-04-attempt-loop.html">어템프트 루프(E)</a> · <a href="../steps/step-17-exit.html">출구(17)</a></p>
+        <p class="gappear"><b>등장</b> ← <a href="../steps/step-03-resolution.html">해석(C)</a> · <a href="../steps/step-04-attempt-loop.html">어템프트 루프(D)</a> · <a href="../steps/step-17-exit.html">출구(17)</a></p>
       </div>
 
       <div class="gterm">
         <div class="gtop"><a class="gname" href="../steps/step-17-exit.html">출구 — 종료 판정</a> <span class="ghome">step-17-exit</span></div>
         <p class="gdef">incomplete-turn을 분류해 terminal outcome을 정하고 결과를 반환한 뒤, finally 정리와 레인 unwind까지 마친다. 교체 가능한 <b>하네스 계약</b>도 여기서 더 깊이 다룬다.</p>
-        <p class="gappear"><b>등장</b> ← <a href="../steps/step-04-attempt-loop.html">어템프트 루프(E)</a></p>
+        <p class="gappear"><b>등장</b> ← <a href="../steps/step-04-attempt-loop.html">어템프트 루프(D)</a></p>
       </div>
 
     </div>

@@ -28,7 +28,7 @@
   <section class="card phase-res">
     <h2>줄을 세우는 규칙 — 건강한 계정 먼저, 같은 종류는 돌아가며</h2>
     <p><b>쓸 수 있는 계정을 앞에, 쿨다운 중인 계정을 뒤에 둔다. 쓸 수 있는 것끼리는 종류 선호(OAuth → 토큰 → API 키)로, 같은 종류끼리는 가장 오래 안 쓴 것부터 세운다.</b></p>
-    <p>줄을 세우기 직전, 먼저 <b>만료된 쿨다운을 비운다</b>. 벌 받던 시간이 지난 계정은 깨끗한 실패 카운트로 되돌려, 다음 한 번의 일시적 오류에 곧바로 다시 벌하지 않으려는 것이다. 그다음 <b>자격</b>을 거른다 — 계정이 실제로 있고, 프로바이더가 맞고, 로그인 방식(모드)이 맞고, 자격이 만료되지 않은 것만 후보로 남는다.</p>
+    <p>줄을 세우기 직전, 먼저 <b>만료된 쿨다운<a class="fnref" id="fnref-cooldown" href="#fn-cooldown" aria-label="각주 1: 쿨다운은 언제 생기며 '막힌 계정'이란">1</a>을 비운다</b>. 벌 받던 시간이 지난 계정은 깨끗한 실패 카운트로 되돌려, 다음 한 번의 일시적 오류에 곧바로 다시 벌하지 않으려는 것이다. 그다음 <b>자격</b>을 거른다 — 계정이 실제로 있고, 프로바이더가 맞고, 로그인 방식(모드)이 맞고, 자격이 만료되지 않은 것만 후보로 남는다.</p>
     <p>남은 후보를 둘로 가른다 — <b>쓸 수 있는 것</b>과 <b>쿨다운 중인 것</b>. 쓸 수 있는 것이 앞, 쉬는 중인 것이 뒤다. 앞쪽 묶음은 다시 <b>종류</b>로 정렬한다(OAuth가 가장 앞, 그다음 토큰, API 키). 그리고 같은 종류끼리는 <b>가장 오래 안 쓴 계정부터</b>. 왜 오래 안 쓴 것부터? — 여러 계정의 한도를 한쪽만 닳지 않게 <b>고루 나눠 쓰려는</b> 라운드로빈이다. 한편 세션이 특정 계정을 콕 집어 왔다면 그 계정만은 <b>맨 앞</b>으로 끌어올린다.</p>
   </section>
 
@@ -75,6 +75,19 @@
       <li><b>OAuth 갱신</b> — <code>auth-profiles/credential-state.ts:19</code> <code>DEFAULT_OAUTH_REFRESH_MARGIN_MS</code>(5분) · <code>:25</code> <code>resolveTokenExpiryState</code> · <code>auth-profiles/oauth-manager.ts</code>(전역 락 갱신)</li>
       <li><b>해석 단계 진입</b> — <code>run.ts:1339–1393</code> 인증 프로필 후보 줄 · <code>run.ts:1442–1526</code> 컨트롤러(회전·갱신)</li>
     </ul>
+  </section>
+
+  <section class="footnotes" aria-label="각주">
+    <h2>각주</h2>
+    <div class="fn" id="fn-cooldown">
+      <div class="fnnum">1</div>
+      <div class="fnbody">
+        <strong class="fnh">쿨다운은 언제 생기나 — 그리고 '막힌 계정'이란</strong>
+        <p><b>쿨다운은 줄을 세우는 이 시점이 아니라, 계정을 실제로 써서 모델을 부르다 막힌 그 순간에 매겨진다.</b> 한 계정으로 호출하다 벽에 부딪히면 — 속도 제한, 과부하, 토큰 만료, 결제 중단, 서버 오류 등(③·④에서 자세히) — 컨트롤러가 그 실패를 분류해 해당 계정에 <b>'쉬는 시간'(쿨다운)</b>을 건다. 그러니 줄세우기 직전의 "만료된 쿨다운을 비운다"는, <b>앞선 턴·앞선 시도에서 막혀 걸렸던</b> 쿨다운 중 시간이 다 지난 것을 청소한다는 뜻이다 — 이번 줄세우기가 쿨다운을 새로 만드는 게 아니다.</p>
+        <p><b>'막힌 계정'</b>은 그렇게 벽에 부딪혀 지금 <b>쿨다운 창 안에 들어 당장 쓸 수 없는 계정</b>을 가리킨다. 줄을 세울 때 이런 계정은 맨 뒤로 빠지고(사유가 모델 단위면 그 계정의 막힌 모델만 빠진다), 쿨다운 시각이 지나면 다시 앞줄 후보로 돌아온다. 본문 곳곳의 "막힌 계정"·"쿨다운 중인 계정"은 모두 이 상태를 말한다.</p>
+        <span class="src">근거: <code>auth-profiles/usage.ts:703</code> <code>markAuthProfileFailure</code> · <code>:961</code> <code>markAuthProfileCooldown</code>(실패 때 쿨다운 부여) · <code>usage-state.ts:64</code> <code>isProfileInCooldown</code> · <code>:25</code> <code>resolveProfileUnusableUntil</code>(쿨다운 창 판정) · <code>order.ts:258</code> <code>clearExpiredCooldowns</code>(줄세우기 직전 만료분 청소) <a class="fnback" href="#fnref-cooldown">↩ 본문으로</a></span>
+      </div>
+    </div>
   </section>
 
   <nav class="stepnav">
