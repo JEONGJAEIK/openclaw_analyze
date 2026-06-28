@@ -95,3 +95,32 @@ a.dive:hover{background:#bc8cff30; border-color:var(--coral)!important; box-shad
 .foot a{color:var(--brine); text-decoration:none}
 
 @media (max-width:600px){ .shead h1{font-size:21px} .snum{width:46px; height:46px; font-size:16px} }
+
+/* ── 각주 (footnote) ───────────────────────────────────────────
+   본문 속 표식: 위첨자 [n] — 용어 홈링크(파란 점선)·.dive 칩(코랄)과 구별되는
+   호박색 '주석' 표식. 누르면 페이지 하단 해당 각주로 점프. */
+.fnref{
+  font-family:var(--mono); font-size:.78em; font-weight:800; vertical-align:super; line-height:0;
+  color:var(--roe)!important; text-decoration:none!important; border-bottom:none!important;
+  padding:0 1px; margin-left:1px; cursor:pointer;
+}
+.fnref::before{content:"["} .fnref::after{content:"]"}
+.fnref:hover{color:#fff!important}
+
+/* 페이지 하단 각주 블록 */
+.footnotes{margin-top:26px; border:1px dashed var(--line); border-radius:14px; background:#11151b80; padding:16px 20px}
+.footnotes h2{font-size:12px; font-family:var(--mono); letter-spacing:1px; text-transform:uppercase; color:var(--tx-faint); margin-bottom:14px}
+.fn{display:grid; grid-template-columns:30px 1fr; gap:12px; scroll-margin-top:20px}
+.fn + .fn{margin-top:16px; padding-top:16px; border-top:1px solid var(--line-soft)}
+.fn .fnnum{font-family:var(--mono); font-size:12px; font-weight:800; color:var(--roe); background:#ffb34712; border:1px solid #ffb34735; border-radius:8px; width:28px; height:25px; display:flex; align-items:center; justify-content:center; align-self:start; transition:background .2s ease, color .2s ease, box-shadow .2s ease}
+.fn .fnbody{font-size:14px; color:var(--tx-dim); line-height:1.62}
+.fn .fnbody p{margin:0 0 9px} .fn .fnbody p:last-child{margin:0}
+.fn .fnbody b{color:var(--tx)}
+.fn .fnbody i{color:var(--tx-dim)}
+.fn .fnbody strong.fnh{display:block; color:var(--tx); font-size:14.5px; font-weight:750; margin-bottom:8px}
+.fn .fnbody .src{display:block; margin-top:11px; font-family:var(--mono); font-size:11.5px; color:var(--tx-faint); line-height:1.7}
+.fn .fnbody .src code{color:var(--brine); background:#58a6ff12; border-color:#58a6ff2e}
+.fnback{color:var(--brine); text-decoration:none; font-family:var(--mono); font-size:11.5px; margin-left:8px; white-space:nowrap}
+.fnback:hover{text-decoration:underline}
+/* 점프 시 잠깐 강조 */
+.fn:target .fnnum{background:var(--roe); color:#0e1116; box-shadow:0 0 0 4px #ffb34726}

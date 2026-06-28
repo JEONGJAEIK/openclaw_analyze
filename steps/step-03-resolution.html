@@ -30,7 +30,7 @@
     <h2>STEP A와 무엇이 다른가 — '받아 적기'와 '해석'</h2>
     <p><span class="vtag">진입 vs 해석</span> <b><a href="step-01-entry.html">진입(STEP A)</a>도 '모델을 지정했나 비웠나'를 따지지 않았나? — 거기선 '<b>받아 적기</b>'까지였고, 진짜 '<b>고르기</b>'는 여기서 한다.</b> 둘 다 모델을 입에 올리지만 층위가 다르다.</p>
     <p>STEP A가 한 일은 요청이 담아온 모델 값을 <b>정돈</b>하고(공백·빈값·형식 어긋난 값을 모두 '비어 있음'으로 접기), 빈손이면 기본값이 담긴 <b>설정을 동봉</b>한 것 — 딱 거기까지다. <b>실제로 어떤 엔진·모델·계정으로 돌릴지는 아직 고르지 않았다.</b> 말하자면 '서류의 빈칸을 정리하고, 빠진 칸엔 기본 양식을 끼워 둔' 접수 창구다.</p>
-    <p>이 단계(C)는 그 정돈된 입력과 설정을 받아 <b>비로소 해석·확정</b>한다 — 설정 속 기본 모델을 <b>실제로 뽑아내고</b>(끝내 없으면 코드의 baseline <code>openai/gpt-5.5</code>까지), 그 모델을 <b>어느 하네스가·어느 계정으로</b> 굴릴지 정하고, <b>없는 모델이면 다음 후보로</b> 넘긴다. 접수된 서류를 들고 실제 차량·기사·경로를 배차하고 예비까지 세우는 배차실인 셈이다.</p>
+    <p>이 단계(C)는 그 정돈된 입력과 설정을 받아 <b>비로소 해석·확정</b>한다 — 설정 속 기본 모델을 <b>실제로 뽑아내고</b>(끝내 없으면 코드의 baseline <code>openai/gpt-5.5</code><a class="fnref" id="fnref-baseline" href="#fn-baseline" aria-label="각주 1: 왜 baseline이 gpt-5.5인가">1</a>까지), 그 모델을 <b>어느 하네스가·어느 계정으로</b> 굴릴지 정하고, <b>없는 모델이면 다음 후보로</b> 넘긴다. 접수된 서류를 들고 실제 차량·기사·경로를 배차하고 예비까지 세우는 배차실인 셈이다.</p>
     <p>한마디로 — <b>A는 입력의 '모양'을 다듬고, C는 '무엇으로 돌릴지'를 정한다.</b> 굳이 나눈 까닭은 둘 있다. A는 <b>모든 입구가 공유하는 단 하나의 문</b>이라 큐에 서기 전 <b>가볍게</b> 끝나야 하고, 제대로 된 해석은 <b>플러그인이 다 로드되고(외부 엔진·제공사가 후보로 등록) 차례가 된 뒤</b>라야 가능하기 때문이다. 그래서 '받아 적기'는 입구에서, '해석'은 차례가 된 지금 여기서.</p>
   </section>
 
@@ -87,6 +87,20 @@
       <li><code>run.ts:1885</code> 어템프트 루프 <code>while(true)</code> 시작</li>
       <li>하네스: <code>harness/types.ts</code> · <code>builtin-openclaw.ts</code>(priority 0) · <code>extensions/codex</code>·<code>copilot</code></li>
     </ul>
+  </section>
+
+  <section class="footnotes" aria-label="각주">
+    <h2>각주</h2>
+    <div class="fn" id="fn-baseline">
+      <div class="fnnum">1</div>
+      <div class="fnbody">
+        <strong class="fnh">왜 최종 baseline이 <code>openai/gpt-5.5</code>인가</strong>
+        <p><b>① '선호'가 아니라 '바닥'이다.</b> 이 값은 폴백 사다리의 <b>맨 끝</b> — 에이전트에 지정된 모델도, 운영자가 설정에 적어 둔 기본도, 등록된 첫 프로바이더의 첫 모델도 <b>전부 비었을 때만</b> 닿는다. 정상적으로 온보딩·설정을 거치면 거의 도달하지 않는, <b>코드가 끝내 빈손이 되지 않게 받쳐 주는 안전 바닥</b>이다. (같은 파일에 나란히 있는 <code>DEFAULT_CONTEXT_TOKENS = 200_000</code>도 "모델 메타데이터를 못 구했을 때의 보수적 기본"이라는 똑같은 성격이다.)</p>
+        <p><b>② 못 박은 값이 아니라 '제품의 최신 기본'을 가리키는 움직이는 포인터다.</b> 코드 주석이 그대로 말한다 — <i>"제품 차원의 최신 모델 baseline에 맞춰 유지하라(Keep this aligned with the product-level latest-model baseline)."</i> 즉 이 상수는 시간이 흐르며 <b>그때의 대표 최신 모델로 갱신</b>되도록 의도된 값이고, 지금 리비전에선 그게 <code>gpt-5.5</code>로 해석될 뿐이다. 설정이 하나도 없는 새 설치조차 곧장 <b>'지금 시점에 쓸 만한 최신 모델'</b>에 떨어지게 하려는 장치다.</p>
+        <p><b>③ 그래서 취향이 아니라 운영 기본값이다.</b> 본문 ②에서 본 설계와 일관된다 — OpenClaw가 하네스 점수에서 자기 엔진을 <b>0점</b>으로 물러세우듯, 맨 밑바닥 기본 모델조차 자기 진영을 특권화하지 않고 '그 시점의 제품 기본'을 그대로 따른다.</p>
+        <span class="src">근거: <code>src/agents/defaults.ts:1–4</code> (<code>DEFAULT_PROVIDER="openai"</code> · <code>DEFAULT_MODEL="gpt-5.5"</code>) · 사용처 <code>run.ts:598</code> <code>configuredDefault.model || DEFAULT_MODEL</code> <a class="fnback" href="#fnref-baseline">↩ 본문으로</a></span>
+      </div>
+    </div>
   </section>
 
   <nav class="stepnav">
