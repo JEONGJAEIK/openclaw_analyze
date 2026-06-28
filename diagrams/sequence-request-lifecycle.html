@@ -396,16 +396,19 @@ sequenceDiagram
       var y = (vb && vb.height) ? vb.y : 0;
       w = Math.ceil(w); h = Math.ceil(h);
       var clone = svg.cloneNode(true);
-      // 내보낸 정적 이미지에선 본문 네비 링크(상대경로)가 blob/about:blank 기준이라
-      // 클릭 시 about:blank#blocked로 깨진다. 내보내기 사본에선 <a.seq-link>를 벗겨 텍스트만 남긴다.
+      // 내보낸 SVG는 blob/파일 기준이라 상대경로 링크가 about:blank#blocked로 깨진다.
+      // 사본의 네비 링크는 절대 URL로 바꿔 둔다 → 내보낸 SVG에서 클릭하면 라이브
+      // 사이트의 그 단계 페이지로 새 탭에서 열린다. (PNG는 래스터라 링크가 남지 않는다.)
+      var XLINK = 'http://www.w3.org/1999/xlink';
       clone.querySelectorAll('a.seq-link').forEach(function (a) {
-        var p = a.parentNode; if (!p) return;
-        while (a.firstChild) {
-          var c = a.firstChild;
-          if ((c.nodeName || '').toLowerCase() === 'title') { a.removeChild(c); continue; }
-          p.insertBefore(c, a);
-        }
-        p.removeChild(a);
+        var rel = a.getAttribute('href') || a.getAttributeNS(XLINK, 'href');
+        if (!rel) return;
+        var abs;
+        try { abs = new URL(rel, document.baseURI).href; } catch (e) { return; }
+        a.setAttribute('href', abs);
+        try { a.setAttributeNS(XLINK, 'xlink:href', abs); } catch (e) {}
+        a.setAttribute('target', '_blank');
+        a.setAttribute('rel', 'noopener');
       });
       clone.setAttribute('xmlns', NS);
       clone.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
