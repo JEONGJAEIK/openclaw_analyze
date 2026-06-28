@@ -48,6 +48,12 @@
   .lp .ld{font-size:12px; color:var(--tx-dim); line-height:1.5; margin-top:5px}
   .lp.l-out{border-top:2px solid var(--brine)} .lp.l-mid{border-top:2px solid var(--shell)} .lp.l-in{border-top:2px solid var(--coral)}
   @media (max-width:640px){ .loops{grid-template-columns:1fr} }
+
+  /* 클릭 가능한 시퀀스 메시지 — 페이지가 있는 선 (렌더 후 JS가 <a.seq-link>로 감쌈) */
+  .diagram-card a.seq-link{ cursor:pointer; }
+  .diagram-card a.seq-link text{ text-decoration:underline dotted #ffffff3a; transition:fill .12s; }
+  .diagram-card a.seq-link:hover text{ fill:var(--shell)!important; text-decoration:underline solid var(--shell); }
+  .diagram-card a.seq-link:focus-visible{ outline:2px solid var(--shell); outline-offset:2px; }
 </style>
 </head>
 <body>
@@ -85,7 +91,7 @@
   <!-- ─────────── 시퀀스 다이어그램 ─────────── -->
   <div class="breakout">
     <div class="diagram-card">
-      <div class="dgm-cap"><b>실선 →</b> 호출 · <b>점선 ⇠</b> 반환 · <b>번호</b> 시간순 · <b>겹친 상자</b> 되돌이/분기 · 넓은 그림은 좌우로 스크롤</div>
+      <div class="dgm-cap"><b>실선 →</b> 호출 · <b>점선 ⇠</b> 반환 · <b>번호</b> 시간순 · <b>겹친 상자</b> 되돌이/분기 · <b>밑줄 선</b> 클릭 → 그 단계 페이지 · 넓은 그림은 좌우로 스크롤</div>
       <div class="dgm-tools">
         <button type="button" onclick="exportSeqPNG()">🖼 PNG 새 탭</button>
         <button type="button" onclick="exportSeqSVG()">🗎 SVG 새 탭</button>
@@ -298,6 +304,79 @@ sequenceDiagram
     }
   });
   mermaid.run({ querySelector: '.mermaid' });
+
+  // ── 시퀀스 메시지 → 해당 단계 페이지 링크 ─────────────────────
+  // Mermaid sequence는 메시지에 클릭을 거는 문법이 없다. 그래서 렌더된 SVG의
+  // messageText를 텍스트로 매칭해, 페이지가 있는 선만 SVG <a>로 감싼다
+  // (네이티브 링크 — ctrl/가운데 클릭·상태바 URL 지원). 가장 구체적인 페이지
+  // 우선(디테일 페이지가 있으면 그쪽), 조립 묶음 줄은 맨 앞 단계로 보낸다.
+  (function () {
+    var MAP = [
+      ['runEmbeddedAgent(params)', '../steps/step-01-entry.html'],
+      ['생애 도장', '../steps/step-01-entry.html'],
+      ['runEmbeddedAgentInternal', '../steps/step-01-entry.html'],
+      ['세션키 백필', '../steps/details/step-02-session-address.html'],
+      ['세션 레인 enqueue', '../steps/details/step-02-session-lane.html'],
+      ['지난 턴 뒷정리', '../steps/details/step-02-compaction.html'],
+      ['글로벌 레인 enqueue', '../steps/details/step-02-global-lane.html'],
+      ['이 모델로 해석 시작', '../steps/step-03-resolution.html'],
+      ['작업공간 해석', '../steps/step-03-resolution.html'],
+      ['하네스 선택', '../steps/step-03-resolution.html'],
+      ['인증 프로필 후보', '../steps/details/step-03-auth-profile.html'],
+      ['루프 상태·비용 차단기 장전', '../steps/step-03-resolution.html'],
+      ['어템프트 루프 진입', '../steps/step-04-attempt-loop.html'],
+      ['한도·비용 차단기 가드', '../steps/step-04-attempt-loop.html'],
+      ['이번 시도 입력 새로 조립', '../steps/step-04-attempt-loop.html'],
+      ['1 workspace-sandbox', '../steps/step-05-workspace-sandbox.html'],
+      ['4 bootstrap-context', '../steps/step-08-bootstrap-context.html'],
+      ['7 system-prompt', '../steps/step-11-system-prompt.html'],
+      ['9 agent-session', '../steps/step-13-agent-session.html'],
+      ['안쪽 시도 디스패치', '../steps/step-15-dispatch.html'],
+      ['streamFn 다겹 래핑', '../steps/step-15-dispatch.html'],
+      ['컨텍스트 조립', '../steps/step-15-dispatch.html'],
+      ['pre-prompt 예산 점검', '../steps/details/step-02-compaction.html'],
+      ['4-루트', '../steps/details/step-02-compaction.html'],
+      ['promptActiveSession', '../steps/step-15-dispatch.html'],
+      ['래핑된 streamFn 호출', '../steps/step-15-dispatch.html'],
+      ['도구 실행', '../steps/step-15-dispatch.html'],
+      ['stop-reason 판정', '../steps/step-15-dispatch.html'],
+      ['결과 분류', '../steps/step-16-recovery.html'],
+      ['continue_normal', '../steps/step-16-recovery.html'],
+      ['FailoverError 던짐', '../steps/step-16-recovery.html'],
+      ['종료 판정', '../steps/step-17-exit.html'],
+      ['EmbeddedAgentRunResult 빚기', '../steps/step-17-exit.html'],
+      ['finally 정리', '../steps/step-17-exit.html']
+    ];
+    var SVGNS = 'http://www.w3.org/2000/svg';
+    function lookup(s) {
+      for (var i = 0; i < MAP.length; i++) { if (s.indexOf(MAP[i][0]) !== -1) return MAP[i][1]; }
+      return null;
+    }
+    function wrap(t, url) {
+      var parent = t.parentNode;
+      if (!parent || (parent.tagName || '').toLowerCase() === 'a') return; // 이미 감쌈
+      var a = document.createElementNS(SVGNS, 'a');
+      a.setAttribute('href', url);
+      a.setAttribute('target', '_self');
+      a.setAttribute('class', 'seq-link');
+      var title = document.createElementNS(SVGNS, 'title');
+      title.textContent = '이 단계 페이지로 이동 →';
+      parent.insertBefore(a, t);
+      a.appendChild(title);
+      a.appendChild(t);
+    }
+    function wire() {
+      var svg = document.querySelector('.diagram-card svg');
+      if (!svg) return false;
+      var texts = svg.querySelectorAll('text.messageText');
+      if (!texts.length) return false;
+      var n = 0;
+      texts.forEach(function (t) { var u = lookup(t.textContent || ''); if (u) { wrap(t, u); n++; } });
+      return n > 0;
+    }
+    var tries = 0;
+    (function attempt() { if (wire()) return; if (tries++ < 50) setTimeout(attempt, 150); })();
+  })();
 
   // ── PNG / SVG 새 탭 내보내기 ───────────────────────────────
   // Mermaid는 SVG로 렌더되므로, 클릭 시점에 그 SVG를 가져와
