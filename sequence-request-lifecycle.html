@@ -22,6 +22,13 @@
     margin:2px 0 8px; font-family:var(--mono); font-size:11.5px; color:var(--tx-faint);
   }
   .dgm-cap b{color:var(--tx-dim); font-weight:600}
+  /* PNG/SVG 새 탭 버튼 — 갤러리 다이어그램과 동일한 내보내기 */
+  .dgm-tools{display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin:0 0 12px}
+  .dgm-tools button{font-family:var(--mono); font-size:12px; cursor:pointer; color:var(--tx-dim);
+    background:#161b22; border:1px solid var(--line); border-radius:8px; padding:6px 13px;
+    transition:border-color .15s, color .15s, background .15s}
+  .dgm-tools button:hover{color:var(--tx); border-color:var(--shell); background:#1a2029}
+  .dgm-tools button:focus-visible{outline:2px solid var(--shell); outline-offset:2px}
 
   /* 3영역 범례 */
   .zones{display:grid; grid-template-columns:repeat(3,1fr); gap:11px; margin-top:6px}
@@ -79,6 +86,10 @@
   <div class="breakout">
     <div class="diagram-card">
       <div class="dgm-cap"><b>실선 →</b> 호출 · <b>점선 ⇠</b> 반환 · <b>번호</b> 시간순 · <b>겹친 상자</b> 되돌이/분기 · 넓은 그림은 좌우로 스크롤</div>
+      <div class="dgm-tools">
+        <button type="button" onclick="exportSeqPNG()">🖼 PNG 새 탭</button>
+        <button type="button" onclick="exportSeqSVG()">🗎 SVG 새 탭</button>
+      </div>
 <pre class="mermaid">
 sequenceDiagram
   autonumber
@@ -287,6 +298,83 @@ sequenceDiagram
     }
   });
   mermaid.run({ querySelector: '.mermaid' });
+
+  // ── PNG / SVG 새 탭 내보내기 ───────────────────────────────
+  // Mermaid는 SVG로 렌더되므로, 클릭 시점에 그 SVG를 가져와
+  // 독립 SVG(어두운 배경 포함)로 직렬화한다. PNG는 그 SVG를
+  // 캔버스에 2배로 그려 즉석 변환한다(외부 파일·서버 불필요).
+  (function () {
+    var NS = 'http://www.w3.org/2000/svg';
+    var BG = '#0d1116';
+
+    function getSvg() { return document.querySelector('.diagram-card svg'); }
+
+    function buildStandalone(svg) {
+      var vb = svg.viewBox && svg.viewBox.baseVal;
+      var w = (vb && vb.width) ? vb.width : svg.getBoundingClientRect().width;
+      var h = (vb && vb.height) ? vb.height : svg.getBoundingClientRect().height;
+      var x = (vb && vb.width) ? vb.x : 0;
+      var y = (vb && vb.height) ? vb.y : 0;
+      w = Math.ceil(w); h = Math.ceil(h);
+      var clone = svg.cloneNode(true);
+      clone.setAttribute('xmlns', NS);
+      clone.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
+      clone.setAttribute('width', w);
+      clone.setAttribute('height', h);
+      var rect = document.createElementNS(NS, 'rect');
+      rect.setAttribute('x', x); rect.setAttribute('y', y);
+      rect.setAttribute('width', w); rect.setAttribute('height', h);
+      rect.setAttribute('fill', BG);
+      clone.insertBefore(rect, clone.firstChild);
+      var str = '<?xml version="1.0" encoding="UTF-8"?>\n' +
+                new XMLSerializer().serializeToString(clone);
+      return { str: str, w: w, h: h };
+    }
+
+    function notReady() {
+      alert('다이어그램이 아직 렌더되지 않았습니다. 잠시 후 다시 시도하세요.');
+    }
+    function show(win, url) { if (win) { win.location = url; } else { window.open(url, '_blank'); } }
+    function later(url) { setTimeout(function () { URL.revokeObjectURL(url); }, 60000); }
+
+    window.exportSeqSVG = function () {
+      var svg = getSvg(); if (!svg) { notReady(); return; }
+      var win = window.open('', '_blank'); // 사용자 제스처 유지(팝업 차단 회피)
+      var out = buildStandalone(svg);
+      var url = URL.createObjectURL(new Blob([out.str], { type: 'image/svg+xml;charset=utf-8' }));
+      show(win, url); later(url);
+    };
+
+    window.exportSeqPNG = function () {
+      var svg = getSvg(); if (!svg) { notReady(); return; }
+      var win = window.open('', '_blank');
+      var out = buildStandalone(svg);
+      var svgBlob = new Blob([out.str], { type: 'image/svg+xml;charset=utf-8' });
+      var svgUrl = URL.createObjectURL(svgBlob);
+      var img = new Image();
+      img.onload = function () {
+        var scale = 2;
+        var canvas = document.createElement('canvas');
+        canvas.width = out.w * scale; canvas.height = out.h * scale;
+        var ctx = canvas.getContext('2d');
+        ctx.fillStyle = BG; ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        URL.revokeObjectURL(svgUrl);
+        try {
+          canvas.toBlob(function (png) {
+            if (!png) { show(win, URL.createObjectURL(svgBlob)); return; }
+            var purl = URL.createObjectURL(png);
+            show(win, purl); later(purl);
+          }, 'image/png');
+        } catch (e) {
+          // 캔버스가 오염되어 PNG 변환이 막히면 SVG로 대체
+          show(win, URL.createObjectURL(svgBlob));
+        }
+      };
+      img.onerror = function () { URL.revokeObjectURL(svgUrl); show(win, URL.createObjectURL(svgBlob)); };
+      img.src = svgUrl;
+    };
+  })();
 </script>
 </body>
 </html>

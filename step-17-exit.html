@@ -55,6 +55,13 @@
     <p><b>비법은 추론 하네스를 이기는 게 아니라, 어떤 하네스든 끼울 수 있는 껍데기다.</b> 껍데기는 모델의 사고를 건드리지 않기에 품질을 떨어뜨리지 않고, 신뢰성·편재성·지속성을 더한다. 그래서 "감쌌는데 더 좋다."</p>
   </section>
 
+  <section class="card verdict phase-exit">
+    <h2>큰 그림 — 한 바퀴 끝, 그리고 사다리 전체의 답</h2>
+    <p>여기까지가 <code>runEmbeddedAgent()</code> 입구(<a href="step-01-entry.html">A</a>)에서 <code>EmbeddedAgentRunResult</code> 출구(G)까지의 <b>한 턴</b>이다. 응답은 게이트웨이를 거쳐 채널로 나가고, 다음 메시지는 다시 <a href="step-01-entry.html">진입(A)</a>으로 들어와 같은 사다리를 탄다.</p>
+    <p>그리고 이 마지막 칸이 사다리 전체의 답을 묶는다 — OpenClaw의 가치는 <b>더 똑똑한 프롬프트가 아니라, 모델 바깥의 운영 껍데기</b>다. 멀티플렉싱(진입·세션), 경계 엔지니어링(<a href="step-15-dispatch.html">디스패치</a>), 지속 가능성(<a href="step-16-recovery.html">복구</a>), 교체 가능한 하네스(이 출구) — <b>네 겹 모두 모델의 사고를 건드리지 않는다</b>.</p>
+    <p>그래서 OpenClaw가 수많은 사용자를 모은 이유는 추론을 이겨서가 아니라, <b>최고의 하네스(자체든 Codex든)를 어디서나·안정적으로·오래 돌게 만드는 껍데기</b>를 둘렀기 때문이다. 감쌌는데도 품질이 안 깨지고 — 오히려 더 좋다.</p>
+  </section>
+
   <section class="card phase-exit ev">
     <h2>코드 위치</h2>
     <ul>
@@ -66,13 +73,6 @@
       <li>선택: <code>harness/selection.ts:73–82</code> 6가지 이유(<b>4개가 …_openclaw</b>) · <code>:300</code> <code>runAgentHarnessAttempt</code> · <code>:325</code> lifecycle · <code>backend.ts:10</code> 진입</li>
       <li>외부 하네스: <code>extensions/codex/index.ts:43</code> · <code>extensions/copilot/index.ts:39</code> <code>api.registerAgentHarness</code></li>
     </ul>
-  </section>
-
-  <section class="card verdict phase-exit">
-    <h2>큰 그림 — 한 바퀴 끝, 그리고 사다리 전체의 답</h2>
-    <p>여기까지가 <code>runEmbeddedAgent()</code> 입구(<a href="step-01-entry.html">A</a>)에서 <code>EmbeddedAgentRunResult</code> 출구(G)까지의 <b>한 턴</b>이다. 응답은 게이트웨이를 거쳐 채널로 나가고, 다음 메시지는 다시 <a href="step-01-entry.html">진입(A)</a>으로 들어와 같은 사다리를 탄다.</p>
-    <p>그리고 이 마지막 칸이 사다리 전체의 답을 묶는다 — OpenClaw의 가치는 <b>더 똑똑한 프롬프트가 아니라, 모델 바깥의 운영 껍데기</b>다. 멀티플렉싱(진입·세션), 경계 엔지니어링(<a href="step-15-dispatch.html">디스패치</a>), 지속 가능성(<a href="step-16-recovery.html">복구</a>), 교체 가능한 하네스(이 출구) — <b>네 겹 모두 모델의 사고를 건드리지 않는다</b>.</p>
-    <p>그래서 OpenClaw가 수많은 사용자를 모은 이유는 추론을 이겨서가 아니라, <b>최고의 하네스(자체든 Codex든)를 어디서나·안정적으로·오래 돌게 만드는 껍데기</b>를 둘렀기 때문이다. 감쌌는데도 품질이 안 깨지고 — 오히려 더 좋다.</p>
   </section>
 
   <nav class="stepnav">
