@@ -91,7 +91,7 @@
   <!-- ─────────── 시퀀스 다이어그램 ─────────── -->
   <div class="breakout">
     <div class="diagram-card">
-      <div class="dgm-cap"><b>실선 →</b> 호출 · <b>점선 ⇠</b> 반환 · <b>번호</b> 시간순 · <b>겹친 상자</b> 되돌이/분기 · <b>밑줄 선·노트</b> 클릭 → 그 한 동작의 초점 페이지 · 넓은 그림은 좌우로 스크롤</div>
+      <div class="dgm-cap"><b>실선 →</b> 호출 · <b>점선 ⇠</b> 반환 · <b>번호</b> 시간순 · <b>겹친 상자</b> 되돌이/분기 · <b>라이프라인 박스</b> 클릭 → 그 단계 <b>개괄</b> · <b>밑줄 선·노트</b> 클릭 → 그 한 동작 <b>세부</b> · 넓은 그림은 좌우로 스크롤</div>
       <div class="dgm-tools">
         <button type="button" onclick="exportSeqPNG()">🖼 PNG 새 탭</button>
         <button type="button" onclick="exportSeqSVG()">🗎 SVG 새 탭</button>
@@ -401,6 +401,30 @@ sequenceDiagram
       for (var i = 0; i < NOTE_MAP.length; i++) { if (s.indexOf(NOTE_MAP[i][0]) !== -1) return NOTE_MAP[i][1]; }
       return null;
     }
+    // 라이프라인(참여자) 박스 → 그 단계의 '개괄(허브)' 페이지.
+    //   박스 = 그 단계 전체(개괄) · 화살표(선) = 그 안의 한 동작(세부 조각).
+    var ACTOR_MAP = [
+      ['runEmbeddedAgent', '../steps/step-01-entry.html'],     // 진입
+      ['2단 레인 큐', '../steps/step-02-session-queue.html'],    // 세션·큐
+      ['하네스·모델·인증', '../steps/step-03-resolution.html'],  // 해석
+      ['어템프트 루프', '../steps/step-04-attempt-loop.html'],   // 루프
+      ['조립 10단계', '../steps/step-04-attempt-loop.html'],     // 조립(개괄 = 루프 허브의 조립 지도)
+      ['디스패치', '../steps/step-15-dispatch.html'],
+      ['복구', '../steps/step-16-recovery.html']
+    ];
+    function lookupActor(s) {
+      for (var i = 0; i < ACTOR_MAP.length; i++) { if (s.indexOf(ACTOR_MAP[i][0]) !== -1) return ACTOR_MAP[i][1]; }
+      return null;
+    }
+    // 박스 라벨만 감싼다 — 메시지/노트/루프/alt 라벨은 제외(화살표 링크와 충돌 방지).
+    function wireActors(svg) {
+      svg.querySelectorAll('text').forEach(function (t) {
+        var cls = t.getAttribute('class') || '';
+        if (/messageText|noteText|loopText|labelText/.test(cls)) return;
+        var u = lookupActor(t.textContent || '');
+        if (u) wrap(t, u);
+      });
+    }
     function wire() {
       var svg = document.querySelector('.diagram-card svg');
       if (!svg) return false;
@@ -409,6 +433,7 @@ sequenceDiagram
       var n = 0;
       texts.forEach(function (t) { var u = lookup(t.textContent || ''); if (u) { wrap(t, u); n++; } });
       svg.querySelectorAll('text.noteText').forEach(function (t) { var u = lookupNote(t.textContent || ''); if (u) { wrap(t, u); } });
+      wireActors(svg);
       return n > 0;
     }
     var tries = 0;
