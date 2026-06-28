@@ -104,7 +104,7 @@ sequenceDiagram
     actor U as 🙂 사용자·채널
     participant GW as 게이트웨이 · auto-reply
   end
-  box rgb(40,27,21) 에이전트 런타임 (run.ts) — 조사 대상  〈the subject〉
+  box rgb(40,27,21) 에이전트 런타임 — 조사 대상  〈the subject〉
     participant EN as 진입 run.ts&lt;br/&gt;runEmbeddedAgent
     participant LQ as 2단 레인 큐&lt;br/&gt;세션 · 글로벌
     participant RS as 해석&lt;br/&gt;하네스·모델·인증
@@ -396,6 +396,17 @@ sequenceDiagram
       var y = (vb && vb.height) ? vb.y : 0;
       w = Math.ceil(w); h = Math.ceil(h);
       var clone = svg.cloneNode(true);
+      // 내보낸 정적 이미지에선 본문 네비 링크(상대경로)가 blob/about:blank 기준이라
+      // 클릭 시 about:blank#blocked로 깨진다. 내보내기 사본에선 <a.seq-link>를 벗겨 텍스트만 남긴다.
+      clone.querySelectorAll('a.seq-link').forEach(function (a) {
+        var p = a.parentNode; if (!p) return;
+        while (a.firstChild) {
+          var c = a.firstChild;
+          if ((c.nodeName || '').toLowerCase() === 'title') { a.removeChild(c); continue; }
+          p.insertBefore(c, a);
+        }
+        p.removeChild(a);
+      });
       clone.setAttribute('xmlns', NS);
       clone.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
       clone.setAttribute('width', w);
