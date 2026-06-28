@@ -313,15 +313,15 @@
       <a class="chip" href="reference/qna.html" style="text-decoration:none">🦞 <b>Q&amp;A</b> 4문 4답 →</a>
       <a class="chip" href="reference/glossary.html" style="text-decoration:none">📖 <b>용어 사전</b> 색인 →</a>
     </div>
-
-    <div class="legend" aria-label="색상 범례">
-      <span class="lglabel">색은 곧 역할</span>
-      <span class="lg k"><i></i>Gateway</span>
-      <span class="lg r"><i></i>Runtime</span>
-      <span class="lg m"><i></i>Model</span>
-      <span class="lg s"><i></i>구조·참조</span>
-    </div>
   </header>
+
+  <a class="seqlink" href="diagrams/sequence-request-lifecycle.html">
+    <span>
+      <span class="sl-t"><span class="glyph">⇄</span>이 흐름을 시퀀스 다이어그램으로 보기</span>
+      <span class="sl-d">아래 런타임 사다리를 <b>시간축 위 라이프라인</b>으로 눕혔다 — 채널·게이트웨이는 얇게, 런타임 본체(해석→루프→조립→디스패치→복구)는 세 겹의 되돌이로 자세히.</span>
+    </span>
+    <span class="sl-go">열기 →</span>
+  </a>
 
   <!-- ───────── 런타임 사다리 (입구 → 출구) ───────── -->
   <section class="blk" id="ladder">
@@ -430,14 +430,6 @@
     <div class="ladder-foot">
       <span><b>근거:</b> run.ts · attempt.ts · failover-policy.ts · preemptive-compaction.ts · harness/</span>
     </div>
-
-    <a class="seqlink" href="diagrams/sequence-request-lifecycle.html">
-      <span>
-        <span class="sl-t"><span class="glyph">⇄</span>이 흐름을 시퀀스 다이어그램으로 보기</span>
-        <span class="sl-d">런타임 사다리를 <b>시간축 위 라이프라인</b>으로 눕혔다 — 사용자·게이트웨이·입구는 얇게, 런타임 본체(해석→루프→조립→디스패치→복구)는 세 겹의 되돌이로 자세히.</span>
-      </span>
-      <span class="sl-go">열기 →</span>
-    </a>
   </section>
 
   <!-- ───────── 참조 지도 ───────── -->
